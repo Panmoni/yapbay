@@ -4,4 +4,12 @@
 
 hello@yapbay.com
 
-mantine does not use tailwind?
+mantine does not use tailwind.
+
+
+
+
+
+
+## TODO
+- [ ] metadata
