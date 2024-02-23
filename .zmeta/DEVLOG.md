@@ -37,13 +37,13 @@ autoprefixer: {},
 
 ## TODO
 
-- [ ] fix up navbar/site header
-- [ ] add marketing copy and such to the home page.
-- [ ] website metadata
-- [ ] write first blog post, maybe adapt from koinfix
-- [ ] clean up blog stuff in public/assets/blog, and favicons. See blog layout for the head stuff for the icons and put it also in the root layout
+- [ ] write first blog post, maybe adapt from koinfix, remove old posts
 - [ ] start daily building in public vlogs.
-- [ ] https://mantine.dev/guides/next/
+
+### Metadata
+
+- [ ] website metadata
+- [ ] clean up blog stuff in public/assets/blog, and favicons. See blog layout for the head stuff for the icons and put it also in the root layout
 
 ## Contracts
 
