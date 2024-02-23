@@ -1,4 +1,4 @@
-import Container from "@/app/_components/container";
+import Container from "@/components/blog/container";
 import { EXAMPLE_PATH } from "@/lib/constants";
 import cn from "classnames";
 

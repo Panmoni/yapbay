@@ -24,7 +24,7 @@ tsconfig.json
 
 ## TODO
 
-- clean up blog stuff in public
+- clean up blog stuff in public/assets/blog, and favicons
 -
 
 - [ ] website metadata
