@@ -29,12 +29,13 @@ const Alert = ({ preview }: Props) => {
             </>
           ) : (
             <>
-              The source code for this blog is{" "}
+              Star our GitHub repo{" "}
               <a
-                href={`https://github.com/vercel/next.js/tree/canary/examples/${EXAMPLE_PATH}`}
+                href={"https://github.com/Panmoni/yapbay"}
+                target="_blank"
                 className="underline hover:text-blue-600 duration-200 transition-colors"
               >
-                available on GitHub
+                Panmoni/yapbay
               </a>
               .
             </>
