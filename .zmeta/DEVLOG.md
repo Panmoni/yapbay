@@ -20,24 +20,33 @@ tsconfig.json
 "@/_": ["./src/_"]
 }
 
+module.exports = {
+plugins: {
+tailwindcss: {},
+autoprefixer: {},
+},
+};
+
+{ link: "/app", label: "App" },
+{ link: "/blog", label: "Blog" },
+{ link: "/about", label: "About" },
+{ link: "/roadmap", label: "Roadmap" },
+{ link: "/contact", label: "Contact" },
+
 /////////////////////////////////////
 
 ## TODO
 
-- clean up blog stuff in public/assets/blog, and favicons
--
-
-- [ ] website metadata
+- [ ] standardize layout
+- [ ] fix up navbar/site header
 - [ ] add roadmap to website
+- [ ] add website pages: about, home, app, roadmap, contact
 - [ ] add marketing copy and such to the website.
+- [ ] website metadata
+- [ ] write first blog post, maybe adapt from koinfix
+- [ ] clean up blog stuff in public/assets/blog, and favicons. See blog layout for the head stuff for the icons and put it also in the root layout
 - [ ] start daily building in public vlogs.
-- [ ] add website pages
-  - blog
-  - about
-  - home
-  - app
-  - roadmap
-  - contact
+- [ ] https://mantine.dev/guides/next/
 
 ## Contracts
 

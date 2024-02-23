@@ -1,5 +1,6 @@
 import Footer from "@/components/blog/footer";
-import Header from "@/components/ui/Header";
+import GlobalHeader from "@/components/ui/GlobalHeader";
+import GlobalFooter from "@/components/ui/GlobalFooter";
 import { CMS_NAME, HOME_OG_IMAGE_URL } from "@/lib/constants";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -58,10 +59,11 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <div className="min-h-screen">
-          <Header />
+          <GlobalHeader />
           {children}
         </div>
         <Footer />
+        <GlobalFooter />
       </body>
     </html>
   );
