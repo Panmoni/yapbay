@@ -4,18 +4,18 @@
     "activityBar.background": "#800020",
     "activityBar.foreground": "#ffffff", // White for contrast
     "activityBar.inactiveForeground": "#ffffff99", // Slightly transparent white
-    "activityBarBadge.background": "#c8a2c8", // Pastel Purple
+    "activityBarBadge.background": "#888888", // Gray
     "activityBarBadge.foreground": "#ffffff",
     "commandCenter.border": "#ffffff99",
     "sash.hoverBorder": "#800020",
-    "statusBar.background": "#c8a2c8",
+    "statusBar.background": "#888888", // Gray
     "statusBar.foreground": "#ffffff",
     "statusBarItem.hoverBackground": "#800020",
-    "statusBarItem.remoteBackground": "#c8a2c8",
+    "statusBarItem.remoteBackground": "#888888", // Gray
     "statusBarItem.remoteForeground": "#ffffff",
-    "titleBar.activeBackground": "#c8a2c8",
+    "titleBar.activeBackground": "#888888", // Gray
     "titleBar.activeForeground": "#ffffff",
-    "titleBar.inactiveBackground": "#c8a2c8aa", // Slightly transparent pastel purple
+    "titleBar.inactiveBackground": "#888888aa", // Slightly transparent gray
     "titleBar.inactiveForeground": "#ffffff99" // Slightly transparent white
   }
 }

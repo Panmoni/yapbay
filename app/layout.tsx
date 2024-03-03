@@ -21,6 +21,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          src="https://beamanalytics.b-cdn.net/beam.min.js"
+          data-token="c989accf-6494-49a8-ad3a-ee34c91aeedd"
+          async
+        ></script>
+      </head>
       <body className={inter.className}>
         <div className="min-h-screen">
           <GlobalHeader />

@@ -1,0 +1,44 @@
+# TODO
+
+## PLANNING: @today
+  ☐ use AI output to define MVP roadmap
+  ☐ update ROADMAP on website, merge it with ROADMAP.md, 2 parts: MVP roadmap and post-MVP
+  ☐ ensure website page comes from a markdown or mdx file
+  ☐ put user paths into roadmap or at least on website
+  ☐ program MVP roadmap into todoist
+
+### Learning: @today
+  ☐ research Solidity events
+  ☐ research Common Contract Interface (suggested by deepseek)
+
+## CONTRACTS: @critical
+  ☐ cross-contract interfaces
+  ☐ complete list of events to be emitted
+  ☐ oracle contract
+  ☐ error handling contract
+  ☐ improve escrow contract
+  ☐ break out reputation?
+  ☐ proxy pattern
+  ☐ storage/registry? is it needed?
+
+### Coding: @high
+  ☐ write MVP contracts
+  ☐ deploy MVP contracts
+  ☐ validation of inputs
+  ☐ oracle integration
+
+## WEBSITE: @low
+
+### MVP:
+
+  ☐ integrate website with contracts
+  ☐ build F2F wizard
+
+### UI:
+
+  ☐ layout issue on single blog post
+
+### Metadata:
+
+  ☐ website metadata
+  ☐ favicons
