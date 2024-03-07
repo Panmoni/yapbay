@@ -200,9 +200,9 @@ export default function Roadmap() {
             <h3 className="text-2xl font-bold mt-4 mb-1">BizDev</h3>
             <ul className="list-disc pl-5">
               <li>
-                Build relationships with remittance providers ("wholesalers")
-                and offer them a custom interface (remittance gateway) to the
-                system.
+                Build relationships with remittance providers
+                (&quot;wholesalers&quot;) and offer them a custom interface
+                (remittance gateway) to the system.
               </li>
               <li>
                 Create a starter kit, offer small businesses something
