@@ -1,3 +1,5 @@
+// page.tsx
+
 import Container from "@/components/blog/container";
 import { PageTitle } from "@/components/ui/PageTitle";
 
@@ -11,162 +13,136 @@ export default function Roadmap() {
         />
         <div className="my-12 space-y-8">
           <section>
-            <h3 className="text-2xl font-bold mt-4 mb-1">
-              Week 1: A Very Simple MVP with Escrow
-            </h3>
-            <div>
-              <h4 className="font-semibold mt-4 mb-1">Building Blocks</h4>
-              <ul className="list-disc pl-5">
-                <li>Design basic building blocks.</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mt-4 mb-1">Escrow</h4>
-              <ul className="list-disc pl-5">
-                <li>m/n multi-sig escrow.</li>
-                <li>
-                  automatic release via smart contract when certain conditions
-                  are met.
-                </li>
-                <li>
-                  has to dynamically take into account how many accounts are
-                  affected by the transaction.
-                </li>
-                <li>
-                  customization of escrow terms, such as length of time funds
-                  are held, conditions for release, custom contract clauses,
-                  etc.
-                </li>
-                <li>
-                  escrow fees adjustable based on reputation and transaction
-                  history of involved parties.
-                </li>
-                <li>
-                  transaction insurance for defaults, fraud, market crashes,
-                  etc.
-                </li>
-                <li>
-                  real-time tracking and notifications for each stage of escrow
-                  for all involved parties.
-                </li>
-                <li>
-                  consider ability for parties to unlock escrowed funds after x
-                  blocks with approval of certain other parties to the
-                  transaction, and an automatic return after y blocks.
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mt-4 mb-1">Payment Options</h4>
-              <ul className="list-disc pl-5">
-                <li>seed the most popular payment options.</li>
-                <li>try to find a list that can be imported.</li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mt-4 mb-1">Listings 1.0</h4>
-              <ul className="list-disc pl-5">
-                <li>add CRUD for listings.</li>
-                <li>create index for listings with filtering.</li>
-              </ul>
-            </div>
-          </section>
-
-          <section>
-            <h3 className="text-2xl font-bold mt-4 mb-1">
-              Week 2: Transaction-Chaining MVP
-            </h3>
+            <h2 className="text-4xl font-bold mt-4 mb-1">Backdrop Build MVP</h2>
             <ul className="list-disc pl-5">
-              <li>add transaction-chaining.</li>
+              <li>User registration and profile management</li>
+              <li>Offer creation and browsing</li>
+              <li>Fiat-to-fiat wizard for efficient currency conversion</li>
+              <li>Trade initiation, execution, and finalization</li>
+              <li>Basic reputation system to assess user trustworthiness</li>
               <li>
-                add a friendly UI to understand how the building blocks fit into
-                the transaction whole.
+                Off-chain storage of trade history for transparency and
+                auditability
               </li>
             </ul>
           </section>
 
           <section>
-            <h3 className="text-2xl font-bold mt-4 mb-1">
-              Week 3: Identity & Dispute Resolution MVP
-            </h3>
+            <h2 className="text-4xl font-bold mt-4 mb-1">Post-Hackathon</h2>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Escrow</h3>
             <ul className="list-disc pl-5">
-              <li>implement centralized dispute resolution for now.</li>
+              <li>m/n multi-sig escrow.</li>
               <li>
-                implement trader profiles including reviews and reputation via
+                Automatic release via smart contract when certain conditions are
+                met.
+              </li>
+              <li>
+                Has to dynamically take into account how many accounts are
+                affected by the transaction.
+              </li>
+              <li>
+                Customization of escrow terms, such as length of time funds are
+                held, conditions for release, custom contract clauses, etc.
+              </li>
+              <li>
+                Escrow fees adjustable based on reputation and transaction
+                history of involved parties.
+              </li>
+              <li>
+                Transaction insurance for defaults, fraud, market crashes, etc.
+              </li>
+              <li>
+                Real-time tracking and notifications for each stage of escrow
+                for all involved parties.
+              </li>
+              <li>
+                Consider ability for parties to unlock escrowed funds after x
+                blocks with approval of certain other parties to the
+                transaction, and an automatic return after y blocks.
+              </li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Payment Options</h3>
+            <ul className="list-disc pl-5">
+              <li>Seed the most popular payment options.</li>
+              <li>Try to find a list that can be imported.</li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Listings 1.0</h3>
+            <ul className="list-disc pl-5">
+              <li>Add CRUD for listings.</li>
+              <li>Create index for listings with filtering.</li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Reputation</h3>
+            <ul className="list-disc pl-5">
+              <li>
+                Implement trader profiles including reviews and reputation via
                 an algorithm based on platform use and (later) token staking.
               </li>
             </ul>
           </section>
 
           <section>
-            <h3 className="text-2xl font-bold mt-4 mb-1">Week 4: UI</h3>
-            <ul className="list-disc pl-5">
-              <li>organize community testing.</li>
-              <li>add an attractive, fast and helpful UI.</li>
-              <li>make the demo video.</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-bold">
-              Stretch Goals / Post-MVP / 1.0
-            </h2>
+            <h2 className="text-4xl font-bold mt-4 mb-1">1.0 Release</h2>
             <h3 className="text-2xl font-bold mt-4 mb-1">UX</h3>
             <ul className="list-disc pl-5">
-              <li>add a wizard to build your transaction.</li>
-              <li>integrate AI into the wizard.</li>
+              <li>Add a wizard to build your transaction.</li>
+              <li>Integrate AI into the wizard.</li>
               <li>
-                proactively offer trades to the user when they login that are
+                Proactively offer trades to the user when they login that are
                 based on their transaction history (opt-in feature), this as
                 opposed to the classic P2P marketplace approach of having to
                 essentially search the database by filtering global offers.
               </li>
               <li>
-                enable users to build alerts such that they receive
+                Enable users to build alerts such that they receive
                 notifications when potential transactions/accounts meeting their
                 criteria become available.
               </li>
               <li>
-                enable deeper analytics to better understand user behavior,
-                e.g., <a href="https://posthog.com/">https://posthog.com/</a>.
+                Enable deeper analytics to better understand user behavior,
+                e.g.,{" "}
+                <a href="https://posthog.com/" className="text-blue-500">
+                  https://posthog.com/
+                </a>
+                .
               </li>
               <li>
-                enable remittances to be sent with a link over WhatsApp,
+                Enable remittances to be sent with a link over WhatsApp,
                 Telegram, Instagram, etc., so that new users can be
                 easily-onboarded, and then guided step by step.
               </li>
               <li>
-                add a tool permitting users to split a single remittance
+                Add a tool permitting users to split a single remittance
                 payment, e.g., among various members of a family, to savings,
                 direct to merchants for groceries, utility bills, education,
                 etc.
               </li>
               <li>
-                add hedging to permit users to secure the value of volatile
+                Add hedging to permit users to secure the value of volatile
                 crypto assets while the transaction is being assembled.
               </li>
             </ul>
             <h3 className="text-2xl font-bold mt-4 mb-1">Identity</h3>
             <ul className="list-disc pl-5">
               <li>
-                integrate with one or more leading Web3 identity services.
+                Integrate with one or more leading Web3 identity services.
               </li>
               <li>
-                give traders tools to solicit the identity of their trading
+                Give traders tools to solicit the identity of their trading
                 partner.
               </li>
               <li>
-                potential partners:{" "}
-                <a href="https://www.clique.social">
+                Potential partners:{" "}
+                <a href="https://www.clique.social" className="text-blue-500">
                   https://www.clique.social
                 </a>
-                , <a href="https://request.network">https://request.network</a>,
-                etc.
+                ,{" "}
+                <a href="https://request.network" className="text-blue-500">
+                  https://request.network
+                </a>
+                , etc.
               </li>
               <li>
-                build a web-of-trust by enabling traders to vouch for other
+                Build a web-of-trust by enabling traders to vouch for other
                 traders under certain conditions, with consequences for the
                 trust network when one of their members is found to commit
                 fraud, etc.
@@ -175,93 +151,108 @@ export default function Roadmap() {
             <h3 className="text-2xl font-bold mt-4 mb-1">Accessibility</h3>
             <ul className="list-disc pl-5">
               <li>
-                add i18n and focus on the{" "}
-                <a href="https://en.wikipedia.org/wiki/List_of_languages_by_total_number_of_speakers">
+                Add i18n and focus on the{" "}
+                <a
+                  href="https://en.wikipedia.org/wiki/List_of_languages_by_total_number_of_speakers"
+                  className="text-blue-500"
+                >
                   top 25 languages
                 </a>{" "}
                 over time.
               </li>
               <li>
-                potential partners:{" "}
-                <a href="https://nextra.site/">https://nextra.site/</a>
+                Potential partners:{" "}
+                <a href="https://nextra.site/" className="text-blue-500">
+                  https://nextra.site/
+                </a>
               </li>
             </ul>
             <h3 className="text-2xl font-bold mt-4 mb-1">Marketing</h3>
             <ul className="list-disc pl-5">
-              <li>build in ability to test different copy A/B style.</li>
+              <li>Build in ability to test different copy A/B style.</li>
               <li>
-                add a native token and use it to reward the participants in
+                Add a native token and use it to reward the participants in
                 completed transactions.
               </li>
               <li>
-                add education resources, videos, docs, short tutorials, forums,
-                etc. <a href="https://nextra.site/">https://nextra.site/</a>
+                Add education resources, videos, docs, short tutorials, forums,
+                etc.{" "}
+                <a href="https://nextra.site/" className="text-blue-500">
+                  https://nextra.site/
+                </a>
               </li>
               <li>
-                potential partners:{" "}
-                <a href="https://taskon.xyz/">https://taskon.xyz/</a>,{" "}
-                <a href="https://charmverse.io/">https://charmverse.io/</a>,
-                etc.
+                Potential partners:{" "}
+                <a href="https://taskon.xyz/" className="text-blue-500">
+                  https://taskon.xyz/
+                </a>
+                ,{" "}
+                <a href="https://charmverse.io/" className="text-blue-500">
+                  https://charmverse.io/
+                </a>
+                , etc.
               </li>
               <li>
-                foster a community of remittance senders, recipients, merchants
+                Foster a community of remittance senders, recipients, merchants
                 and remittance businesses, both formal and informal.
               </li>
             </ul>
             <h3 className="text-2xl font-bold mt-4 mb-1">BizDev</h3>
             <ul className="list-disc pl-5">
               <li>
-                build relationships with remittance providers
-                (&quot;wholesalers&quot;) and offer them a custom interface
-                (remittance gateway) to the system.
+                Build relationships with remittance providers ("wholesalers")
+                and offer them a custom interface (remittance gateway) to the
+                system.
               </li>
               <li>
-                create a starter kit, offer small businesses something
+                Create a starter kit, offer small businesses something
                 interesting, maybe they pay something minor to get started.
               </li>
             </ul>
             <h3 className="text-2xl font-bold mt-4 mb-1">Dispute Resolution</h3>
             <ul className="list-disc pl-5">
               <li>
-                add AI to summarize transaction risks for the parties to a given
+                Add AI to summarize transaction risks for the parties to a given
                 transaction.
               </li>
               <li>
-                integrate an AI-driven system that can help in initial dispute
+                Integrate an AI-driven system that can help in initial dispute
                 resolution by analyzing transaction data and past user behavior
                 to suggest fair resolutions. If the dispute escalates, it can
                 then be passed to human arbitrators.
               </li>
               <li>
-                decentralize dispute resolution: design an algorithm to select a
+                Decentralize dispute resolution: design an algorithm to select a
                 pool of users who can be selected from to resolve disputes.
                 Factor in native token staking time, amount, etc.
               </li>
-              <li>design incentives to encourage token staking.</li>
+              <li>Design incentives to encourage token staking.</li>
               <li>
-                integrate with an arbitration solution and define a clear legal
+                Integrate with an arbitration solution and define a clear legal
                 jurisdiction for dispute escalation, if need be.
               </li>
             </ul>
             <h3 className="text-2xl font-bold mt-4 mb-1">Security</h3>
             <ul className="list-disc pl-5">
               <li>
-                add 2FA, anti-phishing measures and other common security
+                Add 2FA, anti-phishing measures and other common security
                 features.
               </li>
             </ul>
             <h3 className="text-2xl font-bold mt-4 mb-1">Extensibility</h3>
             <ul className="list-disc pl-5">
               <li>
-                more interfaces: desktop, PWA mobile, integrate with suitable
+                More interfaces: desktop, PWA mobile, integrate with suitable
                 wallets, etc.
               </li>
-              <li>add an API to enable others to build on the network.</li>
+              <li>Add an API to enable others to build on the network.</li>
             </ul>
           </section>
-          <section>
-            <h2 className="text-2xl font-bold">Post-1.0 Routes to Explore</h2>
 
+          <section>
+            <h2 className="text-4xl font-bold mt-4 mb-1">
+              Post-1.0 Routes to Explore
+            </h2>
             <ul className="list-disc pl-5">
               <li>
                 monetization: competitive but perhaps based on the number of
@@ -272,6 +263,7 @@ export default function Roadmap() {
                 well, so, e.g., fiat in country X to delivered groceries or
                 health services in country Y.
               </li>
+              <li>tiered reputation system</li>
               <li>24-hour support.</li>
               <li>integrate a secure chat solution.</li>
               <li>social features.</li>
@@ -345,6 +337,146 @@ export default function Roadmap() {
                 interface.
               </li>
               <li>pre-programmed trades, like limit orders.</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-4xl font-bold mt-4 mb-1">ToDo</h2>
+            <ul className="list-disc pl-5">
+              <li>
+                how to proactively verify the legitimacy of offers to avoid
+                takers wasting time.
+              </li>
+              <li>
+                how to integrate reputation from other P2P markets to bootstrap
+                identity and reputation
+              </li>
+              <li>
+                add predefined criteria for automatic acceptance of trades on
+                offers so trades can start faster.
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="text-4xl font-bold mt-4 mb-1">
+              Potential Integrations
+            </h2>
+
+            <h3 className="text-2xl font-bold mt-4 mb-1">Identity</h3>
+            <ul className="list-disc pl-5">
+              <li>ENS</li>
+              <li>Sovrin</li>
+              <li>uPort</li>
+              <li>Civic</li>
+              <li>Bloom</li>
+              <li>CyberConnect</li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Storage</h3>
+            <ul className="list-disc pl-5">
+              <li>IPFS</li>
+              <li>Filecoin</li>
+              <li>Arweave</li>
+              <li>OrbitDB</li>
+              <li>PlanetScale (postgres)</li>
+              <li>TheGraph</li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Arbitration</h3>
+            <ul className="list-disc pl-5">
+              <li>Kleros</li>
+              <li>Aragon Court</li>
+              <li>Gnosis Court</li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Escrow</h3>
+            <ul className="list-disc pl-5">
+              <li>Gnosis Safe</li>
+              <li>Argent</li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Oracles</h3>
+            <ul className="list-disc pl-5">
+              <li>ChainLink</li>
+            </ul>
+            <p className="mt-4 mb-1">
+              Consideration for GDPR compliance and user data privacy,
+              especially for off-chain storage. Mechanisms for users to request
+              data deletion or modification in compliance with such regulations
+              could be necessary.
+            </p>
+            <p className="mt-4 mb-1">
+              General: Implementing a circuit breaker or pause functionality
+              could be vital for responding to detected vulnerabilities or
+              attacks without needing a full migration to new contracts.
+            </p>
+            <p className="mt-4 mb-1">
+              Batch Processing: For functions like reputation calculation,
+              consider mechanisms for batch processing to optimize gas usage and
+              scalability. This is especially relevant if operations can affect
+              multiple users or offers simultaneously.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-4xl font-bold mt-4 mb-1">User Paths</h2>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Accounts</h3>
+            <ul className="list-disc pl-5">
+              <li>user registers</li>
+              <li>user updates profile information</li>
+              <li>user endorses another user</li>
+              <li>
+                user browses another user&#39;s profile, including ratings,
+                reputation score, past trades, offers (filterable by status)
+              </li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Offers</h3>
+            <ul className="list-disc pl-5">
+              <li>maker (user) creates offer</li>
+              <li>maker updates offer (strings, amounts, status)</li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Trades</h3>
+            <ul className="list-disc pl-5">
+              <li>taker (user) takes a trade offer from a maker</li>
+              <li>taker chains together two offers</li>
+              <li>maker accepts trade</li>
+              <li>
+                user changes trade status
+                <ul className="list-disc pl-5">
+                  <li>user locks crypto in escrow</li>
+                  <li>user marks fiat paid</li>
+                  <li>user times out trade</li>
+                  <li>user cancels trade</li>
+                  <li>user refunds trade</li>
+                  <li>user disputes trade</li>
+                  <li>user finalizes trade (success)</li>
+                  <li>user unlocks crypto from escrow</li>
+                </ul>
+              </li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Ratings</h3>
+            <ul className="list-disc pl-5">
+              <li>user rates a trade</li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Arbitration</h3>
+            <ul className="list-disc pl-5">
+              <li>
+                admin resolves a dispute with or without penalty to one or more
+                parties
+              </li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Escrow</h3>
+            <ul className="list-disc pl-5">
+              <li>user locks crypto in escrow</li>
+              <li>user unlocks crypto in escrow</li>
+              <li>admin disposes of crypto in escrow to resolve dispute</li>
+              <li>admin penalizes crypto in escrow</li>
+            </ul>
+            <h3 className="text-2xl font-bold mt-4 mb-1">System Functions</h3>
+            <ul className="list-disc pl-5">
+              <li>
+                escrow and enforce conditions on escrow and trade status changes
+              </li>
+              <li>calculate reputation</li>
+              <li>show offers (filterable)</li>
+              <li>wizard to build chained transaction from 2 offers</li>
             </ul>
           </section>
         </div>
