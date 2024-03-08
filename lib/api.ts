@@ -1,3 +1,5 @@
+// @/lib/api.ts
+
 import { Post } from "@/interfaces/post";
 import fs from "fs";
 import matter from "gray-matter";
@@ -6,12 +8,15 @@ import { join } from "path";
 const postsDirectory = join(process.cwd(), "app/blog/_posts");
 
 export function getPostSlugs() {
+  console.log("Posts Directory:", postsDirectory);
   return fs.readdirSync(postsDirectory);
 }
 
 export function getPostBySlug(slug: string) {
   const realSlug = slug.replace(/\.md$/, "");
   const fullPath = join(postsDirectory, `${realSlug}.md`);
+  console.log("Real Slug:", realSlug);
+  console.log("Full Path:", fullPath);
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(fileContents);
 

@@ -1,12 +1,8 @@
 # TODO
 
-### Learning: @today
-  ☐ research Common Contract Interface (suggested by deepseek)
-  ☐ consider adopting from the solidity nextjs start: workspaces (contracts and site in one repo but separate), https://www.rainbowkit.com/docs/introduction
 
 ## CONTRACTS: @critical
   ☐ cross-contract interfaces
-  ☐ complete list of events to be emitted
   ☐ oracle contract
   ☐ error handling contract
   ☐ improve escrow contract
@@ -15,9 +11,17 @@
 
 ### Coding: @high
   ☐ test and polish MVP contracts
+    - redeploy account contract
+      - add ability to update profile to site, create users again
+    - add admin panel to edit other users? or just change their roles.
+    - deploy Offer contract and add its functions to the site.
   ☐ deploy MVP contracts
   ☐ validation of inputs
   ☐ oracle integration
+
+  ### Learning: @today
+    ☐ research Common Contract Interface
+    ☐ consider adopting from the solidity nextjs start: workspaces (contracts and site in one repo but separate), https://www.rainbowkit.com/docs/introduction
 
 ## WEBSITE: @low
 

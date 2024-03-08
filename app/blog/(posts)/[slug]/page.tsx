@@ -1,3 +1,5 @@
+// @/app/blog/(posts)/[slug]/page.tsx
+
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllPosts, getPostBySlug } from "@/lib/api";
