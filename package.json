@@ -11,10 +11,14 @@
     "sso": "aws sso login --sso-session panmoni"
   },
   "dependencies": {
+    "@ethersproject/providers": "^5.7.2",
+    "@ethersproject/strings": "^5.7.0",
     "@mantine/core": "^7.5.3",
     "@mantine/hooks": "^7.5.3",
+    "alchemy-sdk": "^3.1.2",
     "classnames": "^2.5.1",
     "date-fns": "^3.3.1",
+    "ethers": "^6.11.1",
     "gray-matter": "^4.0.3",
     "next": "14.1.0",
     "prettier": "^3.2.5",
