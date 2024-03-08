@@ -7,8 +7,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: "Method Not Allowed" });
   }
 
-  const { NEXT_PUBLIC_API_URL, NEXT_PUBLIC_ACCOUNT_CONTRACT_ADDRESS } =
-    process.env;
+  const { ALCHEMY_API_URL, ACCOUNT_CONTRACT_ADDRESS } = process.env;
 
   try {
     // Connect to the Ethereum network using ethers.js
@@ -16,7 +15,7 @@ export default async function handler(req, res) {
 
     // Create an instance of the account contract
     const accountContract = new ethers.Contract(
-      NEXT_PUBLIC_ACCOUNT_CONTRACT_ADDRESS,
+      ACCOUNT_CONTRACT_ADDRESS,
       accountContractAbi,
       provider,
     );

@@ -8,25 +8,25 @@ export default async function handler(req, res) {
   }
 
   const {
-    NEXT_PUBLIC_API_URL,
-    NEXT_PUBLIC_PRIVATE_KEY1,
-    NEXT_PUBLIC_PRIVATE_KEY2,
-    NEXT_PUBLIC_ACCOUNT_CONTRACT_ADDRESS,
+    ALCHEMY_API_URL,
+    ETH_PRIVATE_KEY1,
+    ETH_PRIVATE_KEY2,
+    ACCOUNT_CONTRACT_ADDRESS,
   } = process.env;
 
   try {
     // Initialize a provider with your Alchemy node
-    const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_API_URL);
+    const provider = new ethers.JsonRpcProvider(ALCHEMY_API_URL);
 
     // Initialize a wallet using your private key
-    const wallet = new ethers.Wallet(NEXT_PUBLIC_PRIVATE_KEY2);
+    const wallet = new ethers.Wallet(ETH_PRIVATE_KEY2);
 
     // Connect the wallet to the provider
     const signer = wallet.connect(provider);
 
     // Create a contract instance for your Account contract
     const accountContract = new ethers.Contract(
-      NEXT_PUBLIC_ACCOUNT_CONTRACT_ADDRESS,
+      ACCOUNT_CONTRACT_ADDRESS,
       accountContractAbi,
       signer,
     );
