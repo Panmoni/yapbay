@@ -52,6 +52,7 @@ export function generateMetadata({ params }: Params): Metadata {
   const title = `${post.title} | YapBay Web3 Remittances Marketplace`;
 
   return {
+    metadataBase: new URL("https://yapbay.com"),
     openGraph: {
       title,
       images: [post.ogImage.url],
