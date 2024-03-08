@@ -2,6 +2,7 @@
 
 ### Learning: @today
   ☐ research Common Contract Interface (suggested by deepseek)
+  ☐ consider adopting from the solidity nextjs start: workspaces (contracts and site in one repo but separate), https://www.rainbowkit.com/docs/introduction
 
 ## CONTRACTS: @critical
   ☐ cross-contract interfaces
