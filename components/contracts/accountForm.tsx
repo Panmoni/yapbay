@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 
 // Define the form input types
-type Inputs = {
+export type Inputs = {
   userEmail: string;
   userChatHandle: string;
   userWebsite: string;
@@ -11,11 +11,11 @@ type Inputs = {
   userRole: string;
 };
 
-interface ContractFormProps {
+interface AccountFormProps {
   onSubmit: (data: Inputs) => Promise<void>;
 }
 
-const ContractForm: React.FC<ContractFormProps> = ({ onSubmit }) => {
+export const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
   const [inputs, setInputs] = useState<Inputs>({
     userEmail: "",
     userChatHandle: "",
@@ -123,5 +123,3 @@ const ContractForm: React.FC<ContractFormProps> = ({ onSubmit }) => {
     </div>
   );
 };
-
-export default ContractForm;

@@ -3,10 +3,11 @@
 "use client";
 
 import React from "react";
-import ContractForm from "@/components/contracts/accountForm";
+import { AccountForm, Inputs } from "@/components/contracts/accountForm";
+import { InterfaceVpcEndpointAttributes } from "aws-cdk-lib/aws-ec2";
 
-const MyPage = () => {
-  const onFormSubmit = async (formData) => {
+const App = () => {
+  const onFormSubmit = async (formData: Inputs) => {
     try {
       const response = await fetch("/api/submitForm", {
         method: "POST",
@@ -29,7 +30,7 @@ const MyPage = () => {
 
   return (
     <>
-      <ContractForm onSubmit={onFormSubmit} />{" "}
+      <AccountForm onSubmit={onFormSubmit} />{" "}
       <p>
         <a className="flex justify-center items-center" href="/app/users">
           user list
@@ -39,4 +40,4 @@ const MyPage = () => {
   );
 };
 
-export default MyPage;
+export default App;
