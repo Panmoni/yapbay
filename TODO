@@ -1,5 +1,7 @@
 # TODO
 
+The problem with the about page is happening due to something being off in the blog layout.tsx. Something is getting duplicated. Gotta study up on the nesting thing.
+
 
 ## CONTRACTS: @critical
   ☐ cross-contract interfaces

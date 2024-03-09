@@ -15,12 +15,15 @@ export function getPostSlugs() {
 export function getPostBySlug(slug: string) {
   const realSlug = slug.replace(/\.md$/, "");
   const fullPath = join(postsDirectory, `${realSlug}.md`);
-  // console.log("Real Slug:", realSlug);
-  // console.log("Full Path:", fullPath);
-  const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
 
-  return { ...data, slug: realSlug, content } as Post;
+  try {
+    const fileContents = fs.readFileSync(fullPath, "utf8");
+    const { data, content } = matter(fileContents);
+    return { ...data, slug: realSlug, content } as Post;
+  } catch (error) {
+    console.error(`Error reading file: ${fullPath}`, error);
+    throw error;
+  }
 }
 
 export function getAllPosts(): Post[] {
