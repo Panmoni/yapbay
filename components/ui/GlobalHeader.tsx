@@ -20,15 +20,15 @@ const GlobalHeader = () => {
           <Link href="/" aria-label="Home" passHref>
             <Image
               src="/yapbaylogo.png"
-              width={36}
-              height={36}
+              width={48}
+              height={48}
               alt="Yap Bay"
               priority={true}
               className="cursor-pointer max-w-none"
             />
           </Link>
 
-          <h1 className="text-2xl ml-1 mr-4 font-bold uppercase">
+          <h1 className="text-2xl ml-1 mr-4 font-bold">
             <Link href="/" aria-label="Home" passHref>
               YapBay
             </Link>
