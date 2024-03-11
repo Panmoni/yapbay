@@ -8,23 +8,23 @@ export default function Home() {
       <Container>
         <Image
           src={yapbaylogo}
-          height={256}
-          width={256}
+          height={300}
+          width={300}
           alt="YapBay logo"
-          className="mx-auto mb-4"
+          className="mx-auto mb-8"
         />
-        <h2 className="text-4xl font-bold tracking-tighter sm:text-6xl mb-4 text-center">
+        <h2 className="text-4xl font-bold tracking-tighter sm:text-6xl mb-6 text-center">
           Welcome to Yap Bay
         </h2>
-        <h3 className="text-2xl font-semibold tracking-tighter sm:text-3xl mb-4 text-center">
+        <h3 className="text-2xl font-semibold tracking-tighter sm:text-3xl mb-6 text-center">
           Empowering global remittances with Web3
         </h3>
-        <p className="mx-auto max-w-2xl text-gray-500 md:text-xl lg:text-base xl:text-xl dark:text-gray-400 mb-4">
+        <p className="mx-auto max-w-2xl md:text-xl lg:text-lg xl:text-xl dark:text-gray-400 mb-6">
           YapBay is a Web3 remittance platform that combines TradFi and DeFi to
           enable faster, cheaper, and more accessible cross-border payments for
           the world&apos;s unbanked and underbanked population.
         </p>
-        <p className="mx-auto max-w-2xl text-gray-500 md:text-xl lg:text-base xl:text-xl dark:text-gray-400 mb-4">
+        <p className="mx-auto max-w-2xl md:text-xl lg:text-lg xl:text-xl dark:text-gray-400 mb-6">
           During February and March 2024, YapBay is building with{" "}
           <a href="https://backdropbuild.com/builds/v3/yb-xnu" target="_blank">
             BackdropBuild

@@ -60,7 +60,7 @@ export default function RootLayout({
         ></script>
       </head>
       <body className={inter.className}>
-        <div className="min-h-screen">
+        <div className="min-h-screen text-lg">
           <GlobalHeader />
           {children}
           <GlobalFooter />

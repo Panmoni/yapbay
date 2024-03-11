@@ -15,8 +15,11 @@
     - add admin panel to edit other users? or just change their roles.
     - deploy Offer contract and add its functions to the site.
   ☐ deploy MVP contracts
-  ☐ validation of inputs
+  ☐ validation of inputs. Remember to thoroughly test your contract and consider other security best practices, such as input validation, access control, and proper error handling, to ensure the overall security of your smart contract system.
   ☐ oracle integration
+
+
+  > 
 
   ### Learning: @today
     ☐ research Common Contract Interface
