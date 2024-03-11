@@ -3,6 +3,8 @@
 "use client";
 
 import React from "react";
+import Container from "@/components/blog/container";
+import { PageTitle } from "@/components/ui/PageTitle";
 import { AccountForm, Inputs } from "@/components/contracts/accountForm";
 // import { InterfaceVpcEndpointAttributes } from "aws-cdk-lib/aws-ec2";
 
@@ -29,14 +31,17 @@ const App = () => {
   };
 
   return (
-    <>
-      <AccountForm onSubmit={onFormSubmit} />{" "}
-      <p>
-        <a className="flex justify-center items-center" href="/app/users">
-          user list
-        </a>
-      </p>
-    </>
+    <main>
+      <Container>
+        <PageTitle title="App" />
+        <AccountForm onSubmit={onFormSubmit} />
+        <p>
+          <a className="flex justify-center items-center" href="/app/users">
+            user list
+          </a>
+        </p>
+      </Container>
+    </main>
   );
 };
 

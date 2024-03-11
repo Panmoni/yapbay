@@ -7,11 +7,8 @@ export default function Roadmap() {
   return (
     <main>
       <Container>
-        <PageTitle
-          title="YapBay Roadmap"
-          description="Committed to building."
-        />
-        <div className="my-12 space-y-8">
+        <PageTitle title="Roadmap" />
+        <div className="my-12 space-y-8 max-w-2xl mx-auto">
           <section>
             <h2 className="text-4xl font-bold mt-4 mb-1">Backdrop Build MVP</h2>
             <ul className="list-disc pl-5">

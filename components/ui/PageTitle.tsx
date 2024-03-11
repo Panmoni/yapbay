@@ -5,7 +5,7 @@ interface PageTitleProps {
 
 export function PageTitle({ title, description }: PageTitleProps) {
   return (
-    <section className="flex-col md:flex-row flex items-center md:justify-between mt-12 mb-16 md:mb-12">
+    <section className="flex-col md:flex-row flex items-center md:justify-between mt-12 mb-16 md:mb-12 max-w-2xl mx-auto">
       <h2 className="text-5xl md:text-8xl font-bold tracking-tighter leading-tight md:pr-8">
         {title}
       </h2>

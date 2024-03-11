@@ -9,9 +9,9 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Yap Bay: Uncensorable P2P Remittances",
+  title: "Yap Bay: Web3 P2P Remittances",
   description:
-    "YapBay is an uncensorable P2P remittance marketplace that supports both fiat currency and cryptocurrency. Currently in development.",
+    "YapBay is a P2P Web3 remittance marketplace that supports both fiat currency and cryptocurrency.",
 };
 
 export default function RootLayout({

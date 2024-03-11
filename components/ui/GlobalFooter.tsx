@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function GlobalFooter() {
   return (
-    <footer className="text-center text-sm mt-10 text-slate bg-slate-100 py-6">
+    <footer className="text-center text-sm text-slate bg-slate-100 py-6">
       <nav className="flex flex-wrap justify-center">
         <div className="px-5 py-2">
           <Link href="/app" className="text-base leading-6 no-underline">
