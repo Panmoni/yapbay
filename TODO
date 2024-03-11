@@ -1,8 +1,5 @@
 # TODO
 
-The problem with the about page is happening due to something being off in the blog layout.tsx. Something is getting duplicated. Gotta study up on the nesting thing.
-
-
 ## CONTRACTS: @critical
   ☐ cross-contract interfaces
   ☐ oracle contract
@@ -26,15 +23,12 @@ The problem with the about page is happening due to something being off in the b
     ☐ consider adopting from the solidity nextjs start: workspaces (contracts and site in one repo but separate), https://www.rainbowkit.com/docs/introduction
 
 ## WEBSITE: @low
-
 ### MVP:
 
   ☐ integrate website with contracts
   ☐ build F2F wizard
 
-### UI:
 
-  ☐ layout issue on single blog post
 
 ### Metadata:
 

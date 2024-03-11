@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   try {
     // Connect to the Ethereum network using ethers.js
-    const provider = new ethers.JsonRpcProvider(NEXT_PUBLIC_API_URL);
+    const provider = new ethers.JsonRpcProvider(ALCHEMY_API_URL);
 
     // Create an instance of the account contract
     const accountContract = new ethers.Contract(

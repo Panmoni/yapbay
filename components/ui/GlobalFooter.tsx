@@ -137,7 +137,10 @@ export default function GlobalFooter() {
         <strong>Disclaimer</strong>: YapBay is alpha software under active
         development. Use at your own risk.
       </p>
-      <p className="mt-4">Powered by Next.js, TailwindCSS & Typescript.</p>
+      <p className="mt-4">
+        Powered by Next.js, TailwindCSS, Typescript, Alchemy Platform,
+        Ethers.js, Hardhat & Sepolia testnet.
+      </p>
     </footer>
   );
 }

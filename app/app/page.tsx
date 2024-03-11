@@ -4,7 +4,7 @@
 
 import React from "react";
 import { AccountForm, Inputs } from "@/components/contracts/accountForm";
-import { InterfaceVpcEndpointAttributes } from "aws-cdk-lib/aws-ec2";
+// import { InterfaceVpcEndpointAttributes } from "aws-cdk-lib/aws-ec2";
 
 const App = () => {
   const onFormSubmit = async (formData: Inputs) => {
