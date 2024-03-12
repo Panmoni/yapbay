@@ -15,14 +15,14 @@ const GlobalHeader = () => {
   };
 
   useEffect(() => {
-    const closeDropdown = (e) => {
-      if (isOpen && !e.target.closest(".dropdown-container")) {
+    const closeDropdown = (e: Event) => {
+      if (isOpen && !(e.target as Element).closest(".dropdown-container")) {
         setIsOpen(false);
       }
     };
 
     document.addEventListener("click", closeDropdown);
-    document.addEventListener("keydown", (e) => {
+    document.addEventListener("keydown", (e: KeyboardEvent) => {
       if (isOpen && e.key === "Escape") {
         setIsOpen(false);
       }
