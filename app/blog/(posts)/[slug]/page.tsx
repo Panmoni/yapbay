@@ -9,6 +9,11 @@ import Header from "@/components/blog/header";
 import { PostBody } from "@/components/blog/post-body";
 import { PostHeader } from "@/components/blog/post-header";
 
+// export const metadata: Metadata = {
+//   title: post.title,
+//   description: "",
+// };
+
 export default async function Post({ params }: Params) {
   const post = getPostBySlug(params.slug);
 
