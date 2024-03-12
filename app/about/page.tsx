@@ -2,6 +2,13 @@ import Container from "@/components/blog/container";
 import { PageTitle } from "@/components/ui/PageTitle";
 import Link from "next/link";
 
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "About YapBay",
+  description:
+    "YapBay is a revolutionary peer-to-peer remittance platform that leverages the power of cryptocurrency to enable faster, cheaper, and more accessible cross-border payments.",
+};
+
 export default function Roadmap() {
   return (
     <main>

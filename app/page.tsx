@@ -2,6 +2,13 @@ import Image from "next/image";
 import yapbaylogo from "@/public/yapbaylogo.png";
 import Container from "@/components/blog/container";
 
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "YapBay: Empowering Global Remittances with Web3",
+  description:
+    "Unlock faster, cheaper, and direct cross-border payments leveraging the power of cryptocurrency. Discover the future of remittances with YapBay.",
+};
+
 export default function Home() {
   return (
     <main>

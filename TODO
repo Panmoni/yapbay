@@ -1,61 +1,41 @@
 # TODO
 
-1. grind on account
-2. grind on offer
-3. understand cross-contract stuff
-4. Escrow, Arbitration, Reputation, Rating contracts.
+## CONTRACTS:
 
-## CONTRACTS: 
-  - cross-contract interfaces @critical
-  - research Common Contract Interface @critical
-  - should there be an admin contract?? @critical
-  - proxy pattern  @critical
+- should there be an admin contract?
 
-### Account Contract @next
+- Escrow, Arbitration, Reputation, Rating contracts.
+- oracle contract
+- send account thru for another review
+- once contracts are decent, work on interfaces
+- have Opus make a list of all pages etc I will need on the website.
 
-  1. In the `userReg` function, consider validating the input parameters to ensure they are not empty or invalid.
+### Coding
 
-  2. In the `userUpdateProfile` function, consider adding a check to ensure that the user is updating their own profile or is an admin.
-
-  3. In the `updateTradeStats` function, consider validating the input parameters to ensure they are valid and within expected ranges.
-
-  4. Consider adding access control mechanisms to the `updateEndorsementsGiven`, `updateEndorsementsReceived`, `updateDisputesInitiated`, `updateDisputesLost`, and `updateTradeStats` functions to ensure that only authorized contracts or entities can call these functions.
-
-  5. Consider adding a function to retrieve a user's reputation score directly, instead of relying on the `userStats` mapping.
-
-  6. Consider adding a function to retrieve a user's basic information and stats in a single call, to reduce the number of external calls needed.
-
-  7. Consider adding error messages to the `require` statements to provide more informative error messages.
-
-### Offer Contract @next
-
-  - grind on improving it
-  - error line 170
-
-
-  ### Coding: @high
-- test and polish MVP contracts
-    - redeploy account contract
-      - add ability to update profile to site, create users again
-    - add admin panel to edit other users? or just change their roles.
-    - deploy Offer contract and add its functions to the site.
 - deploy MVP contracts
+- create users again
+- test every user path
 
+## WEBSITE
 
-    - oracle contract @medium
-    - input validation, access control
-    - error handling contract @low
+- front page should be a filterable list of offers perhaps?
+- integrate website with contracts
+  - profile update
+  - admin panel
+- build F2F wizard
 
+## POST-HACKATHON
 
-## WEBSITE: @low
-- internal navigation for the app section.
+- Implement Proxy Pattern @prereq: beta contracts
+  - Diamond Smart Contract (EIP-2535) ?
+    - Diamond-1 vs Diamond-2?
+  - vs openzeppelin upgradeable contracts?
+  - time lock, multi-sig to control it
+- Implement error handling contract, input validation, access control, etc.
 
-### MVP:
+### Website
 
-  ☐ integrate website with contracts
-  ☐ build F2F wizard
+#### Metadata
 
-### Metadata:
-
-  ☐ website metadata
-  ☐ favicons
+- https://www.youtube.com/watch?v=wTGVHLyV09M
+- favicons

@@ -1,6 +1,13 @@
 import Container from "@/components/blog/container";
 import { PageTitle } from "@/components/ui/PageTitle";
 
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "Contact YapBay",
+  description:
+    "",
+};
+
 export default function Contact() {
   return (
     <main>

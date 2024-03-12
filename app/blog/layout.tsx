@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "YapBay Blog",
-  description: "A Web3 Remittances Marketplace",
+  description: "A Web3 Remittances marketplace",
   openGraph: {
     images: [HOME_OG_IMAGE_URL],
   },

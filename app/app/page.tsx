@@ -8,6 +8,13 @@ import { PageTitle } from "@/components/ui/PageTitle";
 import { AccountForm, Inputs } from "@/components/contracts/accountForm";
 // import { InterfaceVpcEndpointAttributes } from "aws-cdk-lib/aws-ec2";
 
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "YapBay: Empowering Global Remittances with Web3",
+  description:
+    "Unlock faster, cheaper, and direct cross-border payments leveraging the power of cryptocurrency. Discover the future of remittances with YapBay.",
+};
+
 const App = () => {
   const onFormSubmit = async (formData: Inputs) => {
     try {

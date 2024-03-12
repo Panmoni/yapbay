@@ -11,9 +11,18 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Yap Bay: Web3 P2P Remittances",
+  title: {
+    template: "%s | YapBay",
+    default: "YapBay: Empowering Global Remittances with Web3",
+  },
   description:
-    "YapBay is a P2P Web3 remittance marketplace that supports both fiat currency and cryptocurrency.",
+    "YapBay is a Web3 remittance platform combining TradFi and DeFi to enable faster, cheaper, and more accessible cross-border payments for the world's unbanked and underbanked population.",
+  metadataBase: new URL("https://yapbay.com"),
+  // og: {
+  //   image: new URL("/images/og-image.jpg", import.meta.url).href,
+  //   type: "website",
+  //   locale: "en_US",
+  // },
 };
 
 export default function RootLayout({
