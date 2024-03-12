@@ -1,6 +1,8 @@
+// @/components/ui/GlobalHeader.tsx
+
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -11,6 +13,26 @@ const GlobalHeader = () => {
   const closeMobileMenu = () => {
     setIsOpen(false);
   };
+
+  useEffect(() => {
+    const closeDropdown = (e) => {
+      if (isOpen && !e.target.closest(".dropdown-container")) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("click", closeDropdown);
+    document.addEventListener("keydown", (e) => {
+      if (isOpen && e.key === "Escape") {
+        setIsOpen(false);
+      }
+    });
+
+    return () => {
+      document.removeEventListener("click", closeDropdown);
+      document.removeEventListener("keydown", closeDropdown);
+    };
+  }, [isOpen]);
 
   return (
     <header>
@@ -37,10 +59,73 @@ const GlobalHeader = () => {
           {/* Primary Nav Menu */}
           <div className="items-center space-x-1 hidden md:flex">
             <Link href="/app" passHref>
-              <span className="py-5 px-3 cursor-pointer whitespace-nowrap text-lg">
+              <span className="py-5 cursor-pointer whitespace-nowrap text-lg">
                 App
               </span>
             </Link>
+            <span
+              className="py-5 px-0 cursor-pointer whitespace-nowrap text-lg ml-[-2]"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <svg
+                className="w-4 h-4 inline pointer-events-none"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+
+            <div
+              className={`${
+                isOpen ? "flex" : "hidden"
+              } absolute z-10 top-16 w-auto mx-auto border border-muted shadow-md p-4 flex-col mt-2 bg-white`}
+            >
+              <Link href="/app/users">
+                <span
+                  onClick={closeMobileMenu}
+                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
+                >
+                  Users
+                </span>
+              </Link>
+              <Link href="/app/controlpanel">
+                <span
+                  onClick={closeMobileMenu}
+                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
+                >
+                  Control Panel
+                </span>
+              </Link>
+              <Link href="/app/profile">
+                <span
+                  onClick={closeMobileMenu}
+                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
+                >
+                  Profile
+                </span>
+              </Link>
+              <Link href="/app/offers">
+                <span
+                  onClick={closeMobileMenu}
+                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
+                >
+                  Offers
+                </span>
+              </Link>
+              <Link href="/app/trade/xyz">
+                <span
+                  onClick={closeMobileMenu}
+                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
+                >
+                  Trade
+                </span>
+              </Link>
+            </div>
             <Link href="/blog" passHref>
               <span className="py-5 px-3 cursor-pointer whitespace-nowrap text-lg">
                 Blog

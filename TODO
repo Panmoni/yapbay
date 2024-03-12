@@ -1,37 +1,59 @@
 # TODO
 
-## CONTRACTS: @critical
-  ☐ cross-contract interfaces
-  ☐ oracle contract
-  ☐ error handling contract
-  ☐ improve escrow contract
-  ☐ proxy pattern
-  ☐ storage/registry? is it needed?
+1. grind on account
+2. grind on offer
+3. understand cross-contract stuff
+4. Escrow, Arbitration, Reputation, Rating contracts.
 
-### Coding: @high
-  ☐ test and polish MVP contracts
+## CONTRACTS: 
+  - cross-contract interfaces @critical
+  - research Common Contract Interface @critical
+  - should there be an admin contract?? @critical
+  - proxy pattern  @critical
+
+### Account Contract @next
+
+  1. In the `userReg` function, consider validating the input parameters to ensure they are not empty or invalid.
+
+  2. In the `userUpdateProfile` function, consider adding a check to ensure that the user is updating their own profile or is an admin.
+
+  3. In the `updateTradeStats` function, consider validating the input parameters to ensure they are valid and within expected ranges.
+
+  4. Consider adding access control mechanisms to the `updateEndorsementsGiven`, `updateEndorsementsReceived`, `updateDisputesInitiated`, `updateDisputesLost`, and `updateTradeStats` functions to ensure that only authorized contracts or entities can call these functions.
+
+  5. Consider adding a function to retrieve a user's reputation score directly, instead of relying on the `userStats` mapping.
+
+  6. Consider adding a function to retrieve a user's basic information and stats in a single call, to reduce the number of external calls needed.
+
+  7. Consider adding error messages to the `require` statements to provide more informative error messages.
+
+### Offer Contract @next
+
+  - grind on improving it
+  - error line 170
+
+
+  ### Coding: @high
+- test and polish MVP contracts
     - redeploy account contract
       - add ability to update profile to site, create users again
     - add admin panel to edit other users? or just change their roles.
     - deploy Offer contract and add its functions to the site.
-  ☐ deploy MVP contracts
-  ☐ validation of inputs. Remember to thoroughly test your contract and consider other security best practices, such as input validation, access control, and proper error handling, to ensure the overall security of your smart contract system.
-  ☐ oracle integration
+- deploy MVP contracts
 
 
-  > 
+    - oracle contract @medium
+    - input validation, access control
+    - error handling contract @low
 
-  ### Learning: @today
-    ☐ research Common Contract Interface
-    ☐ consider adopting from the solidity nextjs start: workspaces (contracts and site in one repo but separate), https://www.rainbowkit.com/docs/introduction
 
 ## WEBSITE: @low
+- internal navigation for the app section.
+
 ### MVP:
 
   ☐ integrate website with contracts
   ☐ build F2F wizard
-
-
 
 ### Metadata:
 
