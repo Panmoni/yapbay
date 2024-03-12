@@ -4,6 +4,8 @@
 
 ![YapBay](https://github.com/Panmoni/yapbay/blob/main/public/assets/blog/yap-bay-1/cover.png?raw=true)
 
+N.B. For the contracts, see the [yapbay-contracts repo](https://github.com/Panmoni/yapbay-contracts).
+
 Yap Bay is a project borne of [years of ground work research](https://georgedonnelly.com/portfolio/#1-crypto--web3) in Latin America in search of an answer to this question:
 
 **How can we create sustainable inflows of cryptocurrency into the hands of new, repeat users, in particular in the developing world?**

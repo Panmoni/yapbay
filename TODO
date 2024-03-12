@@ -2,10 +2,9 @@
 
 ## CONTRACTS:
 
-- should there be an admin contract?
-
 - Escrow, Arbitration, Reputation, Rating contracts.
 - oracle contract
+- should there be an admin contract? maybe this is the proxy contract?
 - send account thru for another review
 - once contracts are decent, work on interfaces
 - have Opus make a list of all pages etc I will need on the website.
@@ -38,5 +37,6 @@
 #### Metadata
 
 - https://www.youtube.com/watch?v=wTGVHLyV09M
+- https://nextjs.org/learn/dashboard-app/adding-metadata
 - favicons
 - metadata and use client, argh
