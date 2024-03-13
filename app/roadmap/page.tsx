@@ -33,6 +33,29 @@ export default function Roadmap() {
 
           <section>
             <h2 className="text-4xl font-bold mt-4 mb-1">Post-Hackathon</h2>
+            <h3 className="text-2xl font-bold mt-4 mb-1">Contracts</h3>
+            <ul className="list-disc pl-5">
+              <li>
+                Implement proxy pattern. Diamond Pattern vs OpenZeppelin
+                upgradeable?
+              </li>
+              <li>time lock, multi-sig to control it</li>
+              <li>
+                Implement error handling contract, input validation, access
+                control, etc. handle system-wide errors in all the contracts.
+                Define clear error codes and messages for different types of
+                errors and exceptions. log errors
+              </li>
+              <li>
+                Write unit tests to cover various scenarios, including edge
+                cases and error conditions.
+              </li>
+              <li>
+                Perform integration tests with the Trade and Arbitration
+                contracts to verify the correct flow of data and actions between
+                the contracts.
+              </li>
+            </ul>
             <h3 className="text-2xl font-bold mt-4 mb-1">Escrow</h3>
             <ul className="list-disc pl-5">
               <li>m/n multi-sig escrow.</li>
