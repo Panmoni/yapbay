@@ -2,7 +2,7 @@
 title: "The YapBay Unique Value Proposition"
 excerpt: "Explore the distinctive features of YapBay, a pioneering platform revolutionizing remittance transactions. YapBay, with its unique sequential escrow and RAI (Remittance Acceleration Interface), heralds a new era of fast, efficient, and sophisticated remittance solutions, as it transcends traditional barriers and capital controls."
 coverImage: "/assets/blog/yap-bay-2/cover.png"
-date: "2024-03-13T18:42:36.3NZ"
+date: "2024-03-13T18:42:36.322Z"
 category: "Use Cases"
 tags: [YapBay, use cases, Web3, P2P, ramps, remittances]
 author:
