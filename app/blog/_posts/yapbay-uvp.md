@@ -22,14 +22,19 @@ What a great question!
 YapBay is a next iteration of these platforms and brings the following new features to a global audience hungry for remittances:
 
 1. **Fiat-to-Fiat Remittances**: chained P2P transactions where users can move fiat currency in one country to another using crypto as the transport layer.
+
 2. **Sequential Escrow**: simplified transferral of escrowed crypto from one transaction to the next to expedite cross-border fiat-to-fiat remittances.
+
 3. **RAI**: The Remittance Acceleration Interface (RAI) is a wizard that aims to leverage AI to make the construction of multi-step remittance transactions as simple and efficient as possible for unsophisticated remittance senders.
 
 Additionally, YapBay is:
 
 - **Web3**: YapBay is censorship-resistant, and will become more decentralized over time.
+
 - **DAO**: YapBay will eventually become a self-governning DAO, run by its traders.
+
 - **No KYC or AML**: There will be no protocol-level KYC or AML requirements; individual traders will make their own decisions and the dapp can integrate tools to help them.
+
 - **Open Source**: YapBay is committed to being open source from day 1.
 
 ## Scenarios
