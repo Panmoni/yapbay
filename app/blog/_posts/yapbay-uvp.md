@@ -1,6 +1,6 @@
 ---
 title: "The YapBay Unique Value Proposition"
-excerpt: ""
+excerpt: "Explore the distinctive features of YapBay, a pioneering platform revolutionizing remittance transactions. YapBay, with its unique sequential escrow and RAI (Remittance Acceleration Interface), heralds a new era of fast, efficient, and sophisticated remittance solutions, as it transcends traditional barriers and capital controls."
 coverImage: "/assets/blog/yap-bay-2/cover.png"
 date: "2024-03-13T18:42:36.3NZ"
 category: "Use Cases"
@@ -13,13 +13,28 @@ ogImage:
 draft: false
 ---
 
-TODO: review scenarios, add middling text, make it a cohesive whole.
+What makes YapBay different from a LocalBitcoins, LocalCryptos or Paxful, you might ask?
 
-1. Fiat to Fiat Remittances
-2. Wizard
-3. Sequential Escrow
+What a great question!
+
+## YapBay's New Features
+
+YapBay is a next iteration of these platforms and brings the following new features to a global audience hungry for remittances:
+
+1. **Fiat-to-Fiat Remittances**: chained P2P transactions where users can move fiat currency in one country to another using crypto as the transport layer.
+2. **Sequential Escrow**: simplified transferral of escrowed crypto from one transaction to the next to expedite cross-border fiat-to-fiat remittances.
+3. **RAI**: The Remittance Acceleration Interface (RAI) is a wizard that aims to leverage AI to make the construction of multi-step remittance transactions as simple and efficient as possible for unsophisticated remittance senders.
+
+Additionally, YapBay is:
+
+- **Web3**: YapBay is censorship-resistant, and will become more decentralized over time.
+- **DAO**: YapBay will eventually become a self-governning DAO, run by its traders.
+- **No KYC or AML**: There will be no protocol-level KYC or AML requirements; individual traders will make their own decisions and the dapp can integrate tools to help them.
+- **Open Source**: YapBay is committed to being open source from day 1.
 
 ## Scenarios
+
+When thinking about new products, I find scenarios can sometimes help understand the value proposition.
 
 ### Scenario 1: Simple Remittance
 
@@ -27,74 +42,83 @@ Larry has 5,000 USD in a bank account in Miami.
 
 Maria has a very small amount of COP in a bank account in Medellín.
 
-Larry wants to send Maria 50 USD.
+Larry wants to send Maria 50 USD so she can buy groceries.
 
 However, they do not want to use Western Union or any other legacy/TradFi remittance provider as it is slow, prone to delays, requires lots of paperwork, etc.
 
-So Larry comes to my site, YapBay, and he finds a 2 offers to help him get the money to Maria.
+So Larry comes to YapBay and he finds a 2 offers to help him get the money to Maria.
 
-He uses a wizard to build his transaction by chaining together the 2 offers.
+He uses the RAI wizard to build his transaction by chaining together the 2 offers.
 
-Offer 1: Mike is based in the US. He can receive Larry's 50 USD in his US bank account and in return sell him 50 USDC.
+**Offer 1**: Mike is based in the US. He can receive Larry's 50 USD in his US bank account and in return sells him 50 USDC.
 
-This USDC should initially be escrowed by Mike.
+This USDC is initially be escrowed by Mike.
 
 Once Larry makes his fiat payment of 50 USD to Mike's bank account, Mike releases escrow.
 
-However, now that USDC should immediately go into escrow with Andres so that he can confidently deposit his fiat payment of 50 USDC worth of COP (roughly 195,000 COP) into Maria's bank account.
+The escrowed USDC is then transferred into escrow with Andres, the trader for Offer 2.
 
-Offer 2: Andres is based in Colombia. He can receive the 50 USDC and in return deposit 50 USD worth of COP to Maria's Colombian bank account.
+**Offer 2**: Andres is based in Colombia. He can receive the 50 USDC and in return deposits 50 USD worth of COP (roughly 195,000 COP) to Maria's Colombian bank account.
 
 This is basic use case of the YapBay platform.
 
 ### Scenario 2: Global Freelance Payment
 
-Nina is a freelance web designer based in Manila, Philippines. She just got a client from London, Mr. Smith who is seeking to remit her payment for designing his business website. Mr. Smith agrees to pay Nina 750 GBP, but experiences problems with his traditional financial institution citing high foreign transaction fees and lengthy processing times. However, he discovers YapBay as a more efficient alternative.
+Nina is a freelance web designer based in Manila, Philippines. She just got a client from London, Mr. Smith who is seeking to send her payment for designing his business website.
+
+Mr. Smith agrees to pay Nina 750 GBP, but experiences problems with his traditional financial institution citing high foreign transaction fees and lengthy processing times.
+
+However, he discovers YapBay as a more efficient alternative.
 
 He connects two offers on YapBay.
-Offer 1: Paul, a UK crypto-enthusiast, can receive the 750 GBP in his UK bank account from Mr. Smith and he, in return, can sell Mr. Smith 750 GBP worth of USDC which will be escrowed.
 
-Offer 2: Grace based in the Philippines is looking to sell her 750 GBP worth of USDC received from Paul, in exchange for depositing the equivalent amount in PHP (approximately 50,000 PHP) to Nina’s bank account in the Philippines.
+**Offer 1**: Paul, a UK crypto-enthusiast, can receive the 750 GBP in his UK bank account from Mr. Smith and he, in return, can sell Mr. Smith 750 GBP worth of USDC which will be escrowed.
+
+**Offer 2**: Grace based in the Philippines is looking to sell her 750 GBP worth of USDC received from Paul, in exchange for depositing the equivalent amount in PHP (approximately 50,000 PHP) to Nina’s bank account in the Philippines.
 
 This way, YapBay has managed to provide an efficient and cost-effective global payment method for freelancers like Nina and her clients.
 
 ### Scenario 3: Microloans for Small Businesses
 
-Similarly, YapBay's blockchain platform can connect small businesses in developing nations who need access to credit with microloan providers in wealthier nations.
+Similarly, YapBay can connect small businesses in developing nations who need access to credit with microloan providers in wealthier nations.
 
-A small business owner Jose, in Chile, needs a loan of 1,000 USD to buy advanced farm equipment. Traditional lenders are hesitant due to Jose's location and lack of credit history.
+A small business owner Jose, in Perú, needs a loan of 1,000 USD to buy advanced farm equipment. Traditional lenders are hesitant due to Jose's location, lack of credit history, lack of a bank account and the questionable state of the land registry in his area.
 
 Jack, who lives in New York, wishes to contribute to the economic growth of developing areas and is willing to loan the money to Jose.
 
-In YapBay, Jack finds an offer from Alex, also in New York, who can take his 1,000 USD and in return, give him 1,000 USDC which then gets escrowed.
+In YapBay, Jack finds an offer from Alex, also in New York, who can take his 1,000 USD and in return, give him an equivalent amount of OP which then gets escrowed.
 
-Then, Jack chains this offer with another offer from Sofia in Chile who can take the 1,000 USDC and deposit 1,000 USD worth of Chilean Pesos into Jose's business account.
+Then, Jack chains this offer with another offer from Sofia in Lima, Perú who can take the OP and then deliver 1,000 USD worth of Peruvian Soles in cash to Jose.
 
-With the money received from Sofia, Jose can purchase his equipment and make repayments over time, thus using YapBay to secure funding circumventing banking barriers.
+With the money received from Sofia, Jose can purchase his equipment and make repayments over time, thus using YapBay to secure funding and circumventing banking barriers.
 
 ### Scenario 4: Donation for Social Causes
 
 Alice, based in Sydney, wants to donate 500 AUD to a non-governmental organization (NGO) conducting relief work in rural areas of India. Traditional money transfer services prove to be inefficient, costly, and time-consuming.
 
+Furthermore, she finds that the ONGs operating in Australia either do not offer convincing projects in rural India or have very high overhead costs that detract from the impact of her donation.
+
 She finds two offers on YapBay to help her.
 
-Offer 1: Ben in Sydney can receive Alice's 500 AUD in his Australian bank account and in return, sell Alice 500 AUD worth of USDC, escrowed by Ben.
+**Offer 1**: Ben in Sydney can receive Alice's 500 AUD in his Australian bank account and in return, sell Alice 500 AUD worth of ETH, escrowed by Ben.
 
-Offer 2: Priya, in India, can receive the 500 AUD worth of USDC and in return, deposit the equivalent INR into the NGO's bank account in India.
+**Offer 2**: Priya, in India, can receive the 500 AUD worth of ETH and in return, deposit the equivalent INR into the NGO's bank account in India.
 
 YapBay thus breaks down barriers for international donations, making it easier for people worldwide to support the causes near and dear to their hearts.
 
+Furthermore, now donors can donate direct to local NGOs who are closest to the works to be executed, know the local needs better, are more responsive to local needs and have much lower overhead costs than the large international NGOs.
+
 ### Scenario 5: Crisis Management During Forced Migration
 
-During a socio-political crisis, SafeHaven - a non-profit organization based in Italy, is working to support refugees from the affected area. SafeHaven usually uses traditional channels to send money, which aren't functioning because of the shutdown of banks in the crisis area.
+During a socio-political crisis, SafeHaven - a fictional non-profit organization based in Italy, is working to support refugees from the affected area. SafeHaven usually uses traditional channels to send money, which aren't functioning because of the shutdown of banks in the crisis area.
 
 However, with YapBay, SafeHaven finds a more feasible solution.
 
-Offer 1: Carlo in Italy, can receive the financial support fund from SafeHaven in his Italian account and in return, give SafeHaven an equivalent amount of USDC, which is then escrowed.
+**Offer 1**: Carlo in Italy, can receive the financial support fund from SafeHaven in his Italian account and in return, give SafeHaven an equivalent amount of EURC, which is then escrowed.
 
-Offer 2: Mustafa, a businessman who manages to operate in the crisis-hit region, can receive the escrowed USDC from Carlo and in return, distribute local currency, or goods as needed, to refugees in the region.
+**Offer 2**: Mustafa, a businessman who manages to operate in the crisis-hit region, can receive the escrowed EURC from Carlo and in return, distribute local currency, or goods as needed, to refugees in the region.
 
-This way, YapBay helps mitigate the impacts of crisis situations, ensuring essential funds reach where they need to go safely and quickly.
+This way, YapBay helps mitigate the impacts of crisis situations, ensuring essential funds reach where they need to go safely and quickly, even when the banks or other local infrastructure are not working.
 
 ### Scenario 6: Accessing Mobile Money in Africa
 
@@ -102,9 +126,9 @@ George in Kenya is trying to pay for vital medical treatment for his father but 
 
 She uses YapBay to make a remittance through mobile money, which is popular and widely used in many parts of Africa.
 
-Offer 1: On YapBay, Lucy finds Daniel, a fellow New Yorker who can take her 200 USD and in return offer 200 USDC.
+**Offer 1**: On YapBay, Lucy finds Daniel, a fellow New Yorker who can take her 200 USD and in return offer 200 USDC.
 
-Offer 2: She then links to an offer by James in Kenya who can receive the 200 USDC and in turn deposit 20,000 Kenyan shillings (around 200 USD) into George's mobile money account.
+**Offer 2**: She then links to an offer by James in Kenya who can receive the 200 USDC and in turn deposit 20,000 Kenyan shillings (around 200 USD) into George's mobile money account.
 
 Thus, YapBay allows for remittances using popular local payment methods in regions with limited banking infrastructure.
 
@@ -114,9 +138,9 @@ Anastasia in Greece wishes to move 1,000 EUR to her college-attending son, Dimit
 
 She turns to YapBay to construct two chained offers.
 
-Offer 1: Luke, a Greek resident unaffected by the restrictions, is willing to accept her 1,000 EUR and in return offer her 1,000 USDC.
+**Offer 1**: Luke, a Greek resident unaffected by the restrictions, is willing to accept her 1,000 EUR (perhaps in cash) and in return offer her 1,000 EURC.
 
-Offer 2: Helmut in Germany will receive the 1,000 USDC and deposit 1,000 EUR into Dimitri's German bank account.
+**Offer 2**: Helmut in Germany will receive the 1,000 EURC and deposit 1,000 EUR into Dimitri's German bank account.
 
 With YapBay, Anastasia can navigate around capital controls and make sure her son has access to funds for college.
 
@@ -128,73 +152,60 @@ His cousin Maria in Spain wants to help him with 2,000 EUR.
 
 Maria finds two linked offers on YapBay.
 
-Offer 1: Natalia in Spain can receive Maria's 2,000 EUR and offer her an equivalent escrowed USDC.
+**Offer 1**: Natalia in Spain can receive Maria's 2,000 EUR and offer her an equivalent escrowed USDC.
 
-Offer 2: Pedro in Argentina will accept the escrowed 2,000 EUR in USDC and distribute an equivalent in Argentine Pesos to Juan's bank account, bypassing the withdrawal limit.
+**Offer 2**: Pedro in Argentina will accept the escrowed 2,000 EUR in USDC and distribute an equivalent in Argentine Pesos to Juan's bank account (or in cash, or in a foreign bank account that Juan can access), bypassing the withdrawal limit.
 
 By using YapBay, Juan can keep his business running despite harsh economic conditions.
 
 ## Sequential Escrow
 
-Sequential Escrow: In the scenario, the USDC should be initially escrowed by Mike (Offer 1) and then immediately go into escrow with Andres (Offer 2) after Larry makes the fiat payment to Mike's bank account.
+Escrow systems have long facilitated transactions between parties by adding trust to the process.
 
-Sequential escrow refers to a system where funds are released from one escrow and transferred into another as per the sequence of transactions happening between different parties involved. Sequential escrow chains have a particular order of operations that protect all parties involved in any transaction on the blockchain.
+Sequential escrow is what I am calling it when there are two or more chained P2P offers and, in order to accelerate the transaction, the output of the first trade is immediately and automatically escrowed in the next trade in the sequence.
+
+Instead of isolating each transaction, sequential escrow facilitates a seamless, chain-like movement of funds from one trade to the next.
 
 This system creates a trustless environment as each party is assured that their transaction is secured and they will receive their funds once they fulfill their part of the deal. This creates a natural order of operations that protects all members of the chain from potential fraud.
 
-### Use case 1: Reducing Transaction Risks
+To better illustrate the acceleration brought by sequential escrow, let's revisit some of the scenarios touched on earlier:
 
-In a multi-step transaction, risks come from the possibility of any party defaulting or falling short on their end of the bargain. However, with a sequential escrow, Jack sends his funds to Mike (Offer 1), who then sends it to an escrow account. Once the intended recipient confirms that they have received what was agreed upon, only then are funds released from the escrow to Mike. The same happens in Offer 2. This reduces transaction risks for all parties.
+### Scenario Revisited: Simple Remittance
 
-### Use case 2: Assures Parties in International Trade
+Consider Larry and Maria's transaction. Without sequential escrow, after Larry receives his 50 USDC from Mike in Offer 1, he would have to initiate a new transaction with Andres for Offer 2. This entails creating a new escrow, which adds additional steps and time to the process.
 
-In cross-border trade, payment terms can be different in foreign countries. Hence, when an entrepreneur is dealing with overseas clients or suppliers, they can utilize the sequential escrow system to assure other parties that their money is secure and will only be released once the agreed terms are met.
+With sequential escrow, however, the transfer of escrow from Mike to Andres occurs instantaneously and automatically as Larry's fiat payment is verified. This eliminates the downtime between transactions, expediting the remittance process significantly.
 
-### Use case 3: Property Transactions
+### Scenario Revisited: Global Freelance Payment
 
-In property transactions, after a buyer and seller agree on a price, the buyer's funds are held in escrow. Then, the seller fulfills their obligations such as completing necessary paperwork. Next, these responsibilities shift to another party, maybe a real estate agent or a lawyer, to conduct necessary due diligence and ensure everything is in order. Only when every party fulfills all their obligations, do the funds move from one escrow account to the next, eventually releasing to the seller.
+In the case of Nina and Mr. Smith, sequential escrow particularly shines due to the multiple borders crossed. Without sequential escrow, Mr. Smith's payment, despite being in cryptocurrency, could still face delays as each transaction would have to be cleared before the subsequent one commences.
 
-### Use case 4: Online Retail
+However, with sequential escrow the transition from Paul's transaction to Grace's is near-instantaneous. The automation and linkage between Offer 1 and Offer 2 expedite the completion of these transactions, enabling Nina to receive her payment swiftly, and allowing Mr. Smith to avoid exorbitant foreign transaction fees and processing times.
 
-In the e-commerce space, when a buyer orders from a seller, their funds go into an escrow account. Once the seller sends the product and the buyer confirms its receipt and satisfaction, the funds are released from escrow to the seller.
+These scenarios demonstrate how sequential escrow significantly trims processing times by chaining transactions together, adding a layer of efficiency that streamlines the remittance process. In doing so, it serves as another testament to YapBay's commitment towards continuous innovation in the remittance ecosystem.
 
-In conclusion, sequential escrow can be an integral part of executing complex, multi-step transactions in a safe and secure way that guarantees the satisfaction of all parties involved. Blockchain platforms like YapBay can significantly benefit from this system to ensure seamless and risk-free international transactions.
+### RAI
 
-### Fiat to Fiat Conversion Wizard
+RAI is a wizard that aims to leverage AI to make the construction of multi-step remittance transactions as simple and efficient as possible for unsophisticated remittance senders.
 
-The Fiat to Fiat Conversion Wizard, or F2F Wizard, is a unique value offering of the YapBay platform designed to facilitate streamlined cross-border fiat transactions leveraging blockchain infrastructure. As a comprehensive tool, the F2F Wizard guides users through the process of connecting distinct offers to accomplish a seamless currency transition from one country to another using crypto as the transport layer.
+This is a unique value offering that aims to make the complex simple and straightforward.
 
-#### How it works
+RAI will guide users through the process of connecting distinct offers to accomplish a seamless currency transition from one country to another using crypto as the transport layer.
 
-The Wizard gently asks end-users their source (starting) and their destination (ending) currency. Leveraging a sophisticated Pathfinding Algorithm, the F2F Wizard process optimally identifies the most efficient path(s) to convert the starting asset into the final one.
+RAI asks end-users their source (starting currency) and their destination (ending) currency. Leveraging a pathfinding algorithm, RAI optimally identifies the most efficient path(s) to convert the starting asset into the final one.
 
 The Wizard achieves this by breaking down each step, detailing necessary per offer exchange rates and providing total fees (including those from the network and offers) required for the exchange. It displays the "amount-in and amount-out"–making it easier for users to understand the conversion rates and the potential value received.
 
-#### Unique Features
+RAI aims to revolutionizes the way individuals transact cross-border remittances by providing a seamless, reliable, and efficient medium to interchange cross-border fiat.
 
-1. **Interactive Interface**: The tool allows users to drag-and-drop offers, enabling them to create a transaction chain and mould it as per their requirements.
-2. **Offer Filters**: Pro users of the platform can make use of an advanced feature to filter offers. This enables them to filter offers based on their choosing, say fiat currency, cryptocurrency, or the transaction amount.
-3. **Saved Transactions**: For users with recurring payments, the wizard allows them to save chained transactions which then can be used as templates for their future use, saving valuable time and hassle by avoiding the need to build chains from scratch each time.
+RAI represent a benchmark in disrupting an industry worth billions by introducing transparency, cutting back inefficiencies, and promoting more equitable access to global financial services.
 
-4. **Risk Assessment**: The Wizard offers an additional safety net by estimating a risk level or confidence score for each transaction based on the reputation of the transaction agents involved.
+## Conclusion
 
-5. **Estimated Execution Time**: Giving a heads-up to manage expectations, F2F Wizard also anticipates the expected time duration needed for the successful execution of the total transaction.
+By innovating a sequential escrow system, YapBay is dramatically speeding up fiat-to-fiat remittances, and via the Remittance Acceleration Interface (RAI), it is simplifying the complexity of multi-step remittance transactions.
 
-#### Enhanced Name: Cross-Border Fiat Interchange Wizard
+The various use scenarios discussed here serve as a testament to the flexibility and wide-ranging applicability of YapBay's system. From circumventing capital controls to facilitating global freelance payments, YapBay's unique solution has a broad spectrum of use cases. It is demonstrating its potential to democratize access to speedy and efficient money and asset transfers worldwide.
 
-Your F2F Wizard is much more than just another blockchain tool - it revolutionizes the way individuals transact cross-border remittances by providing a seamless, reliable, and efficient medium to interchange cross-border fiat. Hence a more descriptive name could be "Cross-Border Fiat Interchange Wizard" or "Global Fiat Interchange Wizard". This not only gives it an innovative edge but also effectively communicates the central value proposition of the tool.
+In the near future, as YapBay continues to evolve and becomes even more decentralized, those who have been underserved by TraFi will have an opportunity to engage with a platform that is tailor-made for their needs.
 
-This digital assistant could represent a benchmark in disrupting an industry worth billions by introducing transparency, cutting back inefficiencies, and promoting more equitable access to global financial services.
-
-0. "FIRE", standing for "Fiat Interchange & Remittance Enabler"?
-
-1. **LEAP**: Liquidity and Exchange Automation Provider. This highlights the tool's ability to leap over barriers in traditional remittances.
-
-2. **RISE**: Remittance and Interchange Solution Enabler. This acronym emphasizes the remittance function and the idea of enabling financial upliftment.
-
-3. **BOLT**: Blockchain Operative Liquidity Transfer. This acronym suggests speed and efficiency in transferring liquidity across borders.
-
-Atlas.
-Vesta.
-Zephyr
-RAI: Remittance Acceleration Interface
+The promise of YapBay lies not just in the immediate improvements it offers to remittance transactions, but in how these improvements will shape impactful and lasting changes in the financial landscape, particularly in the developing world.

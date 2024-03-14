@@ -364,6 +364,13 @@ export default function Roadmap() {
                 interface.
               </li>
               <li>pre-programmed trades, like limit orders.</li>
+              <li>
+                Saved Transactions, especially for recurring transactions.
+              </li>
+              <li>Risk assessment tools.</li>
+              <li>
+                Estimated transaction execution times, to manage expectations.
+              </li>
             </ul>
           </section>
 
