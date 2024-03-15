@@ -8,14 +8,10 @@
    ~~- User registration page with fields for email, chat handle, website, and avatar.~~
    ~~- User profile page displaying user's basic information and reputation score.~~
 
-You can access the user profile page by navigating to `/profile/[address]`, where `[address]` is the Ethereum address of the user.
-
-integrate rainbowkit and draw user from it
-
 - Edit profile page allowing users to update their profile information.
 - Admin panel for managing user roles and permissions.
 
-2. Offer Creation and Management:
+1. Offer Creation and Management:
 
    - Offer creation page with fields for offer details such as trade amount, currency, location, payment methods, etc.
    - Offer listing page displaying all available offers.
@@ -23,62 +19,62 @@ integrate rainbowkit and draw user from it
    - Offer management page for offer owners to update or cancel their offers.
    - front page should be a filterable list of offers perhaps?
 
-3. Trade Initiation and Acceptance:
+2. Trade Initiation and Acceptance:
 
    - Trade initiation page allowing users to select an offer and initiate a trade.
    - Trade details page displaying the complete details of a specific trade.
    - Trade acceptance page for offer owners to accept or reject initiated trades.
    - Trade status tracking page showing the current status of ongoing trades.
 
-4. Escrow and Payment:
+3. Escrow and Payment:
 
    - Escrow locking page for offer owners to lock the crypto amount in escrow.
    - Fiat payment confirmation page for trade takers to mark the fiat payment as paid.
    - Escrow release page for releasing the crypto to the trade taker upon successful trade completion.
    - Escrow refund page for refunding the crypto to the offer owner in case of trade cancellation or timeout.
 
-5. Trade Finalization and Dispute Resolution:
+4. Trade Finalization and Dispute Resolution:
 
    - Trade finalization page for offer owners to finalize the trade once the fiat payment is confirmed.
    - Dispute initiation page allowing trade parties to raise a dispute in case of any issues.
    - Dispute resolution page for admins to resolve disputes and make a decision.
    - Dispute evidence submission page for trade parties to submit evidence supporting their case.
 
-6. Rating and Feedback:
+5. Rating and Feedback:
 
    - Trade rating page for trade parties to rate and provide feedback on completed trades.
    - User reputation page displaying the overall reputation score and rating history of a user.
 
-7. Admin Panel:
+6. Admin Panel:
 
    - Admin dashboard for managing and monitoring the platform.
    - Dispute management page for admins to view and resolve disputed trades.
    - Fee and penalty management page for admins to set and update platform fees and penalties.
    - Escrow management page for admins to perform escrow-related actions such as splitting or penalizing crypto.
 
-8. Notifications and Alerts:
+7. Notifications and Alerts:
 
    - Notification system to keep users informed about trade status updates, disputes, and other important events.
    - Alert system to notify admins about critical actions that require their attention.
 
-9. Analytics and Reporting:
+8. Analytics and Reporting:
 
    - Trade analytics page displaying various trade-related statistics and metrics.
    - User analytics page showing user-related data and insights.
    - Reporting functionality to generate reports on trades, disputes, and platform performance.
 
-10. Integration with Web3 Wallet:
+9. Integration with Web3 Wallet:
 
-    - Web3 wallet integration for users to connect their wallets and perform crypto transactions.
-    - Wallet balance display and management features.
+   - Web3 wallet integration for users to connect their wallets and perform crypto transactions.
+   - Wallet balance display and management features.
 
-11. Security and Authentication:
+10. Security and Authentication:
 
     - Secure user authentication and authorization system.
     - Two-factor authentication (2FA) for enhanced security.
     - Access control mechanisms to ensure only authorized users can perform specific actions.
 
-12. Help and Support:
+11. Help and Support:
     - FAQ page addressing common user questions and concerns.
     - Contact and support page for users to reach out to the platform's support team.
     - Guides and tutorials on how to use the platform effectively.
@@ -115,5 +111,7 @@ integrate rainbowkit and draw user from it
 - walk through all contracts and understand them step by step
 - create list of every user path so I can test them
 - update contract documentation
+
+## Put it on OP Sepolia?
 
 https://docs.optimism.io/builders/notices/fp-changes
