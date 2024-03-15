@@ -9,37 +9,13 @@ import { AccountForm, Inputs } from "@/components/contracts/accountForm";
 // import { InterfaceVpcEndpointAttributes } from "aws-cdk-lib/aws-ec2";
 
 const App = () => {
-  const onFormSubmit = async (formData: Inputs) => {
-    try {
-      const response = await fetch("/api/submitForm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log(result.message);
-      } else {
-        console.error("Error:", response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
-
   return (
     <main>
       <Container>
         <PageTitle title="App" />
-        <AccountForm onSubmit={onFormSubmit} />
-        <p>
-          <a className="flex justify-center items-center" href="/app/users">
-            user list
-          </a>
-        </p>
+        <div className="my-12 space-y-8 max-w-2xl mx-auto">
+          <h3 className="text-xl">Coming Soon</h3>
+        </div>
       </Container>
     </main>
   );

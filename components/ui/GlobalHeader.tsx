@@ -79,9 +79,7 @@ const GlobalHeader = () => {
                 <path d="M19 9l-7 7-7-7" />
               </svg>
             </span>
-
             {/* App Submenu Start */}
-
             <div
               className={`${
                 isOpen ? "flex" : "hidden"
@@ -136,9 +134,7 @@ const GlobalHeader = () => {
                 </span>
               </Link>
             </div>
-
             {/* App Submenu End */}
-
             <Link href="/blog" passHref>
               <span className="py-5 px-3 cursor-pointer whitespace-nowrap text-lg">
                 Blog

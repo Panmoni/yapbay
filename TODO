@@ -8,6 +8,10 @@
    ~~- User registration page with fields for email, chat handle, website, and avatar.~~
    ~~- User profile page displaying user's basic information and reputation score.~~
 
+You can access the user profile page by navigating to `/profile/[address]`, where `[address]` is the Ethereum address of the user.
+
+integrate rainbowkit and draw user from it
+
 - Edit profile page allowing users to update their profile information.
 - Admin panel for managing user roles and permissions.
 
@@ -111,3 +115,5 @@
 - walk through all contracts and understand them step by step
 - create list of every user path so I can test them
 - update contract documentation
+
+https://docs.optimism.io/builders/notices/fp-changes

@@ -1,6 +1,7 @@
 // pages/api/userList.js
 import { ethers } from "ethers";
-import { accountContractAbi } from "@/abis/accountAbi";
+import AccountArtifact from "@/contracts/Account.sol/Account.json";
+
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -16,7 +17,7 @@ export default async function handler(req, res) {
     // Create an instance of the account contract
     const accountContract = new ethers.Contract(
       ACCOUNT_CONTRACT_ADDRESS,
-      accountContractAbi,
+      AccountArtifact.abi,
       provider,
     );
 
