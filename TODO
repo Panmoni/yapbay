@@ -1,18 +1,13 @@
 # TODO
 
-- let's see the users on the site again.
-
 ## Website Integration
 
 > using the claude webpage
 
-- front page should be a filterable list of offers perhaps?
-
 1. User Registration and Profile Management:
+   ~~- User registration page with fields for email, chat handle, website, and avatar.~~
+   ~~- User profile page displaying user's basic information and reputation score.~~
 
-~~- User registration page with fields for email, chat handle, website, and avatar.~~
-
-- User profile page displaying user's basic information and reputation score.
 - Edit profile page allowing users to update their profile information.
 - Admin panel for managing user roles and permissions.
 
@@ -22,6 +17,7 @@
    - Offer listing page displaying all available offers.
    - Offer details page showing the complete details of a specific offer.
    - Offer management page for offer owners to update or cancel their offers.
+   - front page should be a filterable list of offers perhaps?
 
 3. Trade Initiation and Acceptance:
 

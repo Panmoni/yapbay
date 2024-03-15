@@ -80,17 +80,27 @@ const GlobalHeader = () => {
               </svg>
             </span>
 
+            {/* App Submenu Start */}
+
             <div
               className={`${
                 isOpen ? "flex" : "hidden"
               } absolute z-10 top-16 w-auto mx-auto border border-muted shadow-md p-4 flex-col mt-2 bg-white`}
             >
-              <Link href="/app/users">
+              <Link href="/app/register">
                 <span
                   onClick={closeMobileMenu}
                   className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
                 >
-                  Users
+                  Create Account
+                </span>
+              </Link>
+              <Link href="/app/listUsers">
+                <span
+                  onClick={closeMobileMenu}
+                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
+                >
+                  User List
                 </span>
               </Link>
               <Link href="/app/controlpanel">
@@ -126,6 +136,9 @@ const GlobalHeader = () => {
                 </span>
               </Link>
             </div>
+
+            {/* App Submenu End */}
+
             <Link href="/blog" passHref>
               <span className="py-5 px-3 cursor-pointer whitespace-nowrap text-lg">
                 Blog

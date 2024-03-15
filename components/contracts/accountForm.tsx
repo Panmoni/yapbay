@@ -8,11 +8,10 @@ export type Inputs = {
   userChatHandle: string;
   userWebsite: string;
   userAvatar: string;
-  userRole: string;
 };
 
 interface AccountFormProps {
-  onSubmit: (data: Inputs) => Promise<void>;
+  onSubmit: (data: Inputs) => void;
 }
 
 export const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
@@ -21,7 +20,6 @@ export const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
     userChatHandle: "",
     userWebsite: "",
     userAvatar: "",
-    userRole: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,20 +91,6 @@ export const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
           <input
             name="userAvatar"
             value={inputs.userAvatar}
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            className="block text-gray-700 font-bold mb-2"
-            htmlFor="userRole"
-          >
-            Role
-          </label>
-          <input
-            name="userRole"
-            value={inputs.userRole}
             onChange={handleChange}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           />

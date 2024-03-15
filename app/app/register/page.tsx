@@ -1,5 +1,4 @@
-// @/app/register.tsx
-
+// @/app/register/page.tsx
 "use client";
 
 import React from "react";
@@ -7,10 +6,12 @@ import Container from "@/components/blog/container";
 import { PageTitle } from "@/components/ui/PageTitle";
 import { AccountForm, Inputs } from "@/components/contracts/accountForm";
 
+type RegisterInputs = Omit<Inputs, "role">;
+
 const RegisterPage = () => {
-  const onFormSubmit = async (formData: Inputs) => {
+  const onFormSubmit = async (formData: RegisterInputs) => {
     try {
-      const response = await fetch("/api/register", {
+      const response = await fetch("/api/registerUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,7 +36,7 @@ const RegisterPage = () => {
   return (
     <main>
       <Container>
-        <PageTitle title="User Registration" />
+        <PageTitle title="Create Account" appRoute />
         <AccountForm onSubmit={onFormSubmit} />
       </Container>
     </main>
