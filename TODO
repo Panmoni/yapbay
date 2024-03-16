@@ -7,9 +7,21 @@
 1. User Registration and Profile Management:
    ~~- User registration page with fields for email, chat handle, website, and avatar.~~
    ~~- User profile page displaying user's basic information and reputation score.~~
+   ~~- Edit profile page allowing users to update their profile information.~~
 
-- Edit profile page allowing users to update their profile information.
+finishing up profile page editing....
+
+---
+
+Make sure to update the `/api/getUserProfile` endpoint to handle the case when the `userAvatar` field is empty and return an empty string instead of null.
+
+include the edit profile page for reference
+
+---
+
 - Admin panel for managing user roles and permissions.
+
+- update @/pages/api/registerUser.ts to not use hard coded privkey
 
 1. Offer Creation and Management:
 

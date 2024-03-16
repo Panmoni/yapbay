@@ -37,7 +37,6 @@ export const AccountForm: React.FC<AccountFormProps> = ({ onSubmit }) => {
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md"
       >
-        <h1 className="text-2xl font-bold mb-4">Create Account</h1>
         <div className="mb-4">
           <label
             className="block text-gray-700 font-bold mb-2"

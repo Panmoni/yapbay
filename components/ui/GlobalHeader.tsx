@@ -93,6 +93,14 @@ const GlobalHeader = () => {
                   Create Account
                 </span>
               </Link>
+              <Link href="/app/profile">
+                <span
+                  onClick={closeMobileMenu}
+                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
+                >
+                  View Profile
+                </span>
+              </Link>
               <Link href="/app/listUsers">
                 <span
                   onClick={closeMobileMenu}

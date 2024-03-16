@@ -8,6 +8,8 @@ import { AccountForm, Inputs } from "@/components/contracts/accountForm";
 
 type RegisterInputs = Omit<Inputs, "role">;
 
+// TODO: don't show the form if the user already has a profile.
+
 const RegisterPage = () => {
   const onFormSubmit = async (formData: RegisterInputs) => {
     try {
