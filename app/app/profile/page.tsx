@@ -82,6 +82,7 @@ export default function ProfilePage() {
               width={200}
               alt="User Avatar"
               className="rounded-full"
+              priority={true}
             />
             <h2 className="text-2xl font-bold mt-4">
               {userProfile.userChatHandle}

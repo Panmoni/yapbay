@@ -39,6 +39,7 @@ export default async function handler(
         userWebsite: ethers.decodeBytes32String(userInfo[0].userWebsite),
         userAvatar: userInfo[0].userAvatar,
         userReputationScore: Number(reputationScore),
+        userRole: userInfo[0].userRole,
       });
     } catch (error) {
       console.error("Error fetching user profile:", error);

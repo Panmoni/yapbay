@@ -9,17 +9,9 @@
    ~~- User profile page displaying user's basic information and reputation score.~~
    ~~- Edit profile page allowing users to update their profile information.~~
 
-finishing up profile page editing....
-
----
-
-Make sure to update the `/api/getUserProfile` endpoint to handle the case when the `userAvatar` field is empty and return an empty string instead of null.
-
-include the edit profile page for reference
-
----
-
 - Admin panel for managing user roles and permissions.
+
+make sure change to userprofile data did not break anything else
 
 - update @/pages/api/registerUser.ts to not use hard coded privkey
 

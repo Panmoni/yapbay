@@ -101,20 +101,12 @@ const GlobalHeader = () => {
                   View Profile
                 </span>
               </Link>
-              <Link href="/app/listUsers">
+              <Link href="/app/admin">
                 <span
                   onClick={closeMobileMenu}
                   className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
                 >
-                  User List
-                </span>
-              </Link>
-              <Link href="/app/controlpanel">
-                <span
-                  onClick={closeMobileMenu}
-                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
-                >
-                  Control Panel
+                  Admin
                 </span>
               </Link>
               <Link href="/app/profile">
