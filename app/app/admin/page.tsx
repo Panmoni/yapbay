@@ -15,7 +15,11 @@ interface User {
   userWebsite: string;
   userAvatar: string;
   userRole: string;
+  userAddress: string;
 }
+
+// TODO: do not permit removal of my wallet as admin
+// TODO: updating user 2 overwrites user 1, figure this out.
 
 const AdminPage = () => {
   const { address, isConnected } = useAccount();
@@ -62,9 +66,10 @@ const AdminPage = () => {
       if (response.ok) {
         // Role update successful, refresh user data
         const updatedUsers = users.map((user) =>
-          user.userId === userAddress ? { ...user, userRole: role } : user,
+          user.userAddress === userAddress ? { ...user, userRole: role } : user,
         );
         setUsers(updatedUsers);
+        console.log(updatedUsers);
       } else {
         console.error("Error updating user role:", response.status);
       }
@@ -79,7 +84,7 @@ const AdminPage = () => {
         <Container>
           <PageTitle title="Admin Panel" />
           <div className="flex items-center justify-center mb-8">
-            <h3 className="text-xl">
+            <h3 className="text-xl mb-4">
               Please connect your wallet to access the admin panel.
             </h3>
           </div>
@@ -94,7 +99,7 @@ const AdminPage = () => {
         <Container>
           <PageTitle title="Admin Panel" />
           <div className="flex items-center justify-center mb-8">
-            <h3 className="text-xl">
+            <h3 className="text-xl mb-4">
               You don&apos;t have permission to access the admin panel.
             </h3>
           </div>
@@ -109,12 +114,13 @@ const AdminPage = () => {
         <PageTitle title="Admin Panel" />
 
         {users.length === 0 ? (
-          <p className="text-center">Loading users...</p>
+          <p className="text-center mb-4">Loading users...</p>
         ) : (
           <table className="w-full bg-white shadow-md rounded-lg overflow-hidden mb-8">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
                 <th className="py-3 px-4">User ID</th>
+                <th className="py-3 px-4">User Address</th>
                 <th className="py-3 px-4">Email</th>
                 <th className="py-3 px-4">Chat Handle</th>
                 <th className="py-3 px-4">Website</th>
@@ -127,6 +133,11 @@ const AdminPage = () => {
               {users.map((user) => (
                 <tr key={user.userId} className="border-b border-gray-200">
                   <td className="py-4 px-6">{user.userId}</td>
+                  <td className="py-4 px-6">
+                    {user.userAddress.slice(0, 6) +
+                      "..." +
+                      user.userAddress.slice(-6)}
+                  </td>
                   <td className="py-4 px-6">{user.userEmail}</td>
                   <td className="py-4 px-6">
                     <Link href={`https://t.me/${user.userChatHandle}`}>
@@ -175,7 +186,7 @@ const AdminPage = () => {
                     <select
                       value={user.userRole}
                       onChange={(e) =>
-                        handleRoleChange(user.userId, e.target.value)
+                        handleRoleChange(user.userAddress, e.target.value)
                       }
                       className="bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     >

@@ -16,6 +16,8 @@ import {
 
 import AccountArtifact from "@/contracts/Account.sol/Account.json";
 
+// TODO: in edit profile, admin will lose their admin privs if they update their profile there. Fix that. Add role logic to it.
+
 interface UserProfile {
   userEmail: string;
   userChatHandle: string;

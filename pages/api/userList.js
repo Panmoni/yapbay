@@ -2,7 +2,6 @@
 import { ethers } from "ethers";
 import AccountArtifact from "@/contracts/Account.sol/Account.json";
 
-
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "Method Not Allowed" });
@@ -39,13 +38,14 @@ export default async function handler(req, res) {
     const userDetails = await Promise.all(userDetailsPromises);
 
     // Transform user details into an array of user objects
-    const usersData = userDetails.map((user) => ({
+    const usersData = userDetails.map((user, index) => ({
       userId: user[0].toString(),
       userEmail: ethers.decodeBytes32String(user[1]),
       userChatHandle: ethers.decodeBytes32String(user[2]),
       userWebsite: ethers.decodeBytes32String(user[3]),
       userAvatar: user[4],
       userRole: user[5],
+      userAddress: userAddresses[index],
     }));
 
     // Return the user list as a JSON response
