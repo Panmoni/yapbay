@@ -109,29 +109,20 @@ const GlobalHeader = () => {
                   Create Offer
                 </span>
               </Link>
+              <Link href="/app/offers">
+                <span
+                  onClick={closeMobileMenu}
+                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
+                >
+                  Offers Listing
+                </span>
+              </Link>
               <Link href="/app/admin">
                 <span
                   onClick={closeMobileMenu}
                   className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
                 >
                   Admin
-                </span>
-              </Link>
-
-              <Link href="/app/offers">
-                <span
-                  onClick={closeMobileMenu}
-                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
-                >
-                  Offers
-                </span>
-              </Link>
-              <Link href="/app/trade/xyz">
-                <span
-                  onClick={closeMobileMenu}
-                  className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
-                >
-                  Trade
                 </span>
               </Link>
             </div>

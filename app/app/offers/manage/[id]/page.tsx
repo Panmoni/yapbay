@@ -1,4 +1,4 @@
-// @/app/offers/create/page.tsx
+// @/app/offers/manage/[id]/page.tsx
 "use client";
 
 import React from "react";
@@ -6,26 +6,25 @@ import { redirect } from "next/navigation";
 
 import Container from "@/components/blog/container";
 import { PageTitle } from "@/components/ui/PageTitle";
-import { currencyCodes } from "@/constants/currencyCodes";
-import { countryCodes } from "@/constants/countryCodes";
 
+import { ethers } from "ethers";
 import {
   useAccount,
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { ethers } from "ethers";
 
 import OfferArtifact from "@/contracts/Offer.sol/Offer.json";
+import { currencyCodes } from "@/constants/currencyCodes";
+import { countryCodes } from "@/constants/countryCodes";
 
-// TODO: hide if not registered
-// TODO: test and cleanup UI
-// TODO: redirect, tx message, etc.
+// TODO: fiatCurrency can not be updated as it's not in the contract function
 
-interface OfferFormInputs {
+interface Offer {
   minTradeAmount: string;
   maxTradeAmount: string;
   fiatCurrency: string;
+  status: string;
   buyingCrypto: boolean;
   country: string;
   paymentMethod: string;
@@ -34,15 +33,18 @@ interface OfferFormInputs {
   title: string;
 }
 
-const OfferCreatePage = () => {
+export default function ManageOfferPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const { address, isConnected } = useAccount();
-  const [isRegistered, setIsRegistered] = React.useState(false);
-
-  const [offerData, setOfferData] = React.useState<OfferFormInputs>({
+  const [offer, setOffer] = React.useState<Offer>({
     minTradeAmount: "",
     maxTradeAmount: "",
     fiatCurrency: "",
-    buyingCrypto: true,
+    status: "",
+    buyingCrypto: false,
     country: "",
     paymentMethod: "",
     terms: "",
@@ -50,30 +52,29 @@ const OfferCreatePage = () => {
     title: "",
   });
 
+  // Fetch offer details
   React.useEffect(() => {
-    const checkUserRegistration = async () => {
-      if (isConnected && address) {
-        try {
-          const response = await fetch(
-            `/api/getUserProfile?address=${address}`,
-          );
-          if (response.ok) {
-            const data = await response.json();
-            if (data.userEmail !== "") {
-              setIsRegistered(true);
-            } else {
-              // Set as NOT registered if userEmail empty
-              setIsRegistered(false);
-            }
-          }
-        } catch (error) {
-          console.error("Error checking user registration:", error);
+    const fetchOffer = async () => {
+      if (!isConnected || !address) return;
+
+      try {
+        const response = await fetch(`/api/getOffers?id=${params.id}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          setOffer({
+            ...data,
+          });
+        } else {
+          console.error("Error fetching offer:", response.status);
         }
+      } catch (error) {
+        console.error("Error fetching offer:", error);
       }
     };
 
-    checkUserRegistration();
-  }, [address, isConnected]);
+    fetchOffer();
+  }, [address, isConnected, params.id]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -83,19 +84,16 @@ const OfferCreatePage = () => {
     const { name, value, type } = e.target;
     const newValue =
       type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
-    setOfferData({ ...offerData, [name]: newValue });
+    setOffer({ ...offer, [name]: newValue });
   };
 
-  const handleBuyingCryptoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOfferData({ ...offerData, buyingCrypto: e.target.checked });
-  };
-
+  // wagmi stuff
   const {
-    data: createOfferData,
-    writeContract: createOffer,
-    isPending: isCreateOfferLoading,
-    isSuccess: isCreateOfferStarted,
-    error: createOfferError,
+    data: updateData,
+    writeContract: updateOffer,
+    isPending: isUpdateLoading,
+    isSuccess: isUpdateStarted,
+    error: updateError,
   } = useWriteContract();
 
   const {
@@ -103,9 +101,9 @@ const OfferCreatePage = () => {
     isSuccess: txSuccess,
     error: txError,
   } = useWaitForTransactionReceipt({
-    hash: createOfferData as `0x${string}`,
+    hash: updateData as `0x${string}`,
     confirmations: 1,
-    query: { enabled: !!createOfferData },
+    query: { enabled: !!updateData },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -114,43 +112,45 @@ const OfferCreatePage = () => {
     if (!isConnected || !address) return;
 
     try {
-      await createOffer({
+      await updateOffer({
         address: process.env
           .NEXT_PUBLIC_OFFER_CONTRACT_ADDRESS! as `0x${string}`,
         abi: OfferArtifact.abi,
-        functionName: "offerCreate",
+        functionName: "offerUpdateOffer",
         args: [
-          ethers.parseUnits(offerData.minTradeAmount, 18),
-          ethers.parseUnits(offerData.maxTradeAmount, 18),
-          offerData.fiatCurrency,
-          offerData.buyingCrypto,
-          offerData.country,
-          offerData.paymentMethod,
-          offerData.terms,
-          ethers.parseUnits(offerData.rate, 2),
-          offerData.title,
+          BigInt(params.id),
+          ethers.parseUnits(offer.minTradeAmount, 18),
+          ethers.parseUnits(offer.maxTradeAmount, 18),
+          offer.status,
+          offer.buyingCrypto,
+          offer.country,
+          offer.paymentMethod,
+          offer.terms,
+          ethers.parseUnits(offer.rate, 2),
+          offer.title,
         ],
       });
     } catch (error) {
-      console.error("Error creating offer:", error);
+      console.error("Error updating offer:", error);
     }
   };
 
   React.useEffect(() => {
     if (txSuccess) {
       console.log(txSuccess, txData);
-      redirect("/app/offers");
+      redirect(`/app/offers/${params.id}`);
     }
-  }, [txSuccess, txData]);
+  }, [txSuccess, txData, params.id]);
 
+  // if not connected, ask to connect (JSX)
   if (!isConnected) {
     return (
       <main>
         <Container>
-          <PageTitle title="Create Offer" />
+          <PageTitle title="Manage Offer" />
           <div className="flex items-center justify-center mb-8">
             <h3 className="text-xl">
-              Please connect your wallet to create an offer.
+              Please connect your wallet to manage your offer.
             </h3>
           </div>
         </Container>
@@ -158,66 +158,67 @@ const OfferCreatePage = () => {
     );
   }
 
-  if (!isRegistered) {
-    return (
-      <main>
-        <Container>
-          <PageTitle title="Create Account" appRoute />
-          <div className="flex items-center justify-center mb-8">
-            <h3 className="text-xl">
-              Please create an account first before creating an offer.
-            </h3>
-          </div>
-        </Container>
-      </main>
-    );
-  }
-
+  // if connected, pre-filled update offer form (JSX)
   return (
     <main>
       <Container>
-        <PageTitle title="Create Offer" />
+        <PageTitle title="Manage Offer" />
         <div className="flex items-center justify-center mb-8">
           <form
             onSubmit={handleSubmit}
             className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md"
           >
+            {/* Offer form fields */}
             <div className="mb-4">
-              <label className="block text-gray-700 font-bold mb-2">
-                Offer Type
+              <label
+                htmlFor="title"
+                className="block text-gray-700 font-bold mb-2"
+              >
+                Title
               </label>
-              <div className="flex items-center">
-                <label htmlFor="buyingCrypto" className="mr-4">
-                  <input
-                    type="radio"
-                    id="buyingCrypto"
-                    name="offerType"
-                    value="buy"
-                    checked={offerData.buyingCrypto}
-                    onChange={() =>
-                      setOfferData({ ...offerData, buyingCrypto: true })
-                    }
-                    className="mr-2"
-                  />
-                  Buying Crypto
-                </label>
-                <label htmlFor="sellingCrypto">
-                  <input
-                    type="radio"
-                    id="sellingCrypto"
-                    name="offerType"
-                    value="sell"
-                    checked={!offerData.buyingCrypto}
-                    onChange={() =>
-                      setOfferData({ ...offerData, buyingCrypto: false })
-                    }
-                    className="mr-2"
-                  />
-                  Selling Crypto
-                </label>
-              </div>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={offer.title}
+                onChange={handleChange}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              />
             </div>
-
+            <div className="mb-4">
+              <label
+                htmlFor="minTradeAmount"
+                className="block text-gray-700 font-bold mb-2"
+              >
+                Minimum Trade Amount
+              </label>
+              <input
+                type="number"
+                id="minTradeAmount"
+                name="minTradeAmount"
+                value={offer.minTradeAmount}
+                onChange={handleChange}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                htmlFor="maxTradeAmount"
+                className="block text-gray-700 font-bold mb-2"
+              >
+                Maximum Trade Amount
+              </label>
+              <input
+                type="number"
+                id="maxTradeAmount"
+                name="maxTradeAmount"
+                value={offer.maxTradeAmount}
+                onChange={handleChange}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required
+              />
+            </div>
             <div className="mb-4">
               <label
                 htmlFor="fiatCurrency"
@@ -228,7 +229,7 @@ const OfferCreatePage = () => {
               <select
                 id="fiatCurrency"
                 name="fiatCurrency"
-                value={offerData.fiatCurrency}
+                value={offer.fiatCurrency}
                 onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 required
@@ -241,7 +242,37 @@ const OfferCreatePage = () => {
                 ))}
               </select>
             </div>
-
+            <div className="mb-4">
+              <label className="block text-gray-700 font-bold mb-2">
+                Offer Type
+              </label>
+              <div className="flex items-center">
+                <label htmlFor="buyingCrypto" className="mr-4">
+                  <input
+                    type="radio"
+                    id="buyingCrypto"
+                    name="offerType"
+                    value="buy"
+                    checked={offer.buyingCrypto}
+                    onChange={() => setOffer({ ...offer, buyingCrypto: true })}
+                    className="mr-2"
+                  />
+                  Buying Crypto
+                </label>
+                <label htmlFor="sellingCrypto">
+                  <input
+                    type="radio"
+                    id="sellingCrypto"
+                    name="offerType"
+                    value="sell"
+                    checked={!offer.buyingCrypto}
+                    onChange={() => setOffer({ ...offer, buyingCrypto: false })}
+                    className="mr-2"
+                  />
+                  Selling Crypto
+                </label>
+              </div>
+            </div>
             <div className="mb-4">
               <label
                 htmlFor="country"
@@ -252,7 +283,7 @@ const OfferCreatePage = () => {
               <select
                 id="country"
                 name="country"
-                value={offerData.country}
+                value={offer.country}
                 onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 required
@@ -265,42 +296,6 @@ const OfferCreatePage = () => {
                 ))}
               </select>
             </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="minTradeAmount"
-                className="block text-gray-700 font-bold mb-2"
-              >
-                Minimum Fiat Trade Amount
-              </label>
-              <input
-                type="number"
-                id="minTradeAmount"
-                name="minTradeAmount"
-                value={offerData.minTradeAmount}
-                onChange={handleChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                htmlFor="maxTradeAmount"
-                className="block text-gray-700 font-bold mb-2"
-              >
-                Maximum Fiat Trade Amount
-              </label>
-              <input
-                type="number"
-                id="maxTradeAmount"
-                name="maxTradeAmount"
-                value={offerData.maxTradeAmount}
-                onChange={handleChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-
             <div className="mb-4">
               <label
                 htmlFor="paymentMethod"
@@ -312,48 +307,12 @@ const OfferCreatePage = () => {
                 type="text"
                 id="paymentMethod"
                 name="paymentMethod"
-                value={offerData.paymentMethod}
+                value={offer.paymentMethod}
                 onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 required
               />
             </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="rate"
-                className="block text-gray-700 font-bold mb-2"
-              >
-                Trade Rate (%)
-              </label>
-              <input
-                type="number"
-                id="rate"
-                name="rate"
-                value={offerData.rate}
-                onChange={handleChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                htmlFor="title"
-                className="block text-gray-700 font-bold mb-2"
-              >
-                Offer Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                value={offerData.title}
-                onChange={handleChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-
             <div className="mb-4">
               <label
                 htmlFor="terms"
@@ -364,25 +323,63 @@ const OfferCreatePage = () => {
               <textarea
                 id="terms"
                 name="terms"
-                value={offerData.terms}
+                value={offer.terms}
                 onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 required
               ></textarea>
             </div>
-
+            <div className="mb-4">
+              <label
+                htmlFor="rate"
+                className="block text-gray-700 font-bold mb-2"
+              >
+                Rate (%)
+              </label>
+              <input
+                type="number"
+                id="rate"
+                name="rate"
+                value={offer.rate}
+                onChange={handleChange}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label
+                htmlFor="status"
+                className="block text-gray-700 font-bold mb-2"
+              >
+                Status
+              </label>
+              <select
+                id="status"
+                name="status"
+                value={offer.status}
+                onChange={handleChange}
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required
+              >
+                <option value="Active">Active</option>
+                <option value="Paused">Paused</option>
+                <option value="Withdrawn">Withdrawn</option>
+              </select>
+            </div>
             <div className="flex items-center justify-center">
               <button
                 type="submit"
-                disabled={isCreateOfferLoading || isCreateOfferStarted}
+                disabled={isUpdateLoading || isUpdateStarted}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
               >
-                {isCreateOfferLoading || isCreateOfferStarted
-                  ? "Creating Offer..."
-                  : "Create Offer"}
+                {isUpdateLoading || isUpdateStarted
+                  ? "Updating Offer..."
+                  : "Update Offer"}
               </button>
             </div>
-            {createOfferData && (
+
+            {/* show tx hash and link */}
+            {updateData && (
               <div className="mt-4 text-xs mx-auto items-center justify-center flex flex-col">
                 <h3 className="text-xl text-semibold mb-2">
                   Transaction Created:
@@ -390,11 +387,9 @@ const OfferCreatePage = () => {
                 <p className="text-lg">
                   <a
                     target="_blank"
-                    href={`https://sepolia.etherscan.io/tx/${createOfferData}`}
+                    href={`https://sepolia.etherscan.io/tx/${updateData}`}
                   >
-                    {createOfferData.slice(0, 6) +
-                      "..." +
-                      createOfferData.slice(-6)}{" "}
+                    {updateData.slice(0, 6) + "..." + updateData.slice(-6)}{" "}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       x="0px"
@@ -415,6 +410,4 @@ const OfferCreatePage = () => {
       </Container>
     </main>
   );
-};
-
-export default OfferCreatePage;
+}

@@ -8,6 +8,8 @@ import { PageTitle } from "@/components/ui/PageTitle";
 import { AccountForm, Inputs } from "@/components/contracts/accountForm";
 // import { InterfaceVpcEndpointAttributes } from "aws-cdk-lib/aws-ec2";
 
+// TODO: Add app page
+
 const App = () => {
   return (
     <main>

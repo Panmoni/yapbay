@@ -1,0 +1,28 @@
+{
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#000080", // Deep navy blue
+    "activityBar.background": "#000080", // Deep navy blue
+    "activityBar.foreground": "#ffffff", // White for contrast
+    "activityBar.inactiveForeground": "#ffffff99", // Slightly transparent white
+    "activityBarBadge.background": "#000000", // Black
+    "activityBarBadge.foreground": "#ffffff", // White for contrast
+    "commandCenter.border": "#00000099",
+    "editorCursor.foreground": "#ffffff", // White
+    "editorLineNumber.foreground": "#888888", // Gray
+    "editorOverviewRuler.border": "#ffffff", // White
+    "editorRuler.foreground": "#ffffff", // White
+    "panel.border": "#00000099", // Slightly transparent black
+    "panelTitle.activeBorder": "#ffffff", // White
+    "panelTitle.inactiveForeground": "#ffffff99", // Slightly transparent white
+    "sash.hoverBorder": "#ffffff", // White
+    "statusBar.background": "#f8f8f8", // Light gray
+    "statusBar.foreground": "#000000", // Black for contrast
+    "statusBarItem.hoverBackground": "#ffffff", // White
+    "statusBarItem.remoteBackground": "#f8f8f8", // Light gray
+    "statusBarItem.remoteForeground": "#000000", // Black for contrast
+    "titleBar.activeBackground": "#f8f8f8", // Light gray
+    "titleBar.activeForeground": "#000000", // Black for contrast
+    "titleBar.inactiveBackground": "#f8f8f8aa", // Slightly transparent light gray
+    "titleBar.inactiveForeground": "#ffffff99" // Slightly transparent white
+  }
+}

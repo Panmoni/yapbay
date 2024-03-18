@@ -19,6 +19,7 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const { address, isConnected } = useAccount();
+  const [isRegistered, setIsRegistered] = React.useState(false);
   const [userProfile, setUserProfile] = React.useState<UserProfile | null>(
     null,
   );
@@ -44,6 +45,31 @@ export default function ProfilePage() {
     fetchUserProfile();
   }, [address, isConnected]);
 
+  React.useEffect(() => {
+    const checkUserRegistration = async () => {
+      if (isConnected && address) {
+        try {
+          const response = await fetch(
+            `/api/getUserProfile?address=${address}`,
+          );
+          if (response.ok) {
+            const data = await response.json();
+            if (data.userEmail !== "") {
+              setIsRegistered(true);
+            } else {
+              // Set as NOT registered if userEmail empty
+              setIsRegistered(false);
+            }
+          }
+        } catch (error) {
+          console.error("Error checking user registration:", error);
+        }
+      }
+    };
+
+    checkUserRegistration();
+  }, [address, isConnected]);
+
   if (!isConnected) {
     return (
       <main>
@@ -65,6 +91,19 @@ export default function ProfilePage() {
         <Container>
           <PageTitle title="User Profile" appRoute />
           <div className="max-w-2xl mx-auto mb-10">Loading...</div>
+        </Container>
+      </main>
+    );
+  }
+
+  if (!isRegistered) {
+    return (
+      <main>
+        <Container>
+          <PageTitle title="User Profile" appRoute />
+          <div className="flex items-center justify-center mb-8">
+            <h3 className="text-xl">Please create an account first.</h3>
+          </div>
         </Container>
       </main>
     );
