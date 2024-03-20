@@ -44,7 +44,7 @@ const App = () => {
           </p>
 
           <h3 className="text-2xl font-semibold">Test out the Demo!</h3>
-          <ol className="list-decimal	list-outside	pl-5 space-y-6 text-lg">
+          <ol className="list-decimal	list-outside pl-5 space-y-6 text-lg">
             <li>
               Install{" "}
               <a
@@ -187,6 +187,50 @@ const App = () => {
               Or download the PDF.
             </Link>
           </p>
+
+          <h3 className="text-2xl font-semibold">Your Valuable Feedback</h3>
+
+          <p className="text-lg leading-relaxed mb-4">
+            Your feedback is extremely welcome and deeply appreciated!
+          </p>
+
+          <ul className="list-disc list-outside pl-5 space-y-4">
+            <li>
+              <a href="mailto:hello@panmoni.com">Email hello@panmoni.com</a>
+            </li>
+            <li>
+              <a target="_blank" href="https://t.me/YapBay">
+                Post in the @YapBay Telegram group
+              </a>
+            </li>
+            <li>
+              <a target="_blank" href="https://t.me/GeorgeDonnelly">
+                DM @GeorgeDonnelly on Telegram
+              </a>
+            </li>
+            <li>
+              <a target="_blank" href="https://x.com/YapBay_">
+                Tweet @YapBay_
+              </a>
+            </li>
+            <li>
+              <a
+                target="_blank"
+                href="https://github.com/Panmoni/yapbay/discussions"
+              >
+                Start a discussion on GitHub
+              </a>
+            </li>
+
+            <li>
+              <a
+                target="_blank"
+                href="https://github.com/Panmoni/yapbay/issues"
+              >
+                Report an issue on GitHub
+              </a>
+            </li>
+          </ul>
         </div>
       </Container>
     </main>
