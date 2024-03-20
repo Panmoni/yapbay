@@ -81,10 +81,9 @@ export default function TradeDetails({
               You are remitting {tradeAmount} {buyOffer.fiatCurrency}. It is
               expected that roughly{" "}
               {(
-                (Number(tradeAmount) *
-                  (100.0 - Number(buyOffer.rate)) *
-                  (100.0 - Number(sellOffer.rate))) /
-                10000
+                Number(tradeAmount) *
+                (1 - Math.abs(Number(buyOffer.rate)) / 100) *
+                (1 - Math.abs(Number(sellOffer.rate)) / 100)
               ).toFixed(2)}{" "}
               {buyOffer.fiatCurrency} will be delivered to your remittance
               recipient in {sellOffer.country} in their local currency.
