@@ -31,7 +31,10 @@ export default function InitiateTradePage() {
       <Container>
         <PageTitle title="Initiate Trade" appRoute />
         <Suspense fallback={<div>Loading trade details...</div>}>
-          <TradeDetails />
+          <TradeDetails
+            tradeAmount={tradeAmount}
+            paymentMethod={paymentMethod}
+          />
         </Suspense>
         <div className="flex items-center justify-center mb-8">
           <form onSubmit={handleCreateTrade}>

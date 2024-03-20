@@ -7,7 +7,15 @@ import { useSearchParams } from "next/navigation";
 // Offer interface
 import { Offer } from "@/interfaces/offer";
 
-export default function TradeDetails() {
+interface TradeDetailsProps {
+  tradeAmount: string;
+  paymentMethod: string;
+}
+
+export default function TradeDetails({
+  tradeAmount,
+  paymentMethod,
+}: TradeDetailsProps) {
   const params = useSearchParams();
   const [buyOffer, setBuyOffer] = useState<Offer | null>(null);
   const [sellOffer, setSellOffer] = useState<Offer | null>(null);
@@ -68,6 +76,20 @@ export default function TradeDetails() {
             <span className="font-bold">{sellOffer.country}</span> via{" "}
             <span className="font-bold">{sellOffer.paymentMethod}</span>.
           </p>
+          {tradeAmount && paymentMethod && (
+            <p className="text-xl mb-6 text-center">
+              You are remitting {tradeAmount} {buyOffer.fiatCurrency}. It is
+              expected that roughly{" "}
+              {(
+                (Number(tradeAmount) *
+                  (100.0 - Number(buyOffer.rate)) *
+                  (100.0 - Number(sellOffer.rate))) /
+                10000
+              ).toFixed(2)}{" "}
+              {buyOffer.fiatCurrency} will be delivered to your remittance
+              recipient in {sellOffer.country} in their local currency.
+            </p>
+          )}
           <div className="flex items-top justify-center mb-8 space-x-12">
             <div className="w-1/3 h-96 border border-gray-300 p-6 rounded-lg">
               <h4 className="text-xl font-semibold mb-2 uppercase">
