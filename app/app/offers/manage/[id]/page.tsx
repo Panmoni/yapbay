@@ -121,7 +121,7 @@ export default function ManageOfferPage({
           BigInt(params.id),
           ethers.parseUnits(offer.minTradeAmount, 18),
           ethers.parseUnits(offer.maxTradeAmount, 18),
-          offer.status,
+          offer.status === "active",
           offer.buyingCrypto,
           offer.country,
           offer.paymentMethod,

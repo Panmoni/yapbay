@@ -2,8 +2,20 @@
 
 ## 1. Trade Initiation and Acceptance:
 
-- Trade initiation page allowing users to select an offer and initiate a trade.
-- Trade details page displaying the complete details of a specific trade.
+1. Implement a mechanism for the offer owners to accept or reject the trade request. This can be done through email notifications, in-app notifications, or by providing a dedicated page for managing trade requests.
+
+2. If both offer owners accept the trade request, update the trade status to "Accepted" and proceed with the escrow process.
+
+3. Implement the escrow functionality to hold the traded assets (e.g., USDC) until the trade conditions are met. This can be done using a smart contract or a trusted escrow service.
+
+4. Provide a way for the offer owners to confirm the receipt of the fiat payments (e.g., Larry's USD payment to Mike's bank account and Andres' COP deposit to Maria's bank account).
+
+5. Once the fiat payments are confirmed, release the escrowed assets (e.g., transfer the USDC from Mike's escrow to Andres' escrow).
+
+6. Update the trade status to "Completed" and notify all parties involved about the successful completion of the trade.
+
+7. Display the trade status and details to the users on the trade initiation page or a separate trade details page.
+
 - Trade acceptance page for offer owners to accept or reject initiated trades.
 - Trade status tracking page showing the current status of ongoing trades.
 

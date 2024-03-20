@@ -35,7 +35,7 @@ export default async function handler(
         // Fetch a specific offer
         const offerId = BigInt(id as string);
         const offer = await offerContract.getOfferDetails(offerId);
-        console.log(offer);
+        // console.log(offer);
 
         res.status(200).json({
           id: offerId.toString(),
@@ -95,7 +95,7 @@ export default async function handler(
           });
         }
 
-        console.log(offers);
+        // console.log(offers);
         res.status(200).json(offers);
       }
     } catch (error) {

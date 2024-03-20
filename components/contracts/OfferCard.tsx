@@ -23,12 +23,23 @@ interface OfferCardProps {
     rate: string;
     title: string;
   };
+  onSelect: (offerId: string) => void;
+  isSelected: boolean;
 }
 
-export function OfferCard({ offer }: OfferCardProps) {
+export function OfferCard({ offer, onSelect, isSelected }: OfferCardProps) {
   return (
     <tr className="border-b border-gray-200">
+      <td className="py-4 px-6">
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => onSelect(offer.id)}
+          className="form-checkbox h-5 w-5 text-blue-600"
+        />
+      </td>
       <td className="py-4 px-6">{offer.title}</td>
+
       <td className="py-4 px-6">
         {offer.buyingCrypto ? "Buying" : "Selling"} Crypto
       </td>
