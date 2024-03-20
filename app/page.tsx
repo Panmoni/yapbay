@@ -39,7 +39,7 @@ export default function Home() {
           !
         </p>
 
-        <p className="mx-auto max-w-2xl md:text-xl lg:text-lg xl:text-xl dark:text-gray-400 mb-6">
+        <p className="mx-auto max-w-2xl md:text-xl lg:text-lg xl:text-xl dark:text-gray-400 mb-6 font-bold">
           Try out the partial MVP on the{" "}
           <a href="/app" target="_blank">
             /app page
