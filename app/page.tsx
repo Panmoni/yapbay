@@ -38,6 +38,14 @@ export default function Home() {
           </a>
           !
         </p>
+
+        <p className="mx-auto max-w-2xl md:text-xl lg:text-lg xl:text-xl dark:text-gray-400 mb-6">
+          Try out the partial MVP on the{" "}
+          <a href="/app" target="_blank">
+            /app page
+          </a>
+          !
+        </p>
       </Container>
     </main>
   );
