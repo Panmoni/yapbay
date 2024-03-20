@@ -9,4 +9,12 @@ export const countryCodes = [
   "IT",
   "ES",
   "NL",
+  "ZW",
+  "CH",
+  "HK",
+  "SG",
+  "VE",
+  "AR",
+  "CO",
+  "MX",
 ];
