@@ -30,7 +30,7 @@ const App = () => {
           <iframe
             width="720"
             height="405"
-            src="https://www.youtube.com/embed/uFS4gxSHbZI?si=UYKxbUidkErP4fyL"
+            src="https://www.youtube.com/embed/YTdgws1vK9c"
             title="YouTube video player"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -38,7 +38,10 @@ const App = () => {
           ></iframe>
 
           <p className="text-lg leading-relaxed mb-4">
-            <a target="_blank" href="">
+            <a
+              target="_blank"
+              href="https://www.youtube.com/watch?v=YTdgws1vK9c"
+            >
               Or click here to watch it on YouTube.
             </a>
           </p>
