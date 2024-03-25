@@ -49,3 +49,65 @@
 - Allow users to drag and drop offers to create a chain.
 - Enable users to filter offers based on criteria such as fiat currency, crypto currency, and trade amount. (pro user mode?)
 - Saved Transactions: Allow users to save chained transactions as templates for future use.
+
+Rating and Feedback:
+
+Trade rating page for trade parties to rate and provide feedback on completed trades.
+
+User reputation page displaying the overall reputation score and rating history of a user.
+
+Admin Panel:
+
+Admin dashboard for managing and monitoring the platform.
+
+Dispute management page for admins to view and resolve disputed trades.
+
+Fee and penalty management page for admins to set and update platform fees and penalties.
+
+Escrow management page for admins to perform escrow-related actions such as splitting or penalizing crypto.
+
+Notifications and Alerts:
+
+Notification system to keep users informed about trade status updates, disputes, and other important events.
+
+Alert system to notify admins about critical actions that require their attention.
+
+Analytics and Reporting:
+
+Trade analytics page displaying various trade-related statistics and metrics.
+
+User analytics page showing user-related data and insights.
+
+Reporting functionality to generate reports on trades, disputes, and platform performance.
+
+Security and Authentication:
+
+Secure user authentication and authorization system.
+
+Two-factor authentication (2FA) for enhanced security.
+
+Access control mechanisms to ensure only authorized users can perform specific actions.
+
+Events
+
+An off-chain service, such as a Node.js application or a cloud function, listens for events emitted from the contracts.
+
+Store contract-emitted events, including notifications, off-chain.
+
+store trade history data in a storage provider such as PlanetScale or Arweave with cryptographic proofs/sigs/hashes so the integrity can be verified.
+
+Looks like I can emit them as events and then store them elsewhere.
+
+web3.eth.getLogs
+
+consider GraphQL
+
+API for retrieving events, including trade history
+
+Testing
+
+walk through all contracts and understand them step by step
+
+create list of every user path so I can test them
+
+update contract documentation

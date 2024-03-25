@@ -397,6 +397,10 @@ export default function Roadmap() {
               Potential Integrations
             </h2>
 
+            <ul className="list-disc pl-5">
+              <li>Privy.io</li>
+              <li>Charmverse.io</li>
+            </ul>
             <h3 className="text-2xl font-bold mt-4 mb-1">Identity</h3>
             <ul className="list-disc pl-5">
               <li>ENS</li>
