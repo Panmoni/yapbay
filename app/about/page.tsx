@@ -52,7 +52,10 @@ export default function Roadmap() {
           </p>
 
           <p className="my-4">
-            <Link href="https://static.panmoni.org/yb/yapbay-deck.pdf">
+            <Link
+              target="_blank"
+              href="https://static.panmoni.org/yb/yapbay-deck.pdf"
+            >
               Download the current YapBay deck.
             </Link>
           </p>
