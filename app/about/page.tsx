@@ -68,6 +68,12 @@ export default function Roadmap() {
             accountable monetary system.
           </p>
 
+          <p className="my-4">
+            <Link href="https://static.panmoni.org/yb/yapbay-deck.pdf">
+              Download the current YapBay deck.
+            </Link>
+          </p>
+
           <h2 className="text-3xl font-bold mb-2 mt-8">Vision</h2>
           <p className="my-4">
             We envision a world of universal prosperity, where every human being
