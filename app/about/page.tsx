@@ -51,6 +51,12 @@ export default function Roadmap() {
             to participate in the global economy on their own terms.
           </p>
 
+          <p className="my-4">
+            <Link href="https://static.panmoni.org/yb/yapbay-deck.pdf">
+              Download the current YapBay deck.
+            </Link>
+          </p>
+
           <h2 className="text-3xl font-bold mb-2 mt-8">Mission</h2>
 
           <p className="my-4">
@@ -66,12 +72,6 @@ export default function Roadmap() {
             meaningfully towards the goal of enabling access to prosperity for
             people worldwide who have been denied the full benefits of an
             accountable monetary system.
-          </p>
-
-          <p className="my-4">
-            <Link href="https://static.panmoni.org/yb/yapbay-deck.pdf">
-              Download the current YapBay deck.
-            </Link>
           </p>
 
           <h2 className="text-3xl font-bold mb-2 mt-8">Vision</h2>
