@@ -4,6 +4,10 @@ add https://docs.boost.xyz/boost-protocol as potential integration on roadmap
 
 update the twitter bio/branding, maybe telegram and github as well based on new about page
 
+start A/B testing texts and pitches on yapbay.com.
+
+start launching.
+
 ## 1. Trade Initiation and Acceptance:
 
 1. Implement a mechanism for the offer owners to accept or reject the trade request. This can be done through email notifications, in-app notifications, or by providing a dedicated page for managing trade requests.

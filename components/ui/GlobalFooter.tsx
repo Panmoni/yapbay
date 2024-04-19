@@ -138,9 +138,9 @@ export default function GlobalFooter() {
         development. Use at your own risk.
       </p>
       <p className="mt-4">
-        Powered by Morph L2, Sepolia testnet, Alchemy Platform, RainbowKit,
-        Next.js, Ethers.js, Hardhat, TailwindCSS, Typescript, the CoinGecko API
-        and Vercel.
+        Powered by Sepolia testnet, Alchemy Platform, RainbowKit, Next.js,
+        Ethers.js, Hardhat, TailwindCSS, Typescript, the CoinGecko API and
+        Vercel.
       </p>
     </footer>
   );
