@@ -51,14 +51,14 @@ const GlobalHeader = () => {
           </Link>
 
           <h1 className="text-2xl ml-1 mr-4 font-bold">
-            <Link href="/" aria-label="Home" passHref>
+            <Link href="/" aria-label="Home" passHref className="no-underline">
               YapBay
             </Link>
           </h1>
 
           {/* Primary Nav Menu */}
           <div className="items-center space-x-1 hidden md:flex">
-            <Link href="/app" passHref>
+            <Link href="/app" passHref className="no-underline">
               <span className="py-5 cursor-pointer whitespace-nowrap text-lg">
                 App
               </span>
@@ -85,7 +85,7 @@ const GlobalHeader = () => {
                 isOpen ? "flex" : "hidden"
               } absolute z-10 top-16 w-auto mx-auto border border-muted shadow-md p-4 flex-col mt-2 bg-white`}
             >
-              <Link href="/app/register">
+              <Link href="/app/register" className="no-underline">
                 <span
                   onClick={closeMobileMenu}
                   className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
@@ -93,7 +93,7 @@ const GlobalHeader = () => {
                   Create Account
                 </span>
               </Link>
-              <Link href="/app/profile">
+              <Link href="/app/profile" className="no-underline">
                 <span
                   onClick={closeMobileMenu}
                   className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
@@ -101,7 +101,7 @@ const GlobalHeader = () => {
                   View Profile
                 </span>
               </Link>
-              <Link href="/app/offers/create">
+              <Link href="/app/offers/create" className="no-underline">
                 <span
                   onClick={closeMobileMenu}
                   className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
@@ -109,7 +109,7 @@ const GlobalHeader = () => {
                   Create Offer
                 </span>
               </Link>
-              <Link href="/app/offers">
+              <Link href="/app/offers" className="no-underline">
                 <span
                   onClick={closeMobileMenu}
                   className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
@@ -117,7 +117,7 @@ const GlobalHeader = () => {
                   Offers Listing
                 </span>
               </Link>
-              <Link href="/app/admin">
+              <Link href="/app/admin" className="no-underline">
                 <span
                   onClick={closeMobileMenu}
                   className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
@@ -127,22 +127,22 @@ const GlobalHeader = () => {
               </Link>
             </div>
             {/* App Submenu End */}
-            <Link href="/blog" passHref>
+            <Link href="/blog" passHref className="no-underline">
               <span className="py-5 px-3 cursor-pointer whitespace-nowrap text-lg">
                 Blog
               </span>
             </Link>
-            <Link href="/about" passHref>
+            <Link href="/about" passHref className="no-underline">
               <span className="py-5 px-3 cursor-pointer whitespace-nowrap text-lg">
                 About
               </span>
             </Link>
-            <Link href="/roadmap" passHref>
+            <Link href="/roadmap" passHref className="no-underline">
               <span className="py-5 px-3 cursor-pointer whitespace-nowrap text-lg">
                 Roadmap
               </span>
             </Link>
-            <Link href="/contact" passHref>
+            <Link href="/contact" passHref className="no-underline">
               <span className="py-5 px-3 cursor-pointer whitespace-nowrap text-lg">
                 Contact
               </span>
@@ -178,7 +178,7 @@ const GlobalHeader = () => {
             isOpen ? "flex" : "hidden"
           } md:hidden flex-col items-center justify-center bg-midnight w-1/2 mx-auto border border-muted shadow-md p-4`}
         >
-          <Link href="/app">
+          <Link href="/app" className="no-underline">
             <span
               onClick={closeMobileMenu}
               className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
@@ -186,7 +186,7 @@ const GlobalHeader = () => {
               App
             </span>
           </Link>
-          <Link href="/blog" passHref>
+          <Link href="/blog" passHref className="no-underline">
             <span
               onClick={closeMobileMenu}
               className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
@@ -194,7 +194,7 @@ const GlobalHeader = () => {
               Blog
             </span>
           </Link>
-          <Link href="/about" passHref>
+          <Link href="/about" passHref className="no-underline">
             <span
               onClick={closeMobileMenu}
               className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
@@ -202,7 +202,7 @@ const GlobalHeader = () => {
               About
             </span>
           </Link>
-          <Link href="/roadmap" passHref>
+          <Link href="/roadmap" passHref className="no-underline">
             <span
               onClick={closeMobileMenu}
               className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
@@ -210,7 +210,7 @@ const GlobalHeader = () => {
               Roadmap
             </span>
           </Link>
-          <Link href="/contact" passHref>
+          <Link href="/contact" passHref className="no-underline">
             <span
               onClick={closeMobileMenu}
               className="block py-2 px-4 text-sm hover:bg-secondary cursor-pointer"
