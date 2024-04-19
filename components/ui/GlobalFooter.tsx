@@ -47,6 +47,12 @@ export default function GlobalFooter() {
           </Link>
         </div>
       </nav>
+
+      <div className="flex justify-center mt-4 mb-6 space-x-6">
+        <a href="mailto:hello@yapbay.com" className="no-underline">
+          hello@yapbay.com
+        </a>
+      </div>
       <div className="flex justify-center my-4 space-x-6">
         <Link
           target="_blank"

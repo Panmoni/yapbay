@@ -201,6 +201,7 @@ export default function Roadmap() {
           <h2 className="text-3xl font-bold mb-2 mt-8">Acknowledgments</h2>
 
           <ul className="list-disc pl-10">
+            <li>Gitcoin Grants 20 (GG20)</li>
             <li>Adam Killam (mentoring)</li>
             <li>Simon Chamorro (mentoring)</li>
             <li>
@@ -213,6 +214,9 @@ export default function Roadmap() {
             </li>
             <li>Jose Araujo (team member)</li>
             <li>Gabriel Mitacchione (team member)</li>
+            <li>
+              The people of the developing world who have taught us so much.
+            </li>
             <li>
               The BCH community, most notably Mike Komaransky & Georg Engelmann.
             </li>
