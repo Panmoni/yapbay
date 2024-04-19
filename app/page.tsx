@@ -31,13 +31,6 @@ export default function Home() {
           enable faster, cheaper, and more accessible cross-border payments for
           the world&apos;s unbanked and underbanked population.
         </p>
-        <p className="mx-auto max-w-2xl md:text-xl lg:text-lg xl:text-xl dark:text-gray-400 mb-6">
-          During February and March 2024, YapBay is building with{" "}
-          <a href="https://backdropbuild.com/builds/v3/yb-xnu" target="_blank">
-            BackdropBuild
-          </a>
-          !
-        </p>
 
         <p className="mx-auto max-w-2xl md:text-xl lg:text-lg xl:text-xl dark:text-gray-400 mb-6 font-bold">
           Try out the partial MVP on the{" "}

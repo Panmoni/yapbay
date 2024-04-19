@@ -197,6 +197,27 @@ export default function Roadmap() {
             We invite you to join us on this journey towards a more equitable
             and prosperous future.
           </p>
+
+          <h2 className="text-3xl font-bold mb-2 mt-8">Acknowledgments</h2>
+
+          <ul className="list-disc pl-10">
+            <li>Adam Killam (mentoring)</li>
+            <li>Simon Chamorro (mentoring)</li>
+            <li>
+              <Link
+                href="https://backdropbuild.com/builds/v3/yb-xnu"
+                target="_blank"
+              >
+                Backdrop Build Hackathon v3
+              </Link>
+            </li>
+            <li>Jose Araujo (team member)</li>
+            <li>Gabriel Mitacchione (team member)</li>
+            <li>
+              The BCH community, most notably Mike Komaransky & Georg Engelmann.
+            </li>
+            <li>The Dash DAO.</li>
+          </ul>
         </div>
       </Container>
     </main>
