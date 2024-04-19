@@ -92,3 +92,4 @@ If the Yap Bay mission is exciting to you, please join us and contribute to the 
 - [**Twitter**: YapBay\_](https://twitter.com/YapBay_)
 - [**Telegram**: YapBay](https://t.me/YapBay)
 - [**GitHub**: Panmoni](https://github.com/Panmoni/yapbay)
+- **Email**: hello@yapbay.com
