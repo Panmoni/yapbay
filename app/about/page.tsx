@@ -201,8 +201,18 @@ export default function Roadmap() {
           <h2 className="text-3xl font-bold mb-2 mt-8">Acknowledgments</h2>
 
           <ul className="list-disc pl-10">
-            <li>Gitcoin Grants 20 (GG20)</li>
+            <li>
+              <a
+                href="https://www.gitcoin.co/blog/announcing-gg20"
+                target="_blank"
+              >
+                Gitcoin Grants 20 (GG20)
+              </a>
+            </li>
+            <li>Keon Kim (mentoring)</li>
             <li>Adam Killam (mentoring)</li>
+            <li>Kain Warwick (mentoring)</li>
+            <li>Mike Komaransky (mentoring)</li>
             <li>Simon Chamorro (mentoring)</li>
             <li>
               <Link
