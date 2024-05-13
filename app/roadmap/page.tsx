@@ -655,6 +655,10 @@ export default function Roadmap() {
             <li>Nextra</li>
             <li>PostHog</li>
           </ul>
+
+          <p className="text-sm mt-4 mb-1">
+            Last Updated: 2024-05-13T19:18:42.3NZ
+          </p>
         </div>
       </Container>
     </main>
