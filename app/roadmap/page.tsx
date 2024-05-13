@@ -659,6 +659,15 @@ export default function Roadmap() {
           <p className="text-sm mt-4 mb-1">
             Last Updated: 2024-05-13T19:18:42.3NZ
           </p>
+
+          <p className="text-sm mt-4 mb-1">
+            <a
+              href="https://gap.karmahq.xyz/project/yap-bay-web3-p2p-remittances-1"
+              target="_blank"
+            >
+              Karma page
+            </a>
+          </p>
         </div>
       </Container>
     </main>
