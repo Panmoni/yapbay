@@ -654,6 +654,7 @@ export default function Roadmap() {
             <li>ChainLink</li>
             <li>Nextra</li>
             <li>PostHog</li>
+            <li>Boost Protocol (boost.xyz)</li>
           </ul>
 
           <p className="text-sm mt-4 mb-1">

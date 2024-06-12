@@ -1,12 +1,43 @@
 # TODO
 
-add https://docs.boost.xyz/boost-protocol as potential integration on roadmap
+What can I learn from this Escrow contract?
+https://github.com/Aman035/Escrow/blob/v2/Escrow.sol
 
-start A/B testing texts and pitches on yapbay.com.
+## ARB Sepolia
 
-start launching.
+- https://github.com/alchemyplatform/hello-world-tutorial
+- https://hardhat.org/tutorial/deploying-to-a-live-network
+- https://github.com/NomicFoundation/hardhat/issues/4582
+- https://docs.arbitrum.io/build-decentralized-apps/quickstart-solidity-hardhat
+
+https://catapulta.sh/?ref=remote3.co
+
+https://anyflow.pro/
 
 https://abi.ninja/
+
+update package.json to latest and esp clearly vulnerabilities.
+
+## Contract Stuff
+
+- [ ] update the first offer
+- [ ] reputation has no write method, that might be ok as it just calculates it. Maybe it can be calculated off-chain?
+- [ ] maybe update user stuff to use strings more
+- [ ] why does Trade have setAdmin, setInitialAdmins?
+- [ ] timeout should be on offer maybe, not sure?
+- [ ] how do I use the read functions on Rating?
+- [ ] offerDisputeCounted?? offerParametersUsed??
+- [ ] why does userOffers have a uint arg?
+- [ ] pause and unpause should this really be on offers?
+- [ ] what is the point in transferOwnership on Offer?
+- [ ] contract Registry should probably have generic function to update addresses, not just updateOfferAddress.
+- [ ] give Registry a read function
+- [ ] really need to plan out the transaction flow with diagrams, re arbitration
+- [ ] function to list users? one of those exists for offers
+- [ ] escrow could use some serious review, including the transferEscrow function
+- [ ] trace user paths. what could be missing?
+- [ ] what is missing from the contracts?
+- [ ] pick up where I left off with the public interface
 
 ## 1. Trade Initiation and Acceptance:
 
