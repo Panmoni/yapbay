@@ -2,7 +2,7 @@
 
 ## Disrupting TradFi Remittances
 
-N.B. For the contracts, see the [yapbay-solidity-contracts repo](https://github.com/Panmoni/yapbay-solidity-contracts).
+N.B. For the contracts, see the [yapbay-contracts-solidity repo](https://github.com/Panmoni/yapbay-contracts-solidity).
 
 Yap Bay is a project borne of [years of ground work research](https://georgedonnelly.com/portfolio/#1-crypto--web3) in Latin America in search of an answer to this question:
 
