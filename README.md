@@ -91,3 +91,5 @@ If the Yap Bay mission is exciting to you, please join us and contribute to the 
 - [**Telegram**: YapBay](https://t.me/Panmoni/288)
 - [**GitHub**: Panmoni](https://github.com/Panmoni/yapbay)
 - **Email**: hello@yapbay.com
+
+N.B. The 2024 version of YapBay is in the yapbay-2024 branch.
