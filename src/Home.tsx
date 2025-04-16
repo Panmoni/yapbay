@@ -177,18 +177,25 @@ function OffersPage() {
 
         // Fetch creator usernames/wallet addresses
         const uniqueCreatorIds = [...new Set(response.data.map((o: Offer) => o.creator_account_id))];
-        const namePromises = uniqueCreatorIds.map(async (id: number) => {
-          try {
-            const accountResponse = await getAccountById(id);
-            const account = accountResponse.data;
-            return { id, username: account.username || account.wallet_address };
-          } catch (err) {
-            console.error(`Failed to fetch account ${id}:`, err);
-            return { id, username: `User #${id}` };
-          }
-        });
-
-        const names = await Promise.all(namePromises);
+        let names;
+        
+        // Only attempt to fetch account information if the user is authenticated
+        if (primaryWallet) {
+          const namePromises = uniqueCreatorIds.map(async (id: number) => {
+            try {
+              const accountResponse = await getAccountById(id);
+              const account = accountResponse.data;
+              return { id, username: account.username || account.wallet_address };
+            } catch (err) {
+              console.error(`Failed to fetch account ${id}:`, err);
+              return { id, username: `User #${id}` };
+            }
+          });
+          names = await Promise.all(namePromises);
+        } else {
+          // If not authenticated, just use the default "User #id" format without API calls
+          names = uniqueCreatorIds.map(id => ({ id, username: `User #${id}` }));
+        }
         setCreatorNames(Object.fromEntries(names.map(({ id, username }) => [id, username])));
         setError(null);
       } catch (err) {
