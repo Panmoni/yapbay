@@ -9,7 +9,7 @@ interface StatusBadgeProps extends Omit<React.ComponentProps<"span"> & VariantPr
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({
-  children = "Devnet",
+  children = "Alfajores",
   className = "",
   showOnMobile = false,
   ...props
@@ -17,7 +17,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
   return (
     <Badge
       variant="secondary"
-      className={`bg-purple-100 text-purple-700 text-[10px] uppercase font-semibold ${
+      className={`bg-primary-100 text-primary-700 text-[10px] uppercase font-semibold ${
         showOnMobile ? "" : "hidden sm:inline-flex"
       } ${className}`}
       {...props}

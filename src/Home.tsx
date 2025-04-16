@@ -293,11 +293,11 @@ function OffersPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <CardTitle className="text-[#5b21b6] font-semibold">Available Offers</CardTitle>
+              <CardTitle className="text-primary font-semibold">Available Offers</CardTitle>
               <CardDescription>Start a simple P2P trade from one of the available offers</CardDescription>
             </div>
             {primaryWallet && (
-              <Button className="bg-[#6d28d9] hover:bg-[#5b21b6] text-white w-full sm:w-auto">
+              <Button className="btn-primary bg-primary hover:bg-primary-300 text-white w-full sm:w-auto">
                 <Link to="/create-offer" className="text-white hover:text-white w-full">
                   Create New Offer
                 </Link>
@@ -328,8 +328,8 @@ function OffersPage() {
 
 {deleteSuccess && (
   <div className="p-5">
-    <Alert className="mb-0 bg-[#d1fae5] border-[#a7f3d0]">
-      <AlertDescription className="text-[#065f46]">
+    <Alert className="mb-0 bg-warning border-warning">
+      <AlertDescription className="text-neutral-100">
         {deleteSuccess}
       </AlertDescription>
     </Alert>
@@ -351,16 +351,16 @@ function OffersPage() {
                           <TooltipTrigger asChild>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                               offer.offer_type === 'BUY'
-                                ? 'bg-[#d1fae5] text-[#065f46]'
-                                : 'bg-[#ede9fe] text-[#5b21b6]'
+                                ? 'bg-success text-neutral-100'
+                                : 'bg-error text-neutral-100'
                             }`}>
                               {offer.offer_type}
                             </span>
                           </TooltipTrigger>
                           <TooltipContent className={
                             offer.offer_type === 'BUY'
-                              ? 'bg-[#d1fae5] text-[#065f46]'
-                              : 'bg-[#ede9fe] text-[#5b21b6]'
+                                ? 'bg-success text-neutral-100'
+                                : 'bg-error text-neutral-100'
                           }>
                             <p>
                               {offer.offer_type === 'BUY'
@@ -391,7 +391,7 @@ function OffersPage() {
                         <span className="mobile-card-view-label">Rate</span>
                         <span className={
                           offer.rate_adjustment > 1
-                            ? 'text-[#059669]'
+                            ? 'text-success'
                             : offer.rate_adjustment < 1
                               ? 'text-red-600'
                               : 'text-neutral-600'
@@ -407,7 +407,7 @@ function OffersPage() {
 
                       <div className="mobile-card-view-row">
                         <span className="mobile-card-view-label">Updated</span>
-                        <span className="text-neutral-500 text-sm">
+                        <span className="text-neutral-600 text-sm">
                           {formatDistanceToNow(new Date(offer.updated_at))} ago
                         </span>
                       </div>
@@ -429,7 +429,7 @@ function OffersPage() {
                               triggerButton={
                                 <Button
                                   onClick={() => openTradeDialog(offer.id)}
-                                  className="bg-[#10b981] hover:bg-[#059669] text-white w-full flex justify-center"
+                                  className="bg-secondary-500 hover:bg-secondary-900 text-white w-full flex justify-center"
                                 >
                                   Preview Trade
                                 </Button>
@@ -438,7 +438,7 @@ function OffersPage() {
                           )
                         ) : (
                           <Button
-                            className="bg-gray-400 hover:bg-gray-500 text-white w-full flex justify-center cursor-not-allowed"
+                            className="bg-neutral-400 hover:bg-neutral-500 text-black w-full flex justify-center cursor-not-allowed"
                           >
                             Connect Wallet to Trade
                           </Button>
@@ -453,16 +453,16 @@ function OffersPage() {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-neutral-50 hover:bg-neutral-50">
-                        <TableHead className="text-[#6d28d9] font-medium">ID</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Type</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Creator</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Min Amount</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Max Amount</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Available</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Rate</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Currency</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Updated</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Action</TableHead>
+                        <TableHead className="text-primary font-medium">ID</TableHead>
+                        <TableHead className="text-primary font-medium">Type</TableHead>
+                        <TableHead className="text-primary font-medium">Creator</TableHead>
+                        <TableHead className="text-primary font-medium">Min Amount</TableHead>
+                        <TableHead className="text-primary font-medium">Max Amount</TableHead>
+                        <TableHead className="text-primary font-medium">Available</TableHead>
+                        <TableHead className="text-primary font-medium">Rate</TableHead>
+                        <TableHead className="text-primary font-medium">Currency</TableHead>
+                        <TableHead className="text-primary font-medium">Updated</TableHead>
+                        <TableHead className="text-primary font-medium">Action</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -474,16 +474,16 @@ function OffersPage() {
                               <TooltipTrigger asChild>
                                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                   offer.offer_type === 'BUY'
-                                    ? 'bg-[#d1fae5] text-[#065f46]'
-                                    : 'bg-[#ede9fe] text-[#5b21b6]'
+                                    ? 'bg-success text-neutral-100'
+                                    : 'bg-error text-neutral-100'
                                 }`}>
                                   {offer.offer_type}
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent className={
                                 offer.offer_type === 'BUY'
-                                  ? 'bg-[#d1fae5] text-[#065f46]'
-                                  : 'bg-[#ede9fe] text-[#5b21b6]'
+                                  ? 'bg-success text-neutral-100'
+                                  : 'bg-error text-neutral-100'
                               }>
                                 <p>
                                   {offer.offer_type === 'BUY'
@@ -503,7 +503,7 @@ function OffersPage() {
                           <TableCell>
                             <span className={
                               offer.rate_adjustment > 1
-                                ? 'text-[#059669]'
+                                ? 'text-success'
                                 : offer.rate_adjustment < 1
                                   ? 'text-red-600'
                                   : 'text-neutral-600'
@@ -512,7 +512,7 @@ function OffersPage() {
                             </span>
                             </TableCell>
                             <TableCell>{offer.fiat_currency}</TableCell>
-                            <TableCell className="text-neutral-500 text-sm">
+                            <TableCell className="text-neutral-600 text-sm">
                             {formatDistanceToNow(new Date(offer.updated_at))} ago
                           </TableCell>
                           <TableCell>
@@ -531,7 +531,7 @@ function OffersPage() {
                                   triggerButton={
                                     <Button
                                       onClick={() => openTradeDialog(offer.id)}
-                                      className="bg-[#10b981] hover:bg-[#059669] text-white border-none h-8 px-2 w-full flex justify-center"
+                                      className="bg-success hover:bg-secondary-800 text-white border-none h-8 px-2 w-full flex justify-center"
                                     >
                                       Preview Trade
                                     </Button>
@@ -540,7 +540,7 @@ function OffersPage() {
                               )
                             ) : (
                               <Button
-                                className="bg-gray-400 hover:bg-gray-500 text-white border-none text-sm px-3 py-1 h-8 cursor-not-allowed"
+                                className="bg-neutral-400 hover:bg-neutral-500 text-black border-none text-sm px-3 py-1 h-8 cursor-not-allowed"
                               >
                                 Connect Wallet to Trade
                               </Button>

@@ -1,11 +1,33 @@
 # YapBay Frontend Development Plan
 
-do some commits asap
+## UI
+      // Background Colors (using neutral for consistency, can be aliased if needed)
+      'bg-primary': 'var(--primary-900)', // Alias for page background
+      'bg-secondary': 'var(--neutral-200)', // Alias for card/section backgrounds
+      'bg-tertiary': 'var(--neutral-300)', // Alias for highlighted backgrounds
+
+
+      above font family
+
+      It was also in index.css
+
+      The problems are in index.css really.
+
+
+      .btn .btn-primary
+
+
+      look for gray and [#
+
 
 ## API integration
 - account creation, editing
 - data fetching offers, details, escrows
 - call API endpoints for creating, updating, and deleting data (Offers, Trades, Account).
+
+
+## colors
+I don't think tailwind is properly initialized
 
 ## chain
 - abi, types

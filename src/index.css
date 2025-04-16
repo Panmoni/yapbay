@@ -48,13 +48,17 @@
   --color-success: #48bb78;
   --color-warning: #ed8936;
   --color-error: #f56565;
+    
+  /* Add necessary default colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
 }
 
 /* YapBay Color System Variables */
 :root {
-  --bg-primary: var(--color-neutral-100);
-  --bg-secondary: var(--color-neutral-200);
-  --bg-tertiary: var(--color-neutral-300);
+  --bg-primary: var(--color-neutral-200);
+  --bg-secondary: var(--color-neutral-300);
+  --bg-tertiary: var(--color-neutral-400);
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -91,7 +95,7 @@ body {
   font-family: "Inter", system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: var(--color-neutral-900); /* Fixed variable */
+  color: var(--color-primary-900);
   background-color: var(--bg-primary);
 }
 
@@ -99,36 +103,36 @@ body {
 h1 {
   font-size: clamp(1.75rem, 1.5rem + 1.25vw, 2.5rem);
   line-height: 1.2;
-  color: var(--color-neutral-800); /* Fixed variable */
+  color: var(--color-primary-800); /* Fixed variable */
 }
 
 h2 {
   font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem);
   line-height: 1.3;
-  color: var(--color-neutral-800); /* Fixed variable */
+  color: var(--color-primary-800); /* Fixed variable */
 }
 
 h3 {
   font-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.75rem);
   line-height: 1.4;
-  color: var(--color-neutral-800); /* Fixed variable */
+  color: var(--color-primary-800); /* Fixed variable */
 }
 
 h4 {
   font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
   line-height: 1.4;
-  color: var(--color-neutral-700); /* Fixed variable */
+  color: var(--color-primary-700); /* Fixed variable */
 }
 
 a {
   font-weight: 500;
   text-decoration: inherit;
-  color: var(--color-primary-600); /* Fixed variable */
+  color: var(--color-neutral-800); /* Fixed variable */
   transition: color 0.2s ease;
 }
 
 a:hover {
-  color: var(--color-primary-800); /* Fixed variable */
+  color: var(--color-primary-600); /* Fixed variable */
 }
 
 /* Responsive images */
@@ -147,7 +151,7 @@ img {
 /* Layout components */
 .app-header {
   background-color: var(--bg-primary);
-  color: var(--color-neutral-900); /* Fixed variable */
+  color: var(--color-primary-900); /* Fixed variable */
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
   border-bottom: 1px solid var(--color-neutral-300); /* Fixed variable */
   position: fixed;
@@ -179,7 +183,7 @@ img {
   margin: 0;
   font-size: 1.8rem;
   line-height: 2rem;
-  color: var(--color-primary-600); /* Fixed variable */
+  color: var(--color-primary-900); /* Fixed variable */
 }
 
 .header-right {
@@ -479,7 +483,7 @@ img {
 
 .footer-title {
   font-weight: 600;
-  color: var(--color-neutral-800); /* Fixed variable */
+  color: var(--color-primary-800); /* Fixed variable */
   margin-bottom: var(--space-sm);
 }
 
@@ -508,7 +512,7 @@ img {
 }
 
 .social-links a {
-  color: var(--color-neutral-600); /* Fixed variable */
+  color: var(--color-primary-600); /* Fixed variable */
   transition: all 0.2s ease;
   padding: var(--space-xs);
   min-width: 44px;

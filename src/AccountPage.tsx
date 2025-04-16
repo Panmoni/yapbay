@@ -102,7 +102,7 @@ function ProfileDisplay({ account }: { account: Account }) {
           <img
             src={account.profile_photo_url}
             alt="Profile"
-            className="w-32 h-32 rounded-full object-cover border-2 border-purple-200"
+            className="w-32 h-32 rounded-full object-cover border-2 border-primary-200"
           />
         </div>
       )}

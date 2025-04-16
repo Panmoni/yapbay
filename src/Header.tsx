@@ -56,14 +56,14 @@ function Header({ isLoggedIn, account }: HeaderProps) {
     <header className="fixed top-0 left-0 right-0 z-10 bg-[#FAF9F6] shadow-md">
       <Container>
         <div className="flex justify-between items-center py-4">
-          <Link to="/" className="text-xl sm:text-2xl text-purple-700 flex items-center gap-2">
+          <Link to="/" className="text-xl sm:text-2xl text-primary-700 flex items-center gap-2">
             <img
               src="/logo.png"
-              alt="LocalSolana Logo"
-              className="h-4 sm:h-6 md:h-10 lg:h-12 w-auto max-h-12"
+              alt="YapBay Logo"
+              className="h-4 sm:h-6 md:h-10 lg:h-12 w-auto max-h-12 rounded-full"
               loading="lazy"
             />
-            <h1 className="font-black">LocalSolana</h1>
+            <h1 className="font-black">YapBay</h1>
             <StatusBadge />
           </Link>
 
@@ -79,7 +79,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                     {Object.entries(prices).map(([currency, priceData]) => (
                       <div key={currency} className="flex flex-col items-center mx-2">
                         <span className="text-xs text-gray-500">{currency}</span>
-                        <span className="text-sm font-medium text-purple-700">
+                        <span className="text-sm font-medium text-primary-700">
                           {formatNumber(priceData.price)}
                         </span>
                       </div>
@@ -96,7 +96,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
               {['USD', 'COP', 'EUR', 'NGN', 'VES'].map((currency) => (
                 <div key={currency} className="flex flex-col items-center">
                   <span className="text-xs text-gray-500">{currency}</span>
-                  <span className="text-sm font-medium text-purple-700">
+                  <span className="text-sm font-medium">
                     ...
                   </span>
                 </div>
@@ -132,36 +132,36 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                 <DynamicWidget />
                 <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                   <DropdownMenuTrigger className="focus:outline-none">
-                    <Avatar className="cursor-pointer hover:ring-2 hover:ring-purple-700 transition">
+                    <Avatar className="cursor-pointer hover:ring-2 hover:ring-primary-700 transition">
                       <AvatarImage src={account?.profile_photo_url || "/icon96.png"} />
                       <AvatarFallback>{account?.username?.charAt(0) || "U"}</AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 bg-[#FAF9F6] shadow-md">
                     <DropdownMenuItem asChild>
-                      <Link to="/account" className="w-full text-gray-800 hover:text-purple-700">
+                      <Link to="/account" className="w-full text-gray-800 hover:text-primary-700">
                         My Account
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/offers" className="w-full text-gray-800 hover:text-purple-700">
+                      <Link to="/offers" className="w-full text-gray-800 hover:text-primary-700">
                         My Offers
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/trades" className="w-full text-gray-800 hover:text-purple-700">
+                      <Link to="/trades" className="w-full text-gray-800 hover:text-primary-700">
                         My Trades
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/escrows" className="w-full text-gray-800 hover:text-purple-700">
+                      <Link to="/escrows" className="w-full text-gray-800 hover:text-primary-700">
                         My Escrows
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <button
                         onClick={handleLogOut}
-                        className="w-full text-left text-gray-800 hover:text-purple-700"
+                        className="w-full text-left text-gray-800 hover:text-primary-700"
                       >
                         Log Out
                       </button>
@@ -172,7 +172,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
             ) : (
               <Button
                 onClick={() => setShowAuthFlow(true)}
-                className="bg-purple-700 hover:bg-purple-800 text-white"
+                className="bg-primary-700 hover:bg-primary-800 text-neutral-100"
               >
                 Connect Wallet
               </Button>
@@ -190,7 +190,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                 <div className="flex items-center justify-between py-2">
                   <Link
                     to="/account"
-                    className="block w-full py-2 text-gray-800 hover:text-purple-700"
+                    className="block w-full py-2 text-gray-800 hover:text-primary-700"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     My Account
@@ -199,7 +199,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                 <div className="flex items-center justify-between py-2">
                   <Link
                     to="/offers"
-                    className="block w-full py-2 text-gray-800 hover:text-purple-700"
+                    className="block w-full py-2 text-gray-800 hover:text-primary-700"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     My Offers
@@ -208,7 +208,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                 <div className="flex items-center justify-between py-2">
                   <Link
                     to="/trades"
-                    className="block w-full py-2 text-gray-800 hover:text-purple-700"
+                    className="block w-full py-2 text-gray-800 hover:text-primary-700"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     My Trades
@@ -217,7 +217,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                 <div className="flex items-center justify-between py-2">
                   <Link
                     to="/escrows"
-                    className="block w-full py-2 text-gray-800 hover:text-purple-700"
+                    className="block w-full py-2 text-gray-800 hover:text-primary-700"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     My Escrows
@@ -226,7 +226,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                 <div className="flex items-center justify-between py-2">
                   <button
                     onClick={handleLogOut}
-                    className="block w-full py-2 text-left text-gray-800 hover:text-purple-700"
+                    className="block w-full py-2 text-left text-gray-800 hover:text-primary-700"
                   >
                     Log Out
                   </button>
@@ -241,7 +241,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                   setShowAuthFlow(true);
                   setMobileMenuOpen(false);
                 }}
-                className="bg-purple-700 hover:bg-purple-800 text-white w-full"
+                className="bg-primary-700 hover:bg-primary-800 text-neutral-100 w-full"
               >
                 Connect Wallet
               </Button>

@@ -266,8 +266,8 @@ function TradePage() {
   return (
     <div className="space-y-4">
       {/* User Role Display */}
-      <div className="bg-purple-100 p-3 rounded-md mb-4 text-center">
-        <p className="text-purple-800 font-medium">
+      <div className="bg-primary-100 p-3 rounded-md mb-4 text-center">
+        <p className="text-primary-800 font-medium">
           Your role in this trade: <span className="font-bold uppercase">{userRole}</span>
         </p>
       </div>
