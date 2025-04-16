@@ -8,42 +8,53 @@
 @import "@fontsource/inter/700.css";
 @import "@fontsource/inter/900.css";
 
+@theme {
+  --color-*: initial;
+  
+  /* Primary Colors */
+  --color-primary-900: #1a365d;
+  --color-primary-800: #1e4976;
+  --color-primary-700: #2c5282;
+  --color-primary-600: #2b6cb0;
+  --color-primary-500: #3182ce;
+  --color-primary-400: #4299e1;
+  --color-primary-300: #63b3ed;
+  --color-primary-200: #90cdf4;
+  --color-primary-100: #bee3f8;
+  
+  /* Secondary Colors */
+  --color-secondary-900: #1e4e48;
+  --color-secondary-800: #234e52;
+  --color-secondary-700: #285e61;
+  --color-secondary-600: #2c7a7b;
+  --color-secondary-500: #38b2ac;
+  --color-secondary-400: #4fd1c5;
+  --color-secondary-300: #81e6d9;
+  --color-secondary-200: #9feeea;
+  --color-secondary-100: #c4f5f2;
+  
+  /* Neutral Tones */
+  --color-neutral-900: #1a202c;
+  --color-neutral-800: #2d3748;
+  --color-neutral-700: #4a5568;
+  --color-neutral-600: #718096;
+  --color-neutral-500: #a0aec0;
+  --color-neutral-400: #cbd5e0;
+  --color-neutral-300: #e2e8f0;
+  --color-neutral-200: #edf2f7;
+  --color-neutral-100: #f7fafc;
+  
+  /* Accent Colors */
+  --color-success: #48bb78;
+  --color-warning: #ed8936;
+  --color-error: #f56565;
+}
+
 /* YapBay Color System Variables */
 :root {
-  /* Deep Navy - Primary brand color */
-  --primary-900: #1a365d;
-  --primary-800: #1e4976;
-  --primary-700: #2c5282;
-  --primary-600: #2b6cb0;
-  --primary-500: #3182ce;
-
-  /* Mint Green - Secondary color */
-  --secondary-500: #38b2ac;
-  --secondary-400: #4fd1c5;
-  --secondary-300: #81e6d9;
-
-  /* Neutral Tones */
-  --neutral-900: #1a202c;
-  --neutral-800: #2d3748;
-  --neutral-700: #4a5568;
-  --neutral-600: #718096;
-  --neutral-500: #a0aec0;
-  --neutral-400: #cbd5e0;
-  --neutral-300: #e2e8f0;
-  --neutral-200: #edf2f7;
-  --neutral-100: #f7fafc;
-
-  /* Accent Colors */
-  --success: #48bb78;
-  --warning: #ed8936;
-  --error: #f56565;
-
-  /* Background Colors */
-  --bg-primary: var(--neutral-100);
-  --bg-secondary: var(--neutral-200);
-  --bg-tertiary: var(--neutral-300);
-
-  /* Spacing and Sizing */
+  --bg-primary: var(--color-neutral-100);
+  --bg-secondary: var(--color-neutral-200);
+  --bg-tertiary: var(--color-neutral-300);
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -80,44 +91,44 @@ body {
   font-family: "Inter", system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: var(--neutral-900); /* Primary text on light */
-  background-color: var(--bg-primary); /* Main page background */
+  color: var(--color-neutral-900); /* Fixed variable */
+  background-color: var(--bg-primary);
 }
 
 /* Responsive typography */
 h1 {
   font-size: clamp(1.75rem, 1.5rem + 1.25vw, 2.5rem);
   line-height: 1.2;
-  color: var(--neutral-800); /* Heading text */
+  color: var(--color-neutral-800); /* Fixed variable */
 }
 
 h2 {
   font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem);
   line-height: 1.3;
-  color: var(--neutral-800);
+  color: var(--color-neutral-800); /* Fixed variable */
 }
 
 h3 {
   font-size: clamp(1.25rem, 1.1rem + 0.75vw, 1.75rem);
   line-height: 1.4;
-  color: var(--neutral-800);
+  color: var(--color-neutral-800); /* Fixed variable */
 }
 
 h4 {
   font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem);
   line-height: 1.4;
-  color: var(--neutral-700); /* Secondary heading */
+  color: var(--color-neutral-700); /* Fixed variable */
 }
 
 a {
   font-weight: 500;
   text-decoration: inherit;
-  color: var(--primary-600); /* Brand text color */
+  color: var(--color-primary-600); /* Fixed variable */
   transition: color 0.2s ease;
 }
 
 a:hover {
-  color: var(--primary-800); /* Darker primary on hover */
+  color: var(--color-primary-800); /* Fixed variable */
 }
 
 /* Responsive images */
@@ -135,10 +146,10 @@ img {
 
 /* Layout components */
 .app-header {
-  background-color: var(--bg-primary); /* Use primary background */
-  color: var(--neutral-900); /* Default text color */
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.05); /* Subtle shadow */
-  border-bottom: 1px solid var(--neutral-300); /* Use neutral border */
+  background-color: var(--bg-primary);
+  color: var(--color-neutral-900); /* Fixed variable */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.07), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--color-neutral-300); /* Fixed variable */
   position: fixed;
   top: 0;
   left: 0;
@@ -168,7 +179,7 @@ img {
   margin: 0;
   font-size: 1.8rem;
   line-height: 2rem;
-  color: var(--primary-600); /* Use main primary color */
+  color: var(--color-primary-600); /* Fixed variable */
 }
 
 .header-right {
@@ -239,7 +250,7 @@ img {
   }
 }
 
-/* Button styles (using CSS variables for consistency) */
+/* Button styles */
 .btn {
   border-radius: 0.375rem; /* sm */
   padding: 0.5rem 1rem;
@@ -258,68 +269,66 @@ img {
 @media (max-width: 640px) {
   .btn {
     padding: 0.625rem 1.25rem;
-    min-height: 2.75rem; /* Larger touch target on mobile */
+    min-height: 2.75rem;
   }
 }
 
 .btn-primary {
-  background-color: var(--primary-600);
-  color: var(--neutral-100); /* Text on dark */
+  background-color: var(--color-primary-600); /* Fixed variable */
+  color: var(--color-neutral-100); /* Fixed variable */
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-800);
+  background-color: var(--color-primary-800); /* Fixed variable */
 }
 
 .btn-primary:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--primary-500); /* Focus ring */
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--color-primary-500); /* Fixed variable */
 }
 
 .btn-secondary {
-  background-color: var(--secondary-500);
-  color: var(--neutral-100); /* Text on dark */
+  background-color: var(--color-secondary-500); /* Fixed variable */
+  color: var(--color-neutral-100); /* Fixed variable */
 }
 
 .btn-secondary:hover {
-  background-color: var(--secondary-400);
+  background-color: var(--color-secondary-400); /* Fixed variable */
 }
 
 .btn-secondary:focus {
   outline: none;
-  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--secondary-300); /* Focus ring */
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--color-secondary-300); /* Fixed variable */
 }
 
-/* Outline Button Example (if needed) */
 .btn-outline {
   background-color: transparent;
-  color: var(--neutral-900);
-  border-color: var(--primary-600);
+  color: var(--color-neutral-900); /* Fixed variable */
+  border-color: var(--color-primary-600); /* Fixed variable */
 }
 
 .btn-outline:hover {
-  background-color: var(--neutral-200); /* Subtle hover */
+  background-color: var(--color-neutral-200); /* Fixed variable */
 }
 
 .btn-outline:focus {
-   outline: none;
-   box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--primary-500); /* Focus ring */
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--color-primary-500); /* Fixed variable */
 }
-
 
 /* Card styles */
 .card-container {
-  background-color: var(--bg-secondary); /* Card background */
-  border-radius: 0.625rem; /* Default Tailwind radius */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.05); /* Softer shadow */
-  border: 1px solid var(--neutral-300); /* Default border */
+  background-color: var(--bg-secondary);
+  border-radius: 0.625rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-neutral-300); /* Fixed variable */
   overflow: hidden;
   width: 100%;
 }
 
 .card-header {
   padding: var(--space-lg);
-  border-bottom: 1px solid var(--neutral-300);
+  border-bottom: 1px solid var(--color-neutral-300); /* Fixed variable */
 }
 
 @media (min-width: 768px) {
@@ -332,7 +341,7 @@ img {
   font-size: 1.25rem;
   line-height: 1.75rem;
   font-weight: 600;
-  color: var(--primary-700); /* Slightly darker primary for titles */
+  color: var(--color-primary-700); /* Fixed variable */
 }
 
 .card-content {
@@ -350,8 +359,8 @@ img {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border: 1px solid var(--neutral-300);
-  border-radius: 0.5rem; /* md */
+  border: 1px solid var(--color-neutral-300); /* Fixed variable */
+  border-radius: 0.5rem;
   background-color: var(--bg-secondary);
 }
 
@@ -361,16 +370,16 @@ img {
 }
 
 .table-header {
-  background-color: var(--bg-tertiary); /* Highlighted background */
+  background-color: var(--bg-tertiary);
   text-align: left;
 }
 
 .table-header th {
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
-  font-weight: 600; /* Bolder header */
-  color: var(--neutral-700); /* Secondary text */
-  border-bottom: 1px solid var(--neutral-400); /* Emphasized border */
+  font-weight: 600;
+  color: var(--color-neutral-700); /* Fixed variable */
+  border-bottom: 1px solid var(--color-neutral-400); /* Fixed variable */
   white-space: nowrap;
 }
 
@@ -381,13 +390,13 @@ img {
 }
 
 .table-body tr:hover {
-  background-color: var(--bg-tertiary); /* Subtle hover */
+  background-color: var(--bg-tertiary);
 }
 
 .table-body td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--neutral-300); /* Default border */
-  color: var(--neutral-700); /* Secondary text */
+  border-bottom: 1px solid var(--color-neutral-300); /* Fixed variable */
+  color: var(--color-neutral-700); /* Fixed variable */
   font-size: 0.875rem;
 }
 
@@ -399,7 +408,7 @@ img {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
   background-color: var(--bg-secondary);
   padding: var(--space-md);
-  border: 1px solid var(--neutral-300);
+  border: 1px solid var(--color-neutral-300); /* Fixed variable */
 }
 
 .mobile-card-view-header {
@@ -407,14 +416,14 @@ img {
   justify-content: space-between;
   margin-bottom: var(--space-sm);
   font-weight: 600;
-  color: var(--neutral-800);
+  color: var(--color-neutral-800); /* Fixed variable */
 }
 
 .mobile-card-view-row {
   display: flex;
   justify-content: space-between;
   padding: var(--space-xs) 0;
-  border-bottom: 1px solid var(--neutral-300);
+  border-bottom: 1px solid var(--color-neutral-300); /* Fixed variable */
 }
 .mobile-card-view-row:last-child {
   border-bottom: none;
@@ -422,15 +431,15 @@ img {
 
 .mobile-card-view-label {
   font-weight: 500;
-  color: var(--neutral-600); /* Tertiary text */
+  color: var(--color-neutral-600); /* Fixed variable */
   margin-right: var(--space-md);
 }
 
 /* Footer styles */
 .site-footer {
   flex-shrink: 0;
-  background-color: var(--bg-secondary); /* Use secondary background */
-  border-top: 1px solid var(--neutral-300); /* Default border */
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--color-neutral-300); /* Fixed variable */
   padding: var(--space-xl) var(--space-md);
   margin-top: auto;
 }
@@ -470,7 +479,7 @@ img {
 
 .footer-title {
   font-weight: 600;
-  color: var(--neutral-800); /* Heading text */
+  color: var(--color-neutral-800); /* Fixed variable */
   margin-bottom: var(--space-sm);
 }
 
@@ -481,18 +490,16 @@ img {
 }
 
 .footer-nav a {
-  color: var(--neutral-600); /* Tertiary text */
+  color: var(--color-neutral-600); /* Fixed variable */
   font-size: 0.875rem;
   transition: color 0.2s ease;
   padding: var(--space-xs) 0;
-  display: block; /* Increases touch target area */
+  display: block;
 }
 
 .footer-nav a:hover {
-  color: var(--primary-600); /* Brand color on hover */
+  color: var(--color-primary-600); /* Fixed variable */
 }
-
-/* Removed .panmoni-link as it used old colors */
 
 .social-links {
   display: flex;
@@ -501,11 +508,11 @@ img {
 }
 
 .social-links a {
-  color: var(--neutral-600); /* Tertiary text */
+  color: var(--color-neutral-600); /* Fixed variable */
   transition: all 0.2s ease;
   padding: var(--space-xs);
-  min-width: 44px; /* Minimum touch target size */
-  min-height: 44px; /* Minimum touch target size */
+  min-width: 44px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -513,16 +520,16 @@ img {
 }
 
 .social-links a:hover {
-  color: var(--primary-600); /* Brand color on hover */
-  background-color: var(--neutral-200); /* Subtle background */
+  color: var(--color-primary-600); /* Fixed variable */
+  background-color: var(--color-neutral-200); /* Fixed variable */
   transform: translateY(-2px);
 }
 
 .footer-bottom {
-  border-top: 1px solid var(--neutral-300);
+  border-top: 1px solid var(--color-neutral-300); /* Fixed variable */
   margin-top: var(--space-xl);
   padding-top: var(--space-xl);
   text-align: center;
-  color: var(--neutral-600); /* Tertiary text */
+  color: var(--color-neutral-600); /* Fixed variable */
   font-size: 0.875rem;
 }
