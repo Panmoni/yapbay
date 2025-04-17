@@ -121,7 +121,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
       case "AWAITING_FIAT_PAYMENT":
         return "bg-amber-100 text-amber-800";
       case "PENDING_CRYPTO_RELEASE":
-        return "bg-purple-100 text-purple-800";
+        return "bg-secondary-100 text-secondary-800";
       case "COMPLETED":
         return "bg-green-100 text-green-800";
       case "CANCELLED":
