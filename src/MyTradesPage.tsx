@@ -117,7 +117,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "CREATED":
-        return "bg-blue-100 text-blue-800";
+        return "bg-primary-100 text-primary-800";
       case "AWAITING_FIAT_PAYMENT":
         return "bg-amber-100 text-amber-800";
       case "PENDING_CRYPTO_RELEASE":

@@ -9,7 +9,7 @@
 @import "@fontsource/inter/900.css";
 
 @theme {
-  --color-*: initial;
+  /* --color-*: initial; */
   
   /* Primary Colors */
   --color-primary-900: #1a365d;
@@ -48,10 +48,6 @@
   --color-success: #48bb78;
   --color-warning: #ed8936;
   --color-error: #f56565;
-    
-  /* Add necessary default colors */
-  --color-white: #ffffff;
-  --color-black: #000000;
 }
 
 /* YapBay Color System Variables */

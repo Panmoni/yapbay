@@ -215,8 +215,8 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
       {loading && (
         <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 rounded-md">
           <div className="flex flex-col items-center">
-            <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-2 text-purple-700 font-medium">Processing...</p>
+            <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-2 text-primary-700 font-medium">Processing...</p>
           </div>
         </div>
       )}

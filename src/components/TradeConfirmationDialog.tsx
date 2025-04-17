@@ -423,7 +423,7 @@ const TradeConfirmationDialog = ({
 
           {/* Next Steps Note */}
           {!loading && !error && fiatAmount > 0 && (
-            <div className="p-3 bg-blue-50 text-blue-800 rounded text-sm">
+            <div className="p-3 bg-primary-100 text-primary-800 rounded text-sm">
               {offer.offer_type === "BUY" ? (
                 <p>
                   <strong>Note:</strong> As the seller, you will be prompted to create the on-chain escrow account and to pay for it in SOL.
