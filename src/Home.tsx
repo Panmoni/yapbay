@@ -452,7 +452,7 @@ function OffersPage() {
                 <div className="hidden md:block overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-neutral-50 hover:bg-neutral-50">
+                      <TableRow>
                         <TableHead className="text-primary font-medium">ID</TableHead>
                         <TableHead className="text-primary font-medium">Type</TableHead>
                         <TableHead className="text-primary font-medium">Creator</TableHead>

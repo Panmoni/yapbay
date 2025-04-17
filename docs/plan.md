@@ -1,14 +1,8 @@
 # YapBay Frontend Development Plan
 
-4.1
-
-## UI
-create new offer button
-
 ## API integration
-- account creation, editing
-- data fetching offers, details, escrows
-- call API endpoints for creating, updating, and deleting data (Offers, Trades, Account).
+- log in as user 2, create account
+- trades
 
 ## chain
 - abi, types

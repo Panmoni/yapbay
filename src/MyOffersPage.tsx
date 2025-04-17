@@ -148,7 +148,7 @@ return (
             </div>
             <Button className="bg-primary-700 hover:bg-primary-800 text-white w-full sm:w-auto">
               <Link to="/create-offer" className="text-white hover:text-white w-full">
-                Create New Offer
+                <span className="text-neutral-100">Create New Offer</span>
               </Link>
             </Button>
           </div>
@@ -257,7 +257,7 @@ return (
                 <div className="hidden md:block overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-neutral-50 hover:bg-neutral-50">
+                      <TableRow>
                         <TableHead className="text-primary-700 font-medium">
                           ID
                         </TableHead>
