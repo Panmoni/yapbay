@@ -261,7 +261,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                 <div className="hidden md:block overflow-x-auto">
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-neutral-50 hover:bg-neutral-50">
+                      <TableRow>
                         <TableHead className="text-primary-700 font-medium">
                           Trade ID
                         </TableHead>
