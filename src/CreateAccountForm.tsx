@@ -102,8 +102,8 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
       )}
 
       {success && (
-        <Alert className="mb-6 bg-[#d1fae5] border-[#a7f3d0]">
-          <AlertDescription className="text-[#065f46]">{success}</AlertDescription>
+        <Alert className="mb-6 bg-secondary-200 border-secondary-300">
+          <AlertDescription className="text-secondary-900">{success}</AlertDescription>
         </Alert>
       )}
 
@@ -154,7 +154,7 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
 
       <Button
         type="submit"
-        className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] text-white mt-2"
+        className="w-full bg-primary-700 hover:bg-primary-800 text-white mt-2"
         disabled={isSubmitting}
       >
         {isSubmitting ? "Creating Account..." : "Create Account"}

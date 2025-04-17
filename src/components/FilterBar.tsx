@@ -63,7 +63,7 @@ const FilterBar = ({ onCurrencyChange, onTradeTypeChange }: FilterBarProps) => {
         variant="ghost"
         size="sm"
         title="Clear filters"
-        className="m-0 p-0 text-xs text-neutral-500 hover:text-[#5b21b6] hover:bg-primary-100"
+        className="m-0 p-0 text-xs text-neutral-500 hover:text-primary-800 hover:bg-primary-100"
       >
         x
       </Button>

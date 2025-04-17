@@ -35,7 +35,7 @@ function OfferActionButtons({ offerId, onDelete, isMobile = false }: OfferAction
         <Link to={`/offer/${offerId}`} className={isMobile ? "flex-1" : ""}>
           <Button
             variant="outline"
-            className="border-[#6d28d9] text-[#6d28d9] hover:text-[#5b21b6] hover:border-[#5b21b6] w-full h-8 px-2"
+            className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full h-8 px-2"
             aria-label="View offer"
             title="View offer"
           >
@@ -45,7 +45,7 @@ function OfferActionButtons({ offerId, onDelete, isMobile = false }: OfferAction
         <Link to={`/edit-offer/${offerId}`} className={isMobile ? "flex-1" : ""}>
           <Button
             variant="outline"
-            className="border-[#6d28d9] text-[#6d28d9] hover:text-[#5b21b6] hover:border-[#5b21b6] w-full h-8 px-2"
+            className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full h-8 px-2"
             aria-label="Edit offer"
             title="Edit offer"
           >

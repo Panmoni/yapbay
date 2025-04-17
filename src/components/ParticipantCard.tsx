@@ -33,7 +33,7 @@ function ParticipantCard({
         <div className="flex items-center gap-2 flex-wrap">
           <p className="font-medium">{user.username || user.wallet_address}</p>
           {isCurrentUser && (
-            <Badge variant="secondary" className="bg-[#6d28d9] text-white text-xs">
+            <Badge variant="secondary" className="bg-primary-700 text-white text-xs">
               YOU
             </Badge>
           )}

@@ -301,7 +301,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
       <div className="flex gap-3 pt-4">
         <Button
           type="submit"
-          className="bg-[#6d28d9] hover:bg-[#5b21b6] text-white flex-1"
+          className="bg-primary-700 hover:bg-primary-800 text-white flex-1"
           disabled={isSubmitting}
         >
           {isSubmitting ? "Saving..." : "Save Changes"}

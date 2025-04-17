@@ -148,7 +148,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
       <Container>
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#5b21b6] font-semibold">My Trades</CardTitle>
+            <CardTitle className="text-primary-800 font-semibold">My Trades</CardTitle>
             <CardDescription>View and manage your active trades</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -166,7 +166,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
       <Container>
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#5b21b6] font-semibold">My Trades</CardTitle>
+            <CardTitle className="text-primary-800 font-semibold">My Trades</CardTitle>
             <CardDescription>View and manage your active trades</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -186,7 +186,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
       <Card>
         <CardHeader>
           <div>
-            <CardTitle className="text-[#5b21b6] font-semibold">My Trades</CardTitle>
+            <CardTitle className="text-primary-800 font-semibold">My Trades</CardTitle>
             <CardDescription>View and manage your active trades</CardDescription>
           </div>
         </CardHeader>
@@ -201,8 +201,8 @@ function MyTradesPage({ account }: MyTradesPageProps) {
 
           {actionSuccess && (
             <div className="p-5">
-              <Alert className="mb-0 bg-[#d1fae5] border-[#a7f3d0]">
-                <AlertDescription className="text-[#065f46]">{actionSuccess}</AlertDescription>
+              <Alert className="mb-0 bg-secondary-200 border-secondary-300">
+                <AlertDescription className="text-secondary-900">{actionSuccess}</AlertDescription>
               </Alert>
             </div>
           )}
@@ -217,7 +217,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
             <div className="p-10 text-center">
               <p className="text-neutral-500">You don't have any trades yet.</p>
               <p className="text-neutral-400 text-sm mt-2">
-                Visit the <Link to="/" className="text-[#6d28d9] hover:text-[#5b21b6]">home page</Link> to start trading.
+                Visit the <Link to="/" className="text-primary-700 hover:text-primary-800">home page</Link> to start trading.
               </p>
             </div>
           ) : (
@@ -230,9 +230,9 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                       <div className="mobile-card-view-header">
                         <span>#{trade.id}</span>
                         {isUserBuyer(trade) ? (
-                          <Badge className="bg-[#ede9fe] text-[#5b21b6] hover:bg-[#ddd6fe]">Buyer</Badge>
+                          <Badge className="bg-[#ede9fe] text-primary-800 hover:bg-[#ddd6fe]">Buyer</Badge>
                         ) : (
-                          <Badge className="bg-[#d1fae5] text-[#065f46] hover:bg-[#a7f3d0]">Seller</Badge>
+                          <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">Seller</Badge>
                         )}
                       </div>
 
@@ -264,7 +264,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                         {isUserBuyer(trade) && trade.leg1_state === "AWAITING_FIAT_PAYMENT" && (
                           <Button
                             onClick={() => handleMarkPaid(trade.id)}
-                            className="bg-[#6d28d9] hover:bg-[#5b21b6] text-white w-full"
+                            className="bg-primary-700 hover:bg-primary-800 text-white w-full"
                           >
                             Mark Paid
                           </Button>
@@ -281,7 +281,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
 
                         <Button
                           variant="outline"
-                          className="border-[#6d28d9] text-[#6d28d9] hover:text-[#5b21b6] hover:border-[#5b21b6] w-full"
+                          className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full"
                         >
                           <Link to={`/trade/${trade.id}`} className="w-full block">
                             Details
@@ -297,13 +297,13 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-neutral-50 hover:bg-neutral-50">
-                        <TableHead className="text-[#6d28d9] font-medium">Trade ID</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Role</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Token</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Amount</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Status</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Created</TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">Actions</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Trade ID</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Role</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Token</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Amount</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Status</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Created</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -312,9 +312,9 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                           <TableCell className="font-medium">#{trade.id}</TableCell>
                           <TableCell>
                             {isUserBuyer(trade) ? (
-                              <Badge className="bg-[#ede9fe] text-[#5b21b6] hover:bg-[#ddd6fe]">Buyer</Badge>
+                              <Badge className="bg-[#ede9fe] text-primary-800 hover:bg-[#ddd6fe]">Buyer</Badge>
                             ) : (
-                              <Badge className="bg-[#d1fae5] text-[#065f46] hover:bg-[#a7f3d0]">Seller</Badge>
+                              <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">Seller</Badge>
                             )}
                           </TableCell>
                           <TableCell>{trade.leg1_crypto_token}</TableCell>
@@ -332,7 +332,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                               {isUserBuyer(trade) && trade.leg1_state === "AWAITING_FIAT_PAYMENT" && (
                                 <Button
                                   onClick={() => handleMarkPaid(trade.id)}
-                                  className="bg-[#6d28d9] hover:bg-[#5b21b6] text-white text-sm px-3 py-1 h-8"
+                                  className="bg-primary-700 hover:bg-primary-800 text-white text-sm px-3 py-1 h-8"
                                 >
                                   Mark Paid
                                 </Button>
@@ -349,7 +349,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
 
                               <Button
                                 variant="outline"
-                                className="border-[#6d28d9] text-[#6d28d9] hover:text-[#5b21b6] hover:border-[#5b21b6] text-sm px-3 py-1 h-8"
+                                className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 text-sm px-3 py-1 h-8"
                               >
                                 <Link to={`/trade/${trade.id}`}>
                                   Details

@@ -40,7 +40,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
   return (
     <Card className="border border-neutral-200 shadow-sm p-4">
       <CardHeader>
-        <h1 className="text-2xl font-bold text-[#5b21b6]">
+        <h1 className="text-2xl font-bold text-primary-800">
           Trade #{formatNumber(trade.id)}
         </h1>
         <p className="text-neutral-500">
@@ -73,7 +73,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
               <span className="ml-2">
                 <a
                   href={`/offers/${offer.id}`}
-                  className="text-[#6d28d9] hover:text-[#5b21b6] underline text-sm"
+                  className="text-primary-700 hover:text-primary-800 underline text-sm"
                 >
                   [view source offer]
                 </a>

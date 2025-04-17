@@ -236,8 +236,8 @@ const TradeConfirmationDialog = ({
             <span className="font-medium text-neutral-700">Trade Type</span>
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
               offer.offer_type === 'BUY'
-                ? 'bg-[#d1fae5] text-[#065f46]'
-                : 'bg-[#ede9fe] text-[#5b21b6]'
+                ? 'bg-secondary-200 text-secondary-900'
+                : 'bg-[#ede9fe] text-primary-800'
             }`}>
               {offer.offer_type === 'BUY'
                 ? 'You are selling USDC'
@@ -362,7 +362,7 @@ const TradeConfirmationDialog = ({
 
                   <div className="pt-2 mt-2 flex justify-between items-center bg-amber-100 rounded p-2">
                     <span className="font-medium text-neutral-700">You will receive</span>
-                    <span className="font-bold text-[#5b21b6]">{formatNumber(fiatAmount)} {offer.fiat_currency}</span>
+                    <span className="font-bold text-primary-800">{formatNumber(fiatAmount)} {offer.fiat_currency}</span>
                   </div>
                 </>
               ) : (
@@ -384,7 +384,7 @@ const TradeConfirmationDialog = ({
 
                   <div className="border-t pt-2 mt-2 flex justify-between items-center">
                     <span className="font-medium text-neutral-700">You will receive</span>
-                    <span className="font-bold text-[#5b21b6]">
+                    <span className="font-bold text-primary-800">
                       {amount && formatNumber(parseFloat(amount))} USDC
                     </span>
                   </div>

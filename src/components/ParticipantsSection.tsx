@@ -22,7 +22,7 @@ function ParticipantsSection({
   return (
     <Card className="border border-neutral-200 shadow-sm p-4">
       <CardHeader>
-        <CardTitle className="text-[#5b21b6]">Participants</CardTitle>
+        <CardTitle className="text-primary-800">Participants</CardTitle>
         <CardDescription>People involved in this trade</CardDescription>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">

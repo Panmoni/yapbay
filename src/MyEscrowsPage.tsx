@@ -104,7 +104,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       <Container>
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#5b21b6] font-semibold">
+            <CardTitle className="text-primary-800 font-semibold">
               My Escrows
             </CardTitle>
             <CardDescription>View your escrow contracts</CardDescription>
@@ -126,7 +126,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       <Container>
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#5b21b6] font-semibold">
+            <CardTitle className="text-primary-800 font-semibold">
               My Escrows
             </CardTitle>
             <CardDescription>View your escrow contracts</CardDescription>
@@ -148,7 +148,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       <Card>
         <CardHeader>
           <div>
-            <CardTitle className="text-[#5b21b6] font-semibold">
+            <CardTitle className="text-primary-800 font-semibold">
               My Escrows
             </CardTitle>
             <CardDescription>View your escrow contracts</CardDescription>
@@ -193,11 +193,11 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                       <div className="mobile-card-view-header">
                         <span>Trade #{escrow.trade_id}</span>
                         {isUserSeller(escrow) ? (
-                          <Badge className="bg-[#d1fae5] text-[#065f46] hover:bg-[#a7f3d0]">
+                          <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">
                             Seller
                           </Badge>
                         ) : isUserBuyer(escrow) ? (
-                          <Badge className="bg-[#ede9fe] text-[#5b21b6] hover:bg-[#ddd6fe]">
+                          <Badge className="bg-[#ede9fe] text-primary-800 hover:bg-[#ddd6fe]">
                             Buyer
                           </Badge>
                         ) : (
@@ -213,7 +213,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                           href={`https://explorer.solana.com/address/${escrow.escrow_address}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[#6d28d9] hover:text-[#5b21b6] font-mono text-xs"
+                          className="text-primary-700 hover:text-primary-800 font-mono text-xs"
                         >
                           {abbreviateAddress(escrow.escrow_address)}
                         </a>
@@ -248,7 +248,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                       <div className="mt-4">
                         <Button
                           variant="outline"
-                          className="border-[#6d28d9] text-[#6d28d9] hover:text-[#5b21b6] hover:border-[#5b21b6] w-full"
+                          className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full"
                         >
                           View Trade
                         </Button>
@@ -262,28 +262,28 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-neutral-50 hover:bg-neutral-50">
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Trade ID
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Role
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Escrow Address
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Token
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Amount
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Status
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Created
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Actions
                         </TableHead>
                       </TableRow>
@@ -299,11 +299,11 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                           </TableCell>
                           <TableCell>
                             {isUserSeller(escrow) ? (
-                              <Badge className="bg-[#d1fae5] text-[#065f46] hover:bg-[#a7f3d0]">
+                              <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">
                                 Seller
                               </Badge>
                             ) : isUserBuyer(escrow) ? (
-                              <Badge className="bg-[#ede9fe] text-[#5b21b6] hover:bg-[#ddd6fe]">
+                              <Badge className="bg-[#ede9fe] text-primary-800 hover:bg-[#ddd6fe]">
                                 Buyer
                               </Badge>
                             ) : (
@@ -317,7 +317,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                               href={`https://explorer.solana.com/address/${escrow.escrow_address}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[#6d28d9] hover:text-[#5b21b6]"
+                              className="text-primary-700 hover:text-primary-800"
                             >
                               {abbreviateAddress(escrow.escrow_address)}
                             </a>
@@ -339,7 +339,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                           <TableCell>
                             <Button
                               variant="outline"
-                              className="border-[#6d28d9] text-[#6d28d9] hover:text-[#5b21b6] hover:border-[#5b21b6] text-sm px-3 py-1 h-8"
+                              className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 text-sm px-3 py-1 h-8"
                             >
                               View Trade
                             </Button>

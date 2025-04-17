@@ -138,7 +138,7 @@ function EditOfferPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <CardTitle className="text-[#5b21b6] font-semibold">Edit Offer #{id}</CardTitle>
+              <CardTitle className="text-primary-800 font-semibold">Edit Offer #{id}</CardTitle>
               <CardDescription>Update your offer details</CardDescription>
               {!loading && formData && (
                 <div className="mt-4">
@@ -160,8 +160,8 @@ function EditOfferPage() {
           )}
 
           {success && (
-            <Alert className="mb-6 bg-[#d1fae5] border-[#a7f3d0]">
-              <AlertDescription className="text-[#065f46]">{success}</AlertDescription>
+            <Alert className="mb-6 bg-secondary-200 border-secondary-300">
+              <AlertDescription className="text-secondary-900">{success}</AlertDescription>
             </Alert>
           )}
 
@@ -314,7 +314,7 @@ function EditOfferPage() {
                 value={formData.terms}
                 onChange={handleChange}
                 rows={6}
-                className="w-full p-3 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#6d28d9] focus:border-transparent"
+                className="w-full p-3 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-700 focus:border-transparent"
                 placeholder="Specify your terms and conditions for this offer..."
               />
             </div>
@@ -322,7 +322,7 @@ function EditOfferPage() {
             <CardFooter className="flex justify-end px-0 pt-4 pb-0">
               <Button
                 type="submit"
-                className="bg-[#6d28d9] hover:bg-[#5b21b6] text-white"
+                className="bg-primary-700 hover:bg-primary-800 text-white"
               >
                 Update Offer
               </Button>

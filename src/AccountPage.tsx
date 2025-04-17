@@ -23,7 +23,7 @@ function AccountPage({ account, setAccount }: AccountPageProps) {
       <Container className="max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#5b21b6] font-semibold">Account Profile</CardTitle>
+            <CardTitle className="text-primary-800 font-semibold">Account Profile</CardTitle>
             <CardDescription>View and manage your account settings</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -53,14 +53,14 @@ function AccountPage({ account, setAccount }: AccountPageProps) {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle className="text-[#5b21b6] font-semibold">Account Profile</CardTitle>
+              <CardTitle className="text-primary-800 font-semibold">Account Profile</CardTitle>
               <CardDescription>View and manage your account settings</CardDescription>
             </div>
 
             {account && !isEditing && (
               <Button
                 onClick={() => setIsEditing(true)}
-                className="bg-[#6d28d9] hover:bg-[#5b21b6] text-white"
+                className="bg-primary-700 hover:bg-primary-800 text-white"
               >
                 Edit Profile
               </Button>
@@ -69,8 +69,8 @@ function AccountPage({ account, setAccount }: AccountPageProps) {
         </CardHeader>
         <CardContent className="px-6">
           {updateSuccess && (
-            <Alert className="mb-6 bg-[#d1fae5] border-[#a7f3d0]">
-              <AlertDescription className="text-[#065f46]">{updateSuccess}</AlertDescription>
+            <Alert className="mb-6 bg-secondary-200 border-secondary-300">
+              <AlertDescription className="text-secondary-900">{updateSuccess}</AlertDescription>
             </Alert>
           )}
 

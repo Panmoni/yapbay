@@ -10,7 +10,7 @@ function ChatSection({ counterparty }: ChatSectionProps) {
   return (
     <Card className="border border-neutral-200 shadow-sm p-4">
       <CardHeader>
-        <CardTitle className="text-[#5b21b6]">Chat</CardTitle>
+        <CardTitle className="text-primary-800">Chat</CardTitle>
         <CardDescription>Communicate with your trading partner</CardDescription>
       </CardHeader>
       <CardContent>

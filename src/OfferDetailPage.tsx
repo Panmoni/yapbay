@@ -184,7 +184,7 @@ function OfferDetailPage() {
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <CardTitle className="text-[#5b21b6] font-semibold">
+              <CardTitle className="text-primary-800 font-semibold">
                 Offer #{formatNumber(offer.id)}
               </CardTitle>
               <CardDescription>
@@ -200,7 +200,7 @@ function OfferDetailPage() {
               </Link>
               {isOwner && (
                 <Link to={`/edit-offer/${offer.id}`}>
-                  <Button variant="outline" className="border-[#6d28d9] text-[#6d28d9] hover:text-[#5b21b6] hover:border-[#5b21b6]">
+                  <Button variant="outline" className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800">
                     Edit
                   </Button>
                 </Link>
@@ -274,7 +274,7 @@ function OfferDetailPage() {
           {isOwner ? (
             <>
               <Link to={`/edit-offer/${offer.id}`}>
-                <Button variant="outline" className="border-[#6d28d9] text-[#6d28d9] hover:text-[#5b21b6] hover:border-[#5b21b6] w-full sm:w-auto">
+                <Button variant="outline" className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full sm:w-auto">
                   Edit Offer
                 </Button>
               </Link>

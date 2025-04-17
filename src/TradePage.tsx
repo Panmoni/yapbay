@@ -285,7 +285,7 @@ function TradePage() {
       {/* Enhanced Status Display */}
       <Card className="border border-neutral-200 shadow-sm p-4">
         <CardHeader>
-          <CardTitle className="text-[#5b21b6]">Trade Status</CardTitle>
+          <CardTitle className="text-primary-800">Trade Status</CardTitle>
           <CardDescription>Current status and progress of this trade</CardDescription>
         </CardHeader>
         <CardContent>
@@ -319,7 +319,7 @@ function TradePage() {
       <div className="flex justify-end p-4">
         <Button
           onClick={() => navigate("/trades")}
-          className="bg-[#6d28d9] hover:bg-[#5b21b6] text-white"
+          className="bg-primary-700 hover:bg-primary-800 text-white"
         >
           View All My Trades
         </Button>

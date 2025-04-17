@@ -93,7 +93,7 @@ if (!primaryWallet) {
       <Container>
         <Card>
           <CardHeader className="border-b border-neutral-100">
-            <CardTitle className="text-[#5b21b6] font-semibold">
+            <CardTitle className="text-primary-800 font-semibold">
               My Offers
             </CardTitle>
             <CardDescription>Manage your active offers</CardDescription>
@@ -117,7 +117,7 @@ if (!primaryWallet) {
         <Container>
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#5b21b6] font-semibold">
+            <CardTitle className="text-primary-800 font-semibold">
               My Offers
             </CardTitle>
             <CardDescription>Manage your active offers</CardDescription>
@@ -141,12 +141,12 @@ return (
         <CardHeader>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <CardTitle className="text-[#5b21b6] font-semibold">
+              <CardTitle className="text-primary-800 font-semibold">
                 My Offers
               </CardTitle>
               <CardDescription>Manage your active offers</CardDescription>
             </div>
-            <Button className="bg-[#6d28d9] hover:bg-[#5b21b6] text-white w-full sm:w-auto">
+            <Button className="bg-primary-700 hover:bg-primary-800 text-white w-full sm:w-auto">
               <Link to="/create-offer" className="text-white hover:text-white w-full">
                 Create New Offer
               </Link>
@@ -169,8 +169,8 @@ return (
 
           {deleteSuccess && (
             <div className="p-5">
-              <Alert className="mb-0 bg-[#d1fae5] border-[#a7f3d0]">
-                <AlertDescription className="text-[#065f46]">
+              <Alert className="mb-0 bg-secondary-200 border-secondary-300">
+                <AlertDescription className="text-secondary-900">
                   {deleteSuccess}
                 </AlertDescription>
               </Alert>
@@ -258,34 +258,34 @@ return (
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-neutral-50 hover:bg-neutral-50">
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           ID
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Type
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Token
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Min Amount
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Max Amount
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Total Available
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Rate
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Currency
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Created
                         </TableHead>
-                        <TableHead className="text-[#6d28d9] font-medium">
+                        <TableHead className="text-primary-700 font-medium">
                           Actions
                         </TableHead>
                       </TableRow>

@@ -142,7 +142,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
       <Container className="max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle className="text-[#5b21b6] font-semibold">Create an Offer</CardTitle>
+            <CardTitle className="text-primary-800 font-semibold">Create an Offer</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <Alert className="bg-neutral-50 border-neutral-200">
@@ -158,16 +158,16 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
     <Container className="max-w-2xl">
       <Card>
         <CardHeader>
-          <CardTitle className="text-[#5b21b6] font-semibold">Create an Offer</CardTitle>
+          <CardTitle className="text-primary-800 font-semibold">Create an Offer</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
           {success && (
-            <Alert className="mb-6 bg-[#d1fae5] border-[#a7f3d0]">
-              <AlertDescription className="text-[#065f46]">
+            <Alert className="mb-6 bg-secondary-200 border-secondary-300">
+              <AlertDescription className="text-secondary-900">
                 <span>
                   {success} <Link
                     to="/offers"
-                    className="inline underline text-[#5b21b6] hover:text-[#7c3aed]"
+                    className="inline underline text-primary-800 hover:text-[#7c3aed]"
                     style={{ display: 'inline !important' }}
                   >
                     View your offers
@@ -386,7 +386,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
 
             <Button
               type="submit"
-              className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] text-white mt-6"
+              className="w-full bg-primary-700 hover:bg-primary-800 text-white mt-6"
             >
               Create Offer
             </Button>
