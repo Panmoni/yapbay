@@ -38,7 +38,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
   const marketPosition = rateAdjustment > 1 ? "above" : rateAdjustment < 1 ? "below" : "at";
 
   return (
-    <Card className="border border-gray-200 shadow-sm p-4">
+    <Card className="border border-neutral-200 shadow-sm p-4">
       <CardHeader>
         <h1 className="text-2xl font-bold text-[#5b21b6]">
           Trade #{formatNumber(trade.id)}
@@ -51,7 +51,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
             hour: '2-digit',
             minute: '2-digit',
             hour12: false
-          })} - <span className="text-gray-400">{formatDistanceToNow(new Date(trade.created_at))} ago</span>
+          })} - <span className="text-neutral-400">{formatDistanceToNow(new Date(trade.created_at))} ago</span>
         </p>
       </CardHeader>
       <CardContent>
@@ -85,7 +85,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
               <div className="mt-2 flex items-center">
                 <strong className="mr-2">{otherPartyRole}:</strong>
                 <div className="flex items-center">
-                  <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs mr-2 overflow-hidden">
+                  <div className="w-6 h-6 rounded-full bg-neutral-200 flex items-center justify-center text-xs mr-2 overflow-hidden">
                     {otherParty.profile_photo_url ? (
                       <img src={otherParty.profile_photo_url} alt={otherParty.username || "User"} className="w-full h-full object-cover" />
                     ) : (
@@ -94,9 +94,9 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
                   </div>
                   <span className="font-medium mr-1">{otherParty.username || "Anonymous"}</span>
                   {otherParty.wallet_address && (
-                    <span className="text-xs text-gray-500 mr-1">({abbreviateWallet(otherParty.wallet_address)})</span>
+                    <span className="text-xs text-neutral-500 mr-1">({abbreviateWallet(otherParty.wallet_address)})</span>
                   )}
-                  <span className="text-xs text-gray-500 mr-2">ID: {otherParty.id}</span>
+                  <span className="text-xs text-neutral-500 mr-2">ID: {otherParty.id}</span>
                   {otherParty.telegram_username && (
                     <a
                       href={`https://t.me/${otherParty.telegram_username}`}
@@ -116,7 +116,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
             {offer?.terms && (
               <div className="mt-2 mb-3">
                 <p className="mb-1"><strong>Terms</strong>:</p>
-                <blockquote className="pl-3 border-l-2 border-gray-300 italic text-gray-600 text-base">
+                <blockquote className="pl-3 border-l-2 border-neutral-300 italic text-neutral-600 text-base">
                   "{offer.terms}"
                 </blockquote>
               </div>

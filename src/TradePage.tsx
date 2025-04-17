@@ -283,7 +283,7 @@ function TradePage() {
       )}
 
       {/* Enhanced Status Display */}
-      <Card className="border border-gray-200 shadow-sm p-4">
+      <Card className="border border-neutral-200 shadow-sm p-4">
         <CardHeader>
           <CardTitle className="text-[#5b21b6]">Trade Status</CardTitle>
           <CardDescription>Current status and progress of this trade</CardDescription>

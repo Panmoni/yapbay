@@ -297,8 +297,8 @@ function OffersPage() {
               <CardDescription>Start a simple P2P trade from one of the available offers</CardDescription>
             </div>
             {primaryWallet && (
-              <Button className="btn-primary bg-primary hover:bg-primary-300 text-white w-full sm:w-auto">
-                <Link to="/create-offer" className="text-white hover:text-white w-full">
+              <Button className="bg-primary-800 hover:bg-primary-300 w-full sm:w-auto">
+                <Link to="/create-offer" className="text-white w-full">
                   Create New Offer
                 </Link>
               </Button>
