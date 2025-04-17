@@ -296,7 +296,7 @@ function OfferDetailPage() {
               </Button>
             ) : (
               <Button
-                className="bg-gray-400 hover:bg-gray-500 text-white w-full sm:w-auto cursor-not-allowed"
+                className="bg-neutral-400 hover:bg-neutral-500 text-white w-full sm:w-auto cursor-not-allowed"
                 disabled
               >
                 Connect Wallet to Trade
