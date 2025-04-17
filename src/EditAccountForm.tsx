@@ -143,7 +143,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           type="text"
           value={formData.username}
           onChange={handleInputChange}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           required
           placeholder="Enter your username"
         />
@@ -159,7 +159,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           type="email"
           value={formData.email}
           onChange={handleInputChange}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           required
           placeholder="example@email.com"
         />
@@ -175,7 +175,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           type="text"
           value={formData.telegram_username}
           onChange={handleInputChange}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           placeholder="username"
         />
       </div>
@@ -190,7 +190,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           type="text"
           value={formData.telegram_id}
           onChange={handleInputChange}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           placeholder="12345678"
         />
       </div>
@@ -203,7 +203,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           value={getCountryCodeValue()}
           onValueChange={(value) => handleSelectChange("phone_country_code", value)}
         >
-          <SelectTrigger className="border-neutral-300 focus:ring-[#8b5cf6]">
+          <SelectTrigger className="border-neutral-300 focus:ring-primary-500">
             <SelectValue placeholder="Select country code" />
           </SelectTrigger>
           <SelectContent className="bg-white shadow-md">
@@ -226,7 +226,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           type="tel"
           value={formData.phone_number}
           onChange={handleInputChange}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           placeholder="555-123-4567"
         />
       </div>
@@ -239,7 +239,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           value={formData.timezone}
           onValueChange={(value) => handleSelectChange("timezone", value)}
         >
-          <SelectTrigger className="border-neutral-300 focus:ring-[#8b5cf6]">
+          <SelectTrigger className="border-neutral-300 focus:ring-primary-500">
             <SelectValue placeholder="Select your timezone" />
           </SelectTrigger>
           <SelectContent className="bg-white shadow-md">
@@ -262,7 +262,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           type="time"
           value={formData.available_from}
           onChange={handleInputChange}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
         />
         <p className="text-xs text-neutral-500">Your local time when you start being available</p>
       </div>
@@ -277,7 +277,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           type="time"
           value={formData.available_to}
           onChange={handleInputChange}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
         />
         <p className="text-xs text-neutral-500">Your local time when you stop being available</p>
       </div>
@@ -292,7 +292,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           type="url"
           value={formData.profile_photo_url}
           onChange={handleInputChange}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           placeholder="https://example.com/photo.jpg"
         />
         <p className="text-xs text-neutral-500">Enter a URL for your profile photo</p>

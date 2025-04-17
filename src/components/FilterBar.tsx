@@ -37,7 +37,7 @@ const FilterBar = ({ onCurrencyChange, onTradeTypeChange }: FilterBarProps) => {
     <div className="flex flex-wrap justify-end items-center gap-3">
       <div className="w-auto">
         <Select value={tradeType} onValueChange={handleTradeTypeChange}>
-          <SelectTrigger className="w-full sm:w-[200px] border-neutral-300 focus:ring-[#8b5cf6]">
+          <SelectTrigger className="w-full sm:w-[200px] border-neutral-300 focus:ring-primary-500">
             <SelectValue placeholder="I want to..." />
           </SelectTrigger>
           <SelectContent className="bg-neutral-100">
@@ -49,7 +49,7 @@ const FilterBar = ({ onCurrencyChange, onTradeTypeChange }: FilterBarProps) => {
       </div>
       <div className="w-auto">
         <Select value={currency} onValueChange={handleCurrencyChange}>
-          <SelectTrigger className="w-full sm:w-[200px] border-neutral-300 focus:ring-[#8b5cf6]">
+          <SelectTrigger className="w-full sm:w-[200px] border-neutral-300 focus:ring-primary-500">
             <SelectValue placeholder="Filter by currency" />
           </SelectTrigger>
           <SelectContent className="bg-neutral-100">

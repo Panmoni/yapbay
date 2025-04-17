@@ -237,7 +237,7 @@ function OfferDetailPage() {
                 <span className="font-medium text-neutral-700">Rate Adjustment</span>
                 <span className={
                   offer.rate_adjustment > 1
-                    ? 'text-[#059669]'
+                    ? 'text-success-600'
                     : offer.rate_adjustment < 1
                       ? 'text-red-600'
                       : 'text-neutral-600'
@@ -290,7 +290,7 @@ function OfferDetailPage() {
             primaryWallet ? (
               <Button
                 onClick={handleStartTrade}
-                className="bg-[#10b981] hover:bg-[#059669] text-white w-full sm:w-auto"
+                className="bg-success-500 hover:bg-success-600 text-white w-full sm:w-auto"
               >
                 Start Trade
               </Button>

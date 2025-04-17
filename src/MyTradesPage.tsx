@@ -230,7 +230,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                       <div className="mobile-card-view-header">
                         <span>#{trade.id}</span>
                         {isUserBuyer(trade) ? (
-                          <Badge className="bg-[#ede9fe] text-primary-800 hover:bg-[#ddd6fe]">Buyer</Badge>
+                          <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">Buyer</Badge>
                         ) : (
                           <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">Seller</Badge>
                         )}
@@ -273,7 +273,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                         {isUserSeller(trade) && trade.leg1_state === "PENDING_CRYPTO_RELEASE" && (
                           <Button
                             onClick={handleReleaseEscrow}
-                            className="bg-[#10b981] hover:bg-[#059669] text-white w-full"
+                            className="bg-success-500 hover:bg-success-600 text-white w-full"
                           >
                             Release
                           </Button>
@@ -312,7 +312,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                           <TableCell className="font-medium">#{trade.id}</TableCell>
                           <TableCell>
                             {isUserBuyer(trade) ? (
-                              <Badge className="bg-[#ede9fe] text-primary-800 hover:bg-[#ddd6fe]">Buyer</Badge>
+                              <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">Buyer</Badge>
                             ) : (
                               <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">Seller</Badge>
                             )}
@@ -341,7 +341,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                               {isUserSeller(trade) && trade.leg1_state === "PENDING_CRYPTO_RELEASE" && (
                                 <Button
                                   onClick={handleReleaseEscrow}
-                                  className="bg-[#10b981] hover:bg-[#059669] text-white text-sm px-3 py-1 h-8"
+                                  className="bg-success-500 hover:bg-success-600 text-white text-sm px-3 py-1 h-8"
                                 >
                                   Release
                                 </Button>

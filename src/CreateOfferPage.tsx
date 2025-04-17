@@ -167,7 +167,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 <span>
                   {success} <Link
                     to="/offers"
-                    className="inline underline text-primary-800 hover:text-[#7c3aed]"
+                    className="inline underline text-primary-800 hover:text-primary-600"
                     style={{ display: 'inline !important' }}
                   >
                     View your offers
@@ -195,7 +195,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 id="creator_account_id"
                 type="text"
                 value={formData.creator_account_id}
-                className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+                className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                 onChange={(e) => setFormData({ ...formData, creator_account_id: e.target.value })}
                 disabled
               />
@@ -215,7 +215,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                   setFormData({ ...formData, offer_type: value as "BUY" | "SELL" })
                 }
               >
-                <SelectTrigger className="border-neutral-300 focus:ring-[#8b5cf6]">
+                <SelectTrigger className="border-neutral-300 focus:ring-primary-500">
                   <SelectValue placeholder="Select offer type" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-100">
@@ -242,7 +242,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                   id="min_amount"
                   type="number"
                   placeholder="10"
-                  className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+                  className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                   value={formData.min_amount}
                   onChange={(e) => setFormData({ ...formData, min_amount: e.target.value })}
                 />
@@ -259,7 +259,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                   id="max_amount"
                   type="number"
                   placeholder="100"
-                  className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+                  className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                   value={formData.max_amount}
                   onChange={(e) => setFormData({ ...formData, max_amount: e.target.value })}
                 />
@@ -277,7 +277,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 id="total_available_amount"
                 type="number"
                 placeholder="1000"
-                className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+                className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                 value={formData.total_available_amount}
                 onChange={(e) => setFormData({ ...formData, total_available_amount: e.target.value })}
               />
@@ -299,7 +299,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                   setFormData({ ...formData, fiat_currency: value })
                 }
               >
-                <SelectTrigger className="border-neutral-300 focus:ring-[#8b5cf6]">
+                <SelectTrigger className="border-neutral-300 focus:ring-primary-500">
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-100">
@@ -322,7 +322,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 id="rate_adjustment"
                 type="number"
                 step="0.01"
-                className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+                className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                 value={formData.rate_adjustment}
                 onChange={(e) => setFormData({ ...formData, rate_adjustment: e.target.value })}
               />
@@ -341,7 +341,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
               <Input
                 id="terms"
                 type="text"
-                className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+                className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                 value={formData.terms}
                 onChange={(e) => setFormData({ ...formData, terms: e.target.value })}
               />
@@ -361,7 +361,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 <Input
                   id="escrow_deposit_time_limit"
                   type="text"
-                  className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+                  className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                   value={formData.escrow_deposit_time_limit}
                   disabled
                 />
@@ -377,7 +377,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 <Input
                   id="fiat_payment_time_limit"
                   type="text"
-                  className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+                  className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                   value={formData.fiat_payment_time_limit}
                   disabled
                 />

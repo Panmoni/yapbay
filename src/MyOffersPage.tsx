@@ -223,7 +223,7 @@ return (
                         <span className="mobile-card-view-label">Rate</span>
                         <span className={
                           offer.rate_adjustment > 1
-                            ? 'text-[#059669]'
+                            ? 'text-success-600'
                             : offer.rate_adjustment < 1
                               ? 'text-red-600'
                               : 'text-neutral-600'
@@ -305,7 +305,7 @@ return (
                             <span
                               className={
                                 offer.rate_adjustment > 1
-                                  ? "text-[#059669]"
+                                  ? "text-success-600"
                                   : offer.rate_adjustment < 1
                                   ? "text-red-600"
                                   : "text-neutral-600"

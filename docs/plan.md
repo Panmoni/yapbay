@@ -3,9 +3,7 @@
 4.1
 
 ## UI
-grep for gray, purple, -[#
 create new offer button
-still purple and green in the edit offer buttons
 
 ## API integration
 - account creation, editing

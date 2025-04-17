@@ -53,7 +53,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-10 bg-[#FAF9F6] shadow-md">
+    <header className="fixed top-0 left-0 right-0 z-10 bg-neutral-50 shadow-md">
       <Container>
         <div className="flex justify-between items-center py-4">
           <Link to="/" className="text-xl sm:text-2xl text-primary-700 flex items-center gap-2">
@@ -137,7 +137,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                       <AvatarFallback>{account?.username?.charAt(0) || "U"}</AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 bg-[#FAF9F6] shadow-md">
+                  <DropdownMenuContent align="end" className="w-48 bg-neutral-50 shadow-md">
                     <DropdownMenuItem asChild>
                       <Link to="/account" className="w-full text-neutral-800 hover:text-primary-700">
                         My Account

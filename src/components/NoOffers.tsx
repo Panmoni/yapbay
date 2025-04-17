@@ -20,7 +20,7 @@ const NoOffers: React.FC = () => {
             href="https://t.me/Panmoni/802"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#0088cc] hover:bg-[#0077b5] text-white px-6 py-2 rounded-md font-medium transition-colors"
+            className="bg-info-500 hover:bg-info-600 text-white px-6 py-2 rounded-md font-medium transition-colors"
           >
             Join Telegram Group
           </a>
@@ -35,7 +35,7 @@ const NoOffers: React.FC = () => {
           href="https://t.me/Panmoni/804"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block mt-2 text-[#0088cc] hover:text-[#0077b5] font-medium underline"
+          className="inline-block mt-2 text-info-500 hover:text-info-600 font-medium underline"
         >
           Grupo de Telegram en Español
         </a>

@@ -237,7 +237,7 @@ const TradeConfirmationDialog = ({
             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
               offer.offer_type === 'BUY'
                 ? 'bg-secondary-200 text-secondary-900'
-                : 'bg-[#ede9fe] text-primary-800'
+                : 'bg-primary-100 text-primary-800'
             }`}>
               {offer.offer_type === 'BUY'
                 ? 'You are selling USDC'
@@ -267,7 +267,7 @@ const TradeConfirmationDialog = ({
               <span className="font-medium text-neutral-700">Rate Adjustment</span>
               <span className={
                 offer.rate_adjustment > 1
-                  ? 'text-[#059669]'
+                  ? 'text-success-600'
                   : offer.rate_adjustment < 1
                     ? 'text-red-600'
                     : 'text-neutral-600'
@@ -445,7 +445,7 @@ const TradeConfirmationDialog = ({
             Cancel
           </Button>
           <Button
-            className="bg-[#10b981] hover:bg-[#059669] text-white"
+            className="bg-success-500 hover:bg-success-600 text-white"
             onClick={handleConfirm}
             disabled={loading || !!error || !!amountError || fiatAmount <= 0}
           >

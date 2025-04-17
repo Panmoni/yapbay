@@ -129,7 +129,7 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
           type="text"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           required
           placeholder="Choose a username"
         />
@@ -145,7 +145,7 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="border-neutral-300 focus:border-[#8b5cf6] focus:ring-[#8b5cf6]"
+          className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           required
           placeholder="example@email.com"
         />

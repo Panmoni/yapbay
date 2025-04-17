@@ -197,7 +197,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                             Seller
                           </Badge>
                         ) : isUserBuyer(escrow) ? (
-                          <Badge className="bg-[#ede9fe] text-primary-800 hover:bg-[#ddd6fe]">
+                          <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">
                             Buyer
                           </Badge>
                         ) : (
@@ -303,7 +303,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                                 Seller
                               </Badge>
                             ) : isUserBuyer(escrow) ? (
-                              <Badge className="bg-[#ede9fe] text-primary-800 hover:bg-[#ddd6fe]">
+                              <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">
                                 Buyer
                               </Badge>
                             ) : (

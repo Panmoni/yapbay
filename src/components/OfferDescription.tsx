@@ -22,7 +22,7 @@ function OfferDescription({ offer, className = "" }: OfferDescriptionProps) {
       You are {action} {offer.token} for {offer.fiat_currency} at{" "}
       <span className={
         offer.rate_adjustment > 1
-          ? 'text-[#059669]'
+          ? 'text-success-600'
           : offer.rate_adjustment < 1
             ? 'text-red-600'
             : 'text-neutral-600'

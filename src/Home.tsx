@@ -298,8 +298,8 @@ function OffersPage() {
             </div>
             {primaryWallet && (
               <Button className="bg-primary-800 hover:bg-primary-300 w-full sm:w-auto">
-                <Link to="/create-offer" className="text-white w-full">
-                  Create New Offer
+                <Link to="/create-offer" className="w-full">
+                  <span className="text-neutral-100">Create New Offer</span>
                 </Link>
               </Button>
             )}
@@ -351,16 +351,16 @@ function OffersPage() {
                           <TooltipTrigger asChild>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                               offer.offer_type === 'BUY'
-                                ? 'bg-success text-neutral-100'
-                                : 'bg-error text-neutral-100'
+                                ? 'bg-secondary-500 text-neutral-100'
+                                : 'bg-amber-500 text-neutral-100'
                             }`}>
                               {offer.offer_type}
                             </span>
                           </TooltipTrigger>
                           <TooltipContent className={
                             offer.offer_type === 'BUY'
-                                ? 'bg-success text-neutral-100'
-                                : 'bg-error text-neutral-100'
+                                ? 'bg-secondary-500 text-neutral-100'
+                                : 'bg-amber-500 text-neutral-100'
                           }>
                             <p>
                               {offer.offer_type === 'BUY'

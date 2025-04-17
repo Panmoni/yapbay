@@ -61,7 +61,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
             for {trade.leg1_fiat_amount ? formatNumber(parseFloat(trade.leg1_fiat_amount)) : 'N/A'} {trade.from_fiat_currency} {""} at {formatNumber(price)} {trade.from_fiat_currency}/{token}. {""} This is{" "}
             <span className={
               rateAdjustment > 1
-                ? 'text-[#059669]'
+                ? 'text-success-600'
                 : rateAdjustment < 1
                   ? 'text-red-600'
                   : 'text-neutral-600'
