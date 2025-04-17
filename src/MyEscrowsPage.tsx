@@ -210,7 +210,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                       <div className="mobile-card-view-row">
                         <span className="mobile-card-view-label">Escrow Address</span>
                         <a
-                          href={`https://explorer.solana.com/address/${escrow.escrow_address}`}
+                          href={`https://alfajores.celoscan.io/address/${escrow.escrow_address}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary-700 hover:text-primary-800 font-mono text-xs"
@@ -314,7 +314,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                           </TableCell>
                           <TableCell className="font-mono text-xs">
                             <a
-                              href={`https://explorer.solana.com/address/${escrow.escrow_address}`}
+                              href={`https://alfajores.celoscan.io/address/${escrow.escrow_address}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-primary-700 hover:text-primary-800"
