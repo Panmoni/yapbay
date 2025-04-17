@@ -8,13 +8,13 @@ interface ChatSectionProps {
 
 function ChatSection({ counterparty }: ChatSectionProps) {
   return (
-    <Card className="border border-gray-200 shadow-sm p-4">
+    <Card className="border border-neutral-200 shadow-sm p-4">
       <CardHeader>
         <CardTitle className="text-[#5b21b6]">Chat</CardTitle>
         <CardDescription>Communicate with your trading partner</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="text-center py-4 border border-gray-100 rounded-md p-4">
+        <div className="text-center py-4 border border-neutral-100 rounded-md p-4">
           <p className="text-neutral-500 mb-4">Chat functionality coming soon</p>
           {counterparty?.telegram_username && (
             <Button

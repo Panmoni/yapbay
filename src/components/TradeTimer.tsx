@@ -77,7 +77,7 @@ const TradeTimer: React.FC<TradeTimerProps> = ({ deadline, onExpire, label }) =>
 
   return (
     <div className="flex flex-col items-start">
-      <div className="text-sm text-gray-500 mb-1">{label}</div>
+      <div className="text-sm text-neutral-500 mb-1">{label}</div>
       {timeRemaining.expired ? (
         <div className="text-red-600 font-medium">Expired</div>
       ) : (

@@ -20,14 +20,14 @@ function ParticipantsSection({
   userRole
 }: ParticipantsSectionProps) {
   return (
-    <Card className="border border-gray-200 shadow-sm p-4">
+    <Card className="border border-neutral-200 shadow-sm p-4">
       <CardHeader>
         <CardTitle className="text-[#5b21b6]">Participants</CardTitle>
         <CardDescription>People involved in this trade</CardDescription>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Show buyer */}
-        <div className="p-3 border border-gray-100 rounded-md hover:bg-gray-50">
+        <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
           {(() => {
             console.log("[DEBUG] Rendering buyer card:", {
               buyerAccount,
@@ -47,7 +47,7 @@ function ParticipantsSection({
         </div>
 
         {/* Show seller */}
-        <div className="p-3 border border-gray-100 rounded-md hover:bg-gray-50">
+        <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
           {(() => {
             console.log("[DEBUG] Rendering seller card:", {
               sellerAccount,

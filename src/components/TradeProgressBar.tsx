@@ -42,14 +42,14 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state }) => {
     <div className="space-y-2">
       <div className="flex justify-between items-center">
         <div className="text-sm font-medium">Progress: {label}</div>
-        <div className="text-sm text-gray-500">{progress}%</div>
+        <div className="text-sm text-neutral-500">{progress}%</div>
       </div>
 
       <div className="relative pt-4 pb-8">
         {/* Custom progress bar */}
-        <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+        <div className="h-3 w-full bg-neutral-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-purple-600 rounded-full transition-all duration-500 ease-in-out"
+            className="h-full bg-primary-600 rounded-full transition-all duration-500 ease-in-out"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -65,13 +65,13 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state }) => {
               <div
                 className={`w-5 h-5 rounded-full border-2 ${
                   milestone.completed
-                    ? 'bg-purple-600 border-purple-700'
-                    : 'bg-gray-200 border-gray-300'
+                    ? 'bg-primary-600 border-primary-700'
+                    : 'bg-neutral-200 border-neutral-300'
                 } -mt-1`}
               />
               <div
                 className={`mt-2 text-xs text-center whitespace-nowrap ${
-                  milestone.completed ? 'text-purple-700 font-medium' : 'text-gray-500'
+                  milestone.completed ? 'text-primary-700 font-medium' : 'text-neutral-500'
                 }`}
                 style={{
                   transform: 'translateX(-50%)',

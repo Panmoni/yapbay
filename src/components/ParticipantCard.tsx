@@ -53,7 +53,7 @@ function ParticipantCard({
             </Badge>
           )}
         </div>
-        <p className="text-sm text-gray-500">User ID: {user.id}</p>
+        <p className="text-sm text-neutral-500">User ID: {user.id}</p>
         {user.telegram_username && (
           <a
             href={`https://t.me/${user.telegram_username}`}
