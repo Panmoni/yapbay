@@ -12,7 +12,7 @@ This repository serves as the user interface for YapBay, a decentralized peer-to
 
 YapBay is an EVM dapp for P2P trading and remittances that is targeting deployment on Celo L2 mainnet. Our mission is to break down traditional financial barriers and unlock economic potential in emerging markets by enabling direct, trustless trades between peers worldwide. We provide a decentralized alternative to centralized exchanges, prioritizing financial inclusion, flexibility and community ownership.
 
-[View the deck](https://static.panmoni.com/yb/yapbay-deck.pdf)
+[Browse the deck](https://static.panmoni.com/yb/yapbay-deck.pdf)
 
 [Read the about page](https://yapbay.com/about/)
 
@@ -58,7 +58,7 @@ YapBay is a modular ecosystem of interconnected repositories working together to
    - **Functionality**: Provides real-time USDC prices in multiple fiat currencies (USD, EUR, COP, NGN, VES) using Coinranking API, cached with Redis.
    - **Connection**: The API queries this server’s `/prices` endpoint to display accurate fiat equivalents for trades. The frontend then talks to the API server to get the prices.
 
-5. **[yapbay-listener](#)** (coming soon)
+5. **yapbay-listener]** (coming soon)
    - **Role**: TypeScript event listener for on-chain activities.
    - **Functionality**: Monitors Celo blockchain events (e.g., escrow creation, funding) to keep off-chain systems in sync.
    - **Connection**: Feeds real-time updates to the API and frontend via websockets or polling, ensuring UI reflects on-chain state.
