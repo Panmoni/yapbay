@@ -267,7 +267,7 @@ const TradeConfirmationDialog = ({
               <span className="font-medium text-neutral-700">Rate Adjustment</span>
               <span className={
                 offer.rate_adjustment > 1
-                  ? 'text-success-600'
+                  ? 'text-green-600'
                   : offer.rate_adjustment < 1
                     ? 'text-red-600'
                     : 'text-neutral-600'
@@ -445,7 +445,7 @@ const TradeConfirmationDialog = ({
             Cancel
           </Button>
           <Button
-            className="bg-success-500 hover:bg-success-600 text-white"
+            className="bg-secondary-500 hover:bg-secondary-600 text-white"
             onClick={handleConfirm}
             disabled={loading || !!error || !!amountError || fiatAmount <= 0}
           >
