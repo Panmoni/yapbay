@@ -58,7 +58,7 @@ YapBay is a modular ecosystem of interconnected repositories working together to
    - **Functionality**: Provides real-time USDC prices in multiple fiat currencies (USD, EUR, COP, NGN, VES) using Coinranking API, cached with Redis.
    - **Connection**: The API queries this server’s `/prices` endpoint to display accurate fiat equivalents for trades. The frontend then talks to the API server to get the prices.
 
-5. **yapbay-listener]** (coming soon)
+5. **yapbay-listener** (coming soon)
    - **Role**: TypeScript event listener for on-chain activities.
    - **Functionality**: Monitors Celo blockchain events (e.g., escrow creation, funding) to keep off-chain systems in sync.
    - **Connection**: Feeds real-time updates to the API and frontend via websockets or polling, ensuring UI reflects on-chain state.
@@ -69,7 +69,7 @@ YapBay is a modular ecosystem of interconnected repositories working together to
    - **Connection**: Links to the frontend for app access and serves as the entry point for new users.
 
 ### How It All Works Together
-- A user visits `YapBay-www` to learn about the project and joins via the frontend.
+- A user visits `yapbay-www` to learn about the project and joins via the frontend.
 - The frontend authenticates users via Ethereum wallet signatures, interacting with the API to create accounts or offers. It leverages https://dynamic.xyz.
 - The pricing server provides fiat price data for offer creation and trade visualization.
 - Trades are initiated via the API, which generates escrow instructions sent to the frontend for signing and submission to the contracts.
