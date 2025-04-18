@@ -1,6 +1,6 @@
 # YapBay: P2P Stablecoin Remittances for the Global South
 
-A Vite + React frontend for the [YapBay](https://YapBay.com/) P2P trading and remittances decentralized application (dapp) on Solana.
+A Vite + React frontend for the [YapBay](https://YapBay.com/) P2P trading and remittances decentralized application (dapp) on Celo L2.
 
 This repository serves as the user interface for YapBay, a decentralized peer-to-peer (P2P) exchange and remittances marketplace designed to facilitate secure, borderless cryptocurrency trading with fiat on-ramps and off-ramps.
 
@@ -50,7 +50,7 @@ YapBay is a modular ecosystem of interconnected repositories working together to
 
 3. **[yapbay](https://github.com/Panmoni/yapbay)** (this repo)
    - **Role**: The user interface, built with Vite + React.
-   - **Functionality**: Displays trade offers, manages user interactions, integrates with Solana wallets and communicates with the API and pricing server.
+   - **Functionality**: Displays trade offers, manages user interactions, integrates with Ethereum wallets and communicates with the API and pricing server.
    - **Connection**: Connects to the API for source-of-truth data and the contracts for on-chain actions, while querying the pricing server (via the API) for real-time fiat prices.
 
 4. **[pricing](https://github.com/Panmoni/pricing)**
@@ -158,7 +158,7 @@ Join us to shape the future of decentralized trading and remittances:
 
 - Telegram: Connect with the community in [English](https://t.me/Panmoni/288) or [Español](https://t.me/Panmoni/291).
 - Waitlist: https://getwaitlist.com/waitlist/17774
-- X: Follow updates. https://x.com/YapBay\_
+- X: Follow updates. [@YapBay_](https://x.com/YapBay_)
 - Website: https://YapBay.com
 
 ## License
