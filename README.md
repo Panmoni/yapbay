@@ -39,9 +39,9 @@ Beyond cash transfers, we aim to support "combo remittances," where senders can 
 YapBay is a modular ecosystem of interconnected repositories working together to deliver a seamless P2P trading experience. Here’s how they connect:
 
 1. **[yapbay-contracts-solidity](https://github.com/Panmoni/yapbay-contracts-solidity)**
-  - **Role**: The on-chain backbone, a Solidity smart contract built with Hardhat.
-   - **Functionality**: Manages escrow creation, funding, fiat payment confirmation, release, cancellation and dispute resolution for USDC trades (max 100 USDC during the MVP, 1% fee, 5% dispute bond).
-   - **Connection**: The frontend interacts with these contracts via Ethereum wallet integrations (e.g., MetaMask) to sign and submit transactions like escrow funding or release.
+    - **Role**: The on-chain backbone, a Solidity smart contract built with Hardhat.
+    - **Functionality**: Manages escrow creation, funding, fiat payment confirmation, release, cancellation and dispute resolution for USDC trades (max 100 USDC during the MVP, 1% fee, 5% dispute bond).
+    - **Connection**: The frontend interacts with these contracts via Ethereum wallet integrations (e.g., MetaMask) to sign and submit transactions like escrow funding or release.
 
 2. **[ yapbay-api](https://github.com/Panmoni/yapbay-api)**
    - **Role**: REST API for managing accounts, offers, trades and escrow instructions.
@@ -158,7 +158,8 @@ Join us to shape the future of decentralized trading and remittances:
 
 - Telegram: Connect with the community in [English](https://t.me/Panmoni/288) or [Español](https://t.me/Panmoni/291).
 - Waitlist: https://getwaitlist.com/waitlist/17774
-- X: Follow updates. https://x.com/YapBay_ - Website: https://YapBay.com
+- X: Follow updates. https://x.com/YapBay\_
+- Website: https://YapBay.com
 
 ## License
 MIT - See LICENSE for details.
