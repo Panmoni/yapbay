@@ -345,7 +345,7 @@ const TradeConfirmationDialog = ({
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-neutral-700">LocalSolana Fee (1%)</span>
+                    <span className="text-sm text-neutral-700">YapBay Fee (1%)</span>
                     <span className="font-medium">{formatNumber(platformFee)} USDC</span>
                   </div>
 
@@ -374,12 +374,12 @@ const TradeConfirmationDialog = ({
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-neutral-700">LocalSolana Fee</span>
+                    <span className="text-sm text-neutral-700">YapBay Fee</span>
                     <span className="font-medium">0 {offer.fiat_currency}</span>
                   </div>
 
                   <div className="text-xs text-neutral-500 pl-2">
-                    <span>Seller pays the 1% LocalSolana fee</span>
+                    <span>Seller pays the 1% YapBay fee</span>
                   </div>
 
                   <div className="border-t pt-2 mt-2 flex justify-between items-center">
