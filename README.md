@@ -39,34 +39,34 @@ Beyond cash transfers, we aim to support "combo remittances," where senders can 
 YapBay is a modular ecosystem of interconnected repositories working together to deliver a seamless P2P trading experience. Here’s how they connect:
 
 1. **[yapbay-contracts-solidity](https://github.com/Panmoni/yapbay-contracts-solidity)**
-   2. **Role**: The on-chain backbone, a Solidity smart contract built with Hardhat.
-   3. **Functionality**: Manages escrow creation, funding, fiat payment confirmation, release, cancellation and dispute resolution for USDC trades (max 100 USDC during the MVP, 1% fee, 5% dispute bond).
-   4. **Connection**: The frontend interacts with these contracts via Ethereum wallet integrations (e.g., MetaMask) to sign and submit transactions like escrow funding or release.
+  - **Role**: The on-chain backbone, a Solidity smart contract built with Hardhat.
+   - **Functionality**: Manages escrow creation, funding, fiat payment confirmation, release, cancellation and dispute resolution for USDC trades (max 100 USDC during the MVP, 1% fee, 5% dispute bond).
+   - **Connection**: The frontend interacts with these contracts via Ethereum wallet integrations (e.g., MetaMask) to sign and submit transactions like escrow funding or release.
 
 2. **[ yapbay-api](https://github.com/Panmoni/yapbay-api)**
-   3. **Role**: REST API for managing accounts, offers, trades and escrow instructions.
-   4. **Functionality**: Handles user accounts, trade offers, trade state updates and generates transactions for on-chain actions. Uses PostgreSQL for storage and JWT for wallet-based authentication.
-   5. **Connection**: The frontend sends HTTP requests to this API to fetch trade data, post offers, or retrieve escrow instructions, which are then signed client-side.
+   - **Role**: REST API for managing accounts, offers, trades and escrow instructions.
+   - **Functionality**: Handles user accounts, trade offers, trade state updates and generates transactions for on-chain actions. Uses PostgreSQL for storage and JWT for wallet-based authentication.
+   - **Connection**: The frontend sends HTTP requests to this API to fetch trade data, post offers, or retrieve escrow instructions, which are then signed client-side.
 
 3. **[yapbay](https://github.com/Panmoni/yapbay)** (this repo)
-   4. **Role**: The user interface, built with Vite + React.
-   5. **Functionality**: Displays trade offers, manages user interactions, integrates with Solana wallets and communicates with the API and pricing server.
-   6. **Connection**: Connects to the API for source-of-truth data and the contracts for on-chain actions, while querying the pricing server (via the API) for real-time fiat prices.
+   - **Role**: The user interface, built with Vite + React.
+   - **Functionality**: Displays trade offers, manages user interactions, integrates with Solana wallets and communicates with the API and pricing server.
+   - **Connection**: Connects to the API for source-of-truth data and the contracts for on-chain actions, while querying the pricing server (via the API) for real-time fiat prices.
 
-4. **[ pricing](https://github.com/Panmoni/pricing)**
-   5. **Role**: Lightweight Express.js server for cryptocurrency price feeds.
-   6. **Functionality**: Provides real-time USDC prices in multiple fiat currencies (USD, EUR, COP, NGN, VES) using Coinranking API, cached with Redis.
-   7. **Connection**: The API queries this server’s `/prices` endpoint to display accurate fiat equivalents for trades. The frontend then talks to the API server to get the prices.
+4. **[pricing](https://github.com/Panmoni/pricing)**
+   - **Role**: Lightweight Express.js server for cryptocurrency price feeds.
+   - **Functionality**: Provides real-time USDC prices in multiple fiat currencies (USD, EUR, COP, NGN, VES) using Coinranking API, cached with Redis.
+   - **Connection**: The API queries this server’s `/prices` endpoint to display accurate fiat equivalents for trades. The frontend then talks to the API server to get the prices.
 
-5. **[ yapbay-listener](#)** (coming soon)
-   6. **Role**: TypeScript event listener for on-chain activities.
-   7. **Functionality**: Monitors Celo blockchain events (e.g., escrow creation, funding) to keep off-chain systems in sync.
-   8. **Connection**: Feeds real-time updates to the API and frontend via websockets or polling, ensuring UI reflects on-chain state.
+5. **[yapbay-listener](#)** (coming soon)
+   - **Role**: TypeScript event listener for on-chain activities.
+   - **Functionality**: Monitors Celo blockchain events (e.g., escrow creation, funding) to keep off-chain systems in sync.
+   - **Connection**: Feeds real-time updates to the API and frontend via websockets or polling, ensuring UI reflects on-chain state.
 
-6. **[ yapbay-www](https://github.com/Panmoni/yapbay-www)**
-   7. **Role**: AstroJS static site for marketing and community engagement.
-   8. **Functionality**: Hosts the public-facing website (YapBay.com) with info about the project, roadmap and community links.
-   9. **Connection**: Links to the frontend for app access and serves as the entry point for new users.
+6. **[yapbay-www](https://github.com/Panmoni/yapbay-www)**
+   - **Role**: AstroJS static site for marketing and community engagement.
+   - **Functionality**: Hosts the public-facing website (YapBay.com) with info about the project, roadmap and community links.
+   - **Connection**: Links to the frontend for app access and serves as the entry point for new users.
 
 ### How It All Works Together
 - A user visits `YapBay-www` to learn about the project and joins via the frontend.
