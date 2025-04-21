@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { isEthereumWallet } from '@dynamic-labs/ethereum';
 import {
   getTradeById as getTrade,
   getAccountById,
   getOfferById,
   markTradeFiatPaid,
-  createEscrow,
+  recordEscrow,
   releaseEscrow,
   cancelEscrow,
   disputeEscrow,
@@ -14,6 +15,7 @@ import {
   Offer,
   Account
 } from "./api";
+import { createEscrowTransaction } from './services/blockchainService';
 import ChatSection from "./components/ChatSection";
 import ParticipantsSection from "./components/ParticipantsSection";
 import TradeDetailsCard from "./components/TradeDetailsCard";
@@ -93,25 +95,67 @@ function TradePage() {
         throw new Error(`Missing seller wallet address for account ${sellerId} (${sellerData.username})`);
       }
       
-      // In Celo, the wallet address is also the token account
-      const sellerTokenAccount = sellerAddress;
+      // Check if the wallet is an Ethereum wallet
+      if (!isEthereumWallet(primaryWallet)) {
+        throw new Error("Connected wallet is not an Ethereum wallet");
+      }
       
-      // Call API to create escrow
-      await createEscrow({
+      // Show a loading message
+      setError("Creating escrow on blockchain. Please approve the transaction in your wallet...");
+      
+      // Create the escrow transaction on the blockchain
+      const txResult = await createEscrowTransaction(
+        primaryWallet,
+        {
+          tradeId: trade.id,
+          buyer: buyerAddress,
+          amount: parseFloat(trade.leg1_crypto_amount),
+          sequential: false,
+          sequentialEscrowAddress: undefined
+        }
+      );
+      
+      console.log("[DEBUG] Transaction result:", txResult);
+      
+      // Now notify the backend about the successful transaction
+      const recordData = {
         trade_id: trade.id,
-        escrow_id: trade.id, // Using trade ID as escrow ID for simplicity
+        transaction_hash: txResult.txHash,
+        escrow_id: txResult.escrowId,
         seller: sellerAddress,
         buyer: buyerAddress,
         amount: parseFloat(trade.leg1_crypto_amount),
-        seller_token_account: sellerTokenAccount
-      });
+        sequential: false
+      };
+      
+      console.log("[DEBUG] Recording escrow with data:", recordData);
+      
+      try {
+        const recordResponse = await recordEscrow(recordData);
+        console.log("[DEBUG] Record escrow response:", recordResponse);
+      } catch (recordError) {
+        console.error("[ERROR] Failed to record escrow:", recordError);
+        console.error("[ERROR] Response data:", recordError.response?.data);
+        throw recordError;
+      }
 
       // Refresh trade data
       const updatedTrade = await getTrade(trade.id);
       setTrade(updatedTrade.data);
+      
+      // Clear any error messages
+      setError(null);
     } catch (err) {
       console.error("Error creating escrow:", err);
-      setError(err instanceof Error ? err.message : "Failed to create escrow");
+      
+      // Show a more detailed error message
+      if (err.response?.data?.message) {
+        setError(`API Error: ${err.response.data.message}`);
+      } else if (err instanceof Error) {
+        setError(`Error: ${err.message}`);
+      } else {
+        setError("Failed to create escrow: Unknown error");
+      }
     } finally {
       setActionLoading(false);
     }
