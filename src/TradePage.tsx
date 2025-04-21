@@ -61,21 +61,49 @@ function TradePage() {
 
     setActionLoading(true);
     try {
-      // Determine buyer and seller addresses
-      const sellerAddress = userRole === 'seller' ? primaryWallet.address : counterparty?.wallet_address;
-      const buyerAddress = userRole === 'buyer' ? primaryWallet.address : counterparty?.wallet_address;
-
-      if (!sellerAddress || !buyerAddress) {
-        throw new Error("Missing wallet addresses");
+      console.log("[TRADE]", trade);
+      
+      // Get fresh account data for both buyer and seller
+      const buyerId = trade.leg1_buyer_account_id;
+      const sellerId = trade.leg1_seller_account_id;
+      
+      if (!buyerId || !sellerId) {
+        throw new Error("Missing buyer or seller account ID in trade data");
       }
-
+      
+      // Fetch the latest account data from the API
+      const buyerResponse = await getAccountById(buyerId.toString());
+      const sellerResponse = await getAccountById(sellerId.toString());
+      
+      const buyerData = buyerResponse.data;
+      const sellerData = sellerResponse.data;
+      
+      console.log("[DEBUG] Fresh buyer account data:", buyerData);
+      console.log("[DEBUG] Fresh seller account data:", sellerData);
+      
+      // Get wallet addresses from the account data
+      const buyerAddress = buyerData.wallet_address;
+      const sellerAddress = sellerData.wallet_address;
+      
+      if (!buyerAddress) {
+        throw new Error(`Missing buyer wallet address for account ${buyerId} (${buyerData.username})`);
+      }
+      
+      if (!sellerAddress) {
+        throw new Error(`Missing seller wallet address for account ${sellerId} (${sellerData.username})`);
+      }
+      
+      // In Celo, the wallet address is also the token account
+      const sellerTokenAccount = sellerAddress;
+      
       // Call API to create escrow
       await createEscrow({
         trade_id: trade.id,
         escrow_id: trade.id, // Using trade ID as escrow ID for simplicity
         seller: sellerAddress,
         buyer: buyerAddress,
-        amount: parseFloat(trade.leg1_crypto_amount)
+        amount: parseFloat(trade.leg1_crypto_amount),
+        seller_token_account: sellerTokenAccount
       });
 
       // Refresh trade data
