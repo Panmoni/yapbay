@@ -32,14 +32,7 @@ const TradeActionButton: React.FC<TradeActionButtonProps> = ({
       label: "Create Escrow",
       variant: "default",
       icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-          <rect width="18" height="18" x="3" y="3" rx="2" />
-          <path d="M9 14v1" />
-          <path d="M9 8v1" />
-          <path d="M15 14v1" />
-          <path d="M15 8v1" />
-          <path d="M9 12h6" />
-        </svg>
+        <svg fill="#ffffff"viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 32C7.163 32 0 24.837 0 16S7.163 0 16 0s16 7.163 16 16-7.163 16-16 16zM9.51 11.744l6.376-3.668 6.36 3.676-6.36 3.677-6.375-3.685zm12.976-.13l3.257-1.9L15.886 4 6 9.714v11.429l9.886 5.714 9.857-5.714-3.495-2.038-6.362 3.676-6.39-3.676v-3.296l6.4 3.696 6.418-3.715v3.315l3.457 2.038V9.714l-3.285 1.9z"/></svg>
       ),
     },
     fund_escrow: {
@@ -102,7 +95,7 @@ const TradeActionButton: React.FC<TradeActionButtonProps> = ({
       variant={variant}
       onClick={onClick}
       disabled={disabled || loading}
-      className="flex items-center"
+      className="flex items-center bg-primary-600 text-white hover:bg-primary-800 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition duration-150 ease-in-out"
     >
       {loading ? (
         <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
