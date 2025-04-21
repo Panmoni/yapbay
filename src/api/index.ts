@@ -245,28 +245,33 @@ export interface EscrowResponse {
 }
 
 /**
- * Creates an escrow for a trade
- * @param data Object containing escrow creation parameters
+ * Records an escrow that was created on the blockchain
+ * @param data Object containing escrow recording parameters
  * @param data.trade_id Trade ID (must be an integer)
- * @param data.escrow_id Escrow ID (must be an integer)
+ * @param data.transaction_hash Transaction hash of the blockchain transaction
+ * @param data.escrow_id Escrow ID (must be a number as a string)
  * @param data.seller Seller's wallet address
- * @param data.buyer Buyer's wallet address or account ID
+ * @param data.buyer Buyer's wallet address
  * @param data.amount Crypto amount (supports decimal values, e.g. 22.22)
- * @param data.seller_token_account Seller's token account address
  * @param data.sequential Optional: Whether this is a sequential escrow
  * @param data.sequential_escrow_address Optional: Address of the sequential escrow
- * @returns Promise with escrow creation response
+ * @returns Promise with escrow recording response
  */
-export const createEscrow = (data: {
+export const recordEscrow = (data: {
   trade_id: number;
-  escrow_id: number;
+  transaction_hash: string;
+  escrow_id: string;
   seller: string;
   buyer: string;
   amount: number;
-  seller_token_account: string;
   sequential?: boolean;
   sequential_escrow_address?: string;
-}) => api.post<EscrowResponse>("/escrows/create", data);
+}) => api.post<{
+  success: boolean;
+  escrowId: string;
+  txHash: string;
+  blockNumber: number;
+}>("/escrows/record", data);
 
 /**
  * Funds an existing escrow
