@@ -28,7 +28,7 @@ function ParticipantsSection({
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Show buyer */}
         <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
-          {(() => {
+          {/* {(() => {
             console.log("[DEBUG] Rendering buyer card:", {
               buyerAccount,
               currentAccountId: currentAccount?.id,
@@ -36,7 +36,7 @@ function ParticipantsSection({
               isCreatorBuyer: creator?.id === trade.leg1_buyer_account_id
             });
             return null;
-          })()}
+          })()} */}
           <ParticipantCard
             user={buyerAccount}
             role="Buyer"
@@ -48,7 +48,7 @@ function ParticipantsSection({
 
         {/* Show seller */}
         <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
-          {(() => {
+          {/* {(() => {
             console.log("[DEBUG] Rendering seller card:", {
               sellerAccount,
               currentAccountId: currentAccount?.id,
@@ -56,7 +56,7 @@ function ParticipantsSection({
               isCreatorSeller: creator?.id === trade.leg1_seller_account_id
             });
             return null;
-          })()}
+          })()} */}
           <ParticipantCard
             user={sellerAccount}
             role="Seller"

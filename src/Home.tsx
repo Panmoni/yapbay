@@ -132,7 +132,6 @@ function OffersPage() {
     const checkUsername = async () => {
       if (primaryWallet) {
         try {
-          console.log("[OffersPage] Checking if user has username...");
           const accountResponse = await getAccount();
           const hasUsername = !!accountResponse.data.username;
           console.log("[OffersPage] User has username:", hasUsername, "Username:", accountResponse.data.username);
@@ -270,11 +269,11 @@ function OffersPage() {
   };
 
   // Debug render values
-  console.log("[OffersPage] Rendering with:", {
-    hasUsername,
-    hasPrimaryWallet: !!primaryWallet,
-    showAlert: hasUsername === false && !!primaryWallet
-  });
+  // console.log("[OffersPage] Rendering with:", {
+  //   hasUsername,
+  //   hasPrimaryWallet: !!primaryWallet,
+  //   showAlert: hasUsername === false && !!primaryWallet
+  // });
 
   return (
     <TooltipProvider>
