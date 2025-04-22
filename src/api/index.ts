@@ -268,9 +268,10 @@ export const recordEscrow = (data: {
   sequential_escrow_address?: string;
 }) => api.post<{
   success: boolean;
-  escrowId: string;
+  escrowId: string; // Blockchain escrow ID (uint256 as string)
+  escrowDbId: number; // Database primary key for the escrow record
   txHash: string;
-  blockNumber: number;
+  blockNumber: number | bigint; // Block number can be large
 }>("/escrows/record", data);
 
 /**
