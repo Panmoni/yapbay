@@ -5,6 +5,7 @@ import TradeProgressBar from "./TradeProgressBar";
 import TradeTimer from "./TradeTimer";
 import TradeActionButton, { TradeAction } from "./TradeActionButton";
 import { isDeadlineExpired } from "@/hooks/useTradeUpdates";
+import { EscrowDetailsPanel } from "./EscrowDetailsPanel";
 
 interface TradeStatusDisplayProps {
   trade: Trade;
@@ -230,6 +231,15 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
 
       {renderTimers()}
       {renderActionButtons()}
+      
+      {/* Add the escrow details panel if we have an on-chain escrow ID */}
+      {trade.leg1_escrow_onchain_id && (
+        <EscrowDetailsPanel
+          escrowId={trade.leg1_escrow_onchain_id}
+          trade={trade}
+          userRole={userRole}
+        />
+      )}
     </div>
   );
 };

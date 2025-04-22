@@ -201,8 +201,13 @@ function TradePage() {
       } catch (fundError) {
         console.error('Error funding escrow:', fundError);
         toast.error(`Escrow Funding Failed: ${fundError.message || 'Unknown error'}`);
-        // Even if funding fails here, the escrow is created, so don't necessarily stop loading?
-        // Or maybe we should? Let's keep loading false for now.
+        
+        // Even if funding fails, the escrow is created
+        // Show a more detailed message to the user
+        toast.info(
+          'The escrow was created but could not be funded. You can try funding it again from the Escrow Details panel.',
+          { duration: 10000 } // Show for longer
+        );
       }
       // --- End: Added Allowance Check and Funding ---
 

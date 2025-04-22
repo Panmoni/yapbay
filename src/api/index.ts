@@ -114,6 +114,7 @@ export interface Trade {
   leg1_cancelled_at?: string | null;
   leg1_cancelled_by?: string | null;
   leg1_dispute_id?: number | null;
+  leg1_escrow_onchain_id?: string | null; // Added new field
 
   leg2_state?: string | null;
   leg2_seller_account_id?: number | null;
@@ -131,6 +132,7 @@ export interface Trade {
   leg2_cancelled_at?: string | null;
   leg2_cancelled_by?: string | null;
   leg2_dispute_id?: number | null;
+  leg2_escrow_onchain_id?: string | null; // Added new field
 }
 
 export interface Escrow {

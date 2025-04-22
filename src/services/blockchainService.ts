@@ -326,3 +326,52 @@ export const fundEscrowTransaction = async (
     throw error;
   }
 };
+
+/**
+ * Helper function to check if an escrow needs funding and fund it if necessary.
+ * This handles the token approval and funding in one function.
+ * @param wallet The Dynamic.xyz wallet object
+ * @param escrowId The ID of the escrow to fund
+ * @param amount The amount to fund (in the smallest unit, e.g., wei)
+ * @returns The transaction hash of the funding transaction.
+ */
+export const checkAndFundEscrow = async (
+  wallet: any,
+  escrowId: string | number,
+  amount: string | number
+): Promise<string> => {
+  if (!isEthereumWallet(wallet)) {
+    throw new Error("Connected wallet is not an Ethereum wallet");
+  }
+
+  // Convert amount to BigInt if it's a string or number
+  const amountBigInt = typeof amount === 'string'
+    ? parseUnits(amount, 6) // Assuming 6 decimals for USDC
+    : BigInt(amount);
+
+  const tokenAddress = config.usdcAddressAlfajores as Address;
+  const escrowContractAddress = config.contractAddress as Address;
+
+  // Check allowance
+  const currentAllowance = await getTokenAllowance(
+    wallet,
+    tokenAddress,
+    escrowContractAddress
+  );
+
+  // Approve token spending if needed
+  if (currentAllowance < amountBigInt) {
+    console.log(`[DEBUG] Approving token spending: ${amountBigInt.toString()}`);
+    await approveTokenSpending(
+      wallet,
+      tokenAddress,
+      escrowContractAddress,
+      amountBigInt
+    );
+  } else {
+    console.log('[DEBUG] Token spending already approved');
+  }
+
+  // Fund the escrow
+  return fundEscrowTransaction(wallet, escrowId);
+};
