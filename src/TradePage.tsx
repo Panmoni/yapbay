@@ -80,8 +80,8 @@ function TradePage() {
       const buyerData = buyerResponse.data;
       const sellerData = sellerResponse.data;
       
-      console.log("[DEBUG] Fresh buyer account data:", buyerData);
-      console.log("[DEBUG] Fresh seller account data:", sellerData);
+      // console.log("[DEBUG] Fresh buyer account data:", buyerData);
+      // console.log("[DEBUG] Fresh seller account data:", sellerData);
       
       // Get wallet addresses from the account data
       const buyerAddress = buyerData.wallet_address;
