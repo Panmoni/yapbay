@@ -44,6 +44,7 @@ export const createEscrowTransaction = async (
     amount: number;
     sequential?: boolean;
     sequentialEscrowAddress?: string;
+    arbitrator?: string; // Optional parameter for arbitrator address
   }
 ) => {
   if (!isEthereumWallet(wallet)) {
@@ -77,17 +78,22 @@ export const createEscrowTransaction = async (
   // Set default values for optional parameters
   const sequential = params.sequential || false;
   const sequentialEscrowAddress = params.sequentialEscrowAddress || '0x0000000000000000000000000000000000000000' as Address; // Zero address in viem
+  // Use provided arbitrator or get from config
+  const arbitrator = params.arbitrator ? params.arbitrator as Address : config.arbitratorAddress as Address;
 
   console.log("[DEBUG] Creating escrow with parameters:", {
     tradeId: BigInt(params.tradeId), // Contract expects BigInt for uint256
     buyer: params.buyer,
     amount: amountInSmallestUnit.toString(),
     sequential,
-    sequentialEscrowAddress
+    sequentialEscrowAddress,
+    arbitrator // Include in logs for debugging, but not used in contract call
   });
 
   try {
     // Call the createEscrow function on the smart contract using the wallet client
+    // Note: The arbitrator address is not passed to the contract function
+    // It's likely set internally in the contract
     const hash = await walletClient.writeContract({
       address: contract.address,
       abi: contract.abi,

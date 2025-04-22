@@ -121,7 +121,8 @@ function TradePage() {
           buyer: buyerAddress,
           amount: parseFloat(trade.leg1_crypto_amount),
           sequential: false,
-          sequentialEscrowAddress: undefined
+          sequentialEscrowAddress: undefined,
+          arbitrator: config.arbitratorAddress as string // Pass the arbitrator address
         }
       );
       
@@ -135,7 +136,8 @@ function TradePage() {
         seller: sellerAddress,
         buyer: buyerAddress,
         amount: parseFloat(trade.leg1_crypto_amount),
-        sequential: false
+        sequential: false,
+        arbitrator: config.arbitratorAddress // Include the arbitrator address
       };
       
       console.log("[DEBUG] Recording escrow with data:", recordData);
