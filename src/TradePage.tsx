@@ -16,7 +16,7 @@ import {
   Account
 } from './api';
 import { createEscrowTransaction } from './services/blockchainService';
-import { toast } from '@/components/ui/sonner'; // Import toast
+import { toast } from 'sonner';
 import ChatSection from './components/ChatSection';
 import ParticipantsSection from "./components/ParticipantsSection";
 import TradeDetailsCard from "./components/TradeDetailsCard";
