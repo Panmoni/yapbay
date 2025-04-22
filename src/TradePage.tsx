@@ -15,8 +15,16 @@ import {
   Offer,
   Account
 } from './api';
-import { createEscrowTransaction } from './services/blockchainService';
+import {
+  createEscrowTransaction,
+  fundEscrowTransaction, // Import the new function
+  getTokenAllowance,     // Import allowance check
+  approveTokenSpending   // Import approval function
+} from './services/blockchainService';
+import { config } from './config'; // Import config for contract addresses
 import { toast } from 'sonner';
+import { parseUnits } from 'viem'; // Import viem utility
+import { Address } from 'viem';    // Import Address type
 import ChatSection from './components/ChatSection';
 import ParticipantsSection from "./components/ParticipantsSection";
 import TradeDetailsCard from "./components/TradeDetailsCard";
@@ -141,11 +149,61 @@ function TradePage() {
         throw recordError;
       }
 
-      // Refresh trade data
-      const updatedTrade = await getTrade(trade.id);
-      setTrade(updatedTrade.data);
-      
-     // No need to clear error state manually
+      // --- Start: Added Allowance Check and Funding ---
+      const escrowId = txResult.escrowId;
+      const tokenAddress = config.usdcAddressAlfajores as Address;
+      const escrowContractAddress = config.contractAddress as Address;
+      const requiredAmountBigInt = parseUnits(trade.leg1_crypto_amount, 6); // Assuming 6 decimals for USDC
+
+      toast.info('Checking token allowance...');
+      const currentAllowance = await getTokenAllowance(
+        primaryWallet,
+        tokenAddress,
+        escrowContractAddress
+      );
+
+      if (currentAllowance < requiredAmountBigInt) {
+        toast.info('Allowance insufficient. Please approve token spending.', {
+          description: 'Approve the transaction in your wallet to allow the escrow contract to handle the funds.',
+          duration: 10000, // Keep message longer
+        });
+        try {
+          await approveTokenSpending(
+            primaryWallet,
+            tokenAddress,
+            escrowContractAddress,
+            requiredAmountBigInt
+          );
+          toast.success('Token approval successful. Proceeding to fund escrow...');
+        } catch (approvalError) {
+          console.error('Error approving token spending:', approvalError);
+          toast.error(`Token Approval Failed: ${approvalError.message || 'Unknown error'}`);
+          // Stop the process if approval fails
+          setActionLoading(false);
+          return;
+        }
+      } else {
+        toast.info('Sufficient token allowance found.');
+      }
+
+      // Proceed to fund the escrow
+      toast.info('Funding escrow...', {
+        description: 'Please approve the transaction in your wallet.',
+      });
+      try {
+        await fundEscrowTransaction(primaryWallet, escrowId);
+        toast.success('Escrow created and funded successfully!');
+        // Polling will update the trade state, no need to fetch manually here
+        // const updatedTrade = await getTrade(trade.id);
+        // setTrade(updatedTrade.data);
+      } catch (fundError) {
+        console.error('Error funding escrow:', fundError);
+        toast.error(`Escrow Funding Failed: ${fundError.message || 'Unknown error'}`);
+        // Even if funding fails here, the escrow is created, so don't necessarily stop loading?
+        // Or maybe we should? Let's keep loading false for now.
+      }
+      // --- End: Added Allowance Check and Funding ---
+
    } catch (err) {
      console.error('Error creating escrow:', err);
 
