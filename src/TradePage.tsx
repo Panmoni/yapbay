@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from "react-router-dom";
 import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
 import { isEthereumWallet } from '@dynamic-labs/ethereum';
@@ -14,17 +14,18 @@ import {
   Trade,
   Offer,
   Account
-} from "./api";
+} from './api';
 import { createEscrowTransaction } from './services/blockchainService';
-import ChatSection from "./components/ChatSection";
+import { toast } from '@/components/ui/sonner'; // Import toast
+import ChatSection from './components/ChatSection';
 import ParticipantsSection from "./components/ParticipantsSection";
 import TradeDetailsCard from "./components/TradeDetailsCard";
 import { useTradeParticipants } from "./hooks/useTradeParticipants";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import TradeStatusDisplay from "./components/TradeStatusDisplay";
-import { useTradeUpdates } from "./hooks/useTradeUpdates";
+import { AlertDescription } from '@/components/ui/alert'; // Keep AlertDescription if needed elsewhere, or remove if not
+import TradeStatusDisplay from './components/TradeStatusDisplay';
+import { useTradeUpdates } from './hooks/useTradeUpdates';
 
 
 function TradePage() {
@@ -37,9 +38,9 @@ function TradePage() {
   const [buyerAccount, setBuyerAccount] = useState<Account | null>(null);
   const [sellerAccount, setSellerAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
-
+ // Remove the error state, sonner handles display
+ // const [error, setError] = useState<string | null>(null);
+ const [actionLoading, setActionLoading] = useState(false);
   // Use our custom hook to determine user role, current account, and counterparty
   const { userRole, currentAccount, counterparty } = useTradeParticipants(trade);
 
@@ -62,9 +63,8 @@ function TradePage() {
     if (!trade || !primaryWallet?.address) return;
 
     setActionLoading(true);
-    try {
-      console.log("[TRADE]", trade);
-      
+   try {
+     console.log('[TRADE]', trade);
       // Get fresh account data for both buyer and seller
       const buyerId = trade.leg1_buyer_account_id;
       const sellerId = trade.leg1_seller_account_id;
@@ -100,10 +100,12 @@ function TradePage() {
         throw new Error("Connected wallet is not an Ethereum wallet");
       }
       
-      // Show a loading message
-      setError("Creating escrow on blockchain. Please approve the transaction in your wallet...");
-      
-      // Create the escrow transaction on the blockchain
+     // Show notification message using toast
+     toast('Creating escrow on blockchain...', {
+       description: 'Please approve the transaction in your wallet.',
+     });
+
+     // Create the escrow transaction on the blockchain
       const txResult = await createEscrowTransaction(
         primaryWallet,
         {
@@ -143,19 +145,18 @@ function TradePage() {
       const updatedTrade = await getTrade(trade.id);
       setTrade(updatedTrade.data);
       
-      // Clear any error messages
-      setError(null);
-    } catch (err) {
-      console.error("Error creating escrow:", err);
-      
-      // Show a more detailed error message
-      if (err.response?.data?.message) {
-        setError(`API Error: ${err.response.data.message}`);
-      } else if (err instanceof Error) {
-        setError(`Error: ${err.message}`);
-      } else {
-        setError("Failed to create escrow: Unknown error");
-      }
+     // No need to clear error state manually
+   } catch (err) {
+     console.error('Error creating escrow:', err);
+
+     // Show error using toast.error
+     let errorMessage = 'Failed to create escrow: Unknown error';
+     if (err.response?.data?.message) {
+       errorMessage = `API Error: ${err.response.data.message}`;
+     } else if (err instanceof Error) {
+       errorMessage = `Error: ${err.message}`;
+     }
+     toast.error(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -171,12 +172,14 @@ function TradePage() {
 
       // Refresh trade data
       const updatedTrade = await getTrade(trade.id);
-      setTrade(updatedTrade.data);
-    } catch (err) {
-      console.error("Error marking fiat as paid:", err);
-      setError(err instanceof Error ? err.message : "Failed to mark fiat as paid");
-    } finally {
-      setActionLoading(false);
+     setTrade(updatedTrade.data);
+   } catch (err) {
+     console.error('Error marking fiat as paid:', err);
+     toast.error(
+       err instanceof Error ? err.message : 'Failed to mark fiat as paid'
+     );
+   } finally {
+     setActionLoading(false);
     }
   };
 
@@ -198,12 +201,14 @@ function TradePage() {
 
       // Refresh trade data
       const updatedTrade = await getTrade(trade.id);
-      setTrade(updatedTrade.data);
-    } catch (err) {
-      console.error("Error releasing crypto:", err);
-      setError(err instanceof Error ? err.message : "Failed to release crypto");
-    } finally {
-      setActionLoading(false);
+     setTrade(updatedTrade.data);
+   } catch (err) {
+     console.error('Error releasing crypto:', err);
+     toast.error(
+       err instanceof Error ? err.message : 'Failed to release crypto'
+     );
+   } finally {
+     setActionLoading(false);
     }
   };
 
@@ -222,12 +227,14 @@ function TradePage() {
 
       // Refresh trade data
       const updatedTrade = await getTrade(trade.id);
-      setTrade(updatedTrade.data);
-    } catch (err) {
-      console.error("Error disputing trade:", err);
-      setError(err instanceof Error ? err.message : "Failed to dispute trade");
-    } finally {
-      setActionLoading(false);
+     setTrade(updatedTrade.data);
+   } catch (err) {
+     console.error('Error disputing trade:', err);
+     toast.error(
+       err instanceof Error ? err.message : 'Failed to dispute trade'
+     );
+   } finally {
+     setActionLoading(false);
     }
   };
 
@@ -246,12 +253,14 @@ function TradePage() {
 
       // Refresh trade data
       const updatedTrade = await getTrade(trade.id);
-      setTrade(updatedTrade.data);
-    } catch (err) {
-      console.error("Error cancelling trade:", err);
-      setError(err instanceof Error ? err.message : "Failed to cancel trade");
-    } finally {
-      setActionLoading(false);
+     setTrade(updatedTrade.data);
+   } catch (err) {
+     console.error('Error cancelling trade:', err);
+     toast.error(
+       err instanceof Error ? err.message : 'Failed to cancel trade'
+     );
+   } finally {
+     setActionLoading(false);
     }
   };
 
@@ -295,14 +304,14 @@ function TradePage() {
 
           // No need to manually determine user role - the useUserRole hook handles this
           console.log(`Trade state: ${tradeData.leg1_state}`);
-        }
-
-        setError(null);
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        setError(`Failed to load trade details: ${errorMessage}`);
-      } finally {
-        setLoading(false);
+       }
+       // No need to clear error state
+     } catch (err) {
+       const errorMessage =
+         err instanceof Error ? err.message : 'Unknown error';
+       toast.error(`Failed to load trade details: ${errorMessage}`);
+     } finally {
+       setLoading(false);
       }
     };
 
@@ -315,17 +324,12 @@ function TradePage() {
         <p className="text-neutral-500">Loading trade details...</p>
       </div>
     );
-  }
+ }
 
-  if (error) {
-    return (
-      <Alert variant="destructive" className="mb-4 border-none bg-red-50">
-        <AlertDescription className="text-red-700">{error}</AlertDescription>
-      </Alert>
-    );
-  }
+ // Remove the error Alert display block
+ // if (error) { ... }
 
-  if (!trade) {
+ if (!trade) {
     return (
       <Alert className="mb-4 border-yellow-300 bg-yellow-50">
         <AlertDescription className="text-primary-700">

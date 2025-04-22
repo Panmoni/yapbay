@@ -15,7 +15,8 @@ import MyTradesPage from "./MyTradesPage";
 import MyEscrowsPage from "./MyEscrowsPage";
 import OfferDetailPage from "./OfferDetailPage";
 import EditOfferPage from "./EditOfferPage";
-import TradePage from "./TradePage";
+import TradePage from './TradePage';
+import { Toaster } from '@/components/ui/sonner'; // Import Toaster
 
 function App() {
   const { primaryWallet } = useDynamicContext();
@@ -61,9 +62,10 @@ function App() {
             </Routes>
           </Container>
         </main>
-        <Footer />
-      </div>
-    </Router>
+       <Footer />
+       <Toaster richColors /> {/* Add Toaster here */}
+     </div>
+   </Router>
   );
 }
 
