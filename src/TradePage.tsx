@@ -359,9 +359,9 @@ function TradePage() {
           const creatorResponse = await getAccountById(offerResponse.data.creator_account_id);
           setCreator(creatorResponse.data);
 
-          console.log("[DEBUG] Offer creator ID:", offerResponse.data.creator_account_id);
-          console.log("[DEBUG] Trade buyer ID:", tradeData.leg1_buyer_account_id);
-          console.log("[DEBUG] Trade seller ID:", tradeData.leg1_seller_account_id);
+          // console.log("[DEBUG] Offer creator ID:", offerResponse.data.creator_account_id);
+          // console.log("[DEBUG] Trade buyer ID:", tradeData.leg1_buyer_account_id);
+          // console.log("[DEBUG] Trade seller ID:", tradeData.leg1_seller_account_id);
 
           // Fetch buyer account
           if (tradeData.leg1_buyer_account_id) {

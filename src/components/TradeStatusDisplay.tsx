@@ -46,6 +46,7 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
   refreshEscrow,
 }) => {
   const [localLoading, setLocalLoading] = useState<TradeAction | null>(null);
+  const [lastLogTime, setLastLogTime] = useState<number>(0);
 
   const { primaryWallet } = useDynamicContext();
   const [fundLoading, setFundLoading] = useState(false);
@@ -101,12 +102,16 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
 
   // Determine which actions are available based on state, role, and time conditions
   const getAvailableActions = (): TradeAction[] => {
-    console.log('Evaluating available actions for:', {
-      state: trade.leg1_state,
-      userRole,
-      escrowDeadlineExpired,
-      fiatPaymentDeadlineExpired
-    });
+    const currentTime = Date.now();
+    if (currentTime - lastLogTime >= 30000) {
+      console.log('Evaluating available actions for:', {
+        state: trade.leg1_state,
+        userRole,
+        escrowDeadlineExpired,
+        fiatPaymentDeadlineExpired
+      });
+      setLastLogTime(currentTime);
+    }
 
     switch (trade.leg1_state) {
       case 'CREATED':
@@ -232,7 +237,7 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
   return (
     <div className="space-y-4 relative">
       {/* DEBUG PANEL: Remove after troubleshooting */}
-      <div className="p-2 mb-2 bg-gray-100 border border-gray-300 rounded text-xs">
+      {/* <div className="p-2 mb-2 bg-gray-100 border border-gray-300 rounded text-xs">
         <div><b>DEBUG:</b></div>
         <div>trade.leg1_state: {String(trade.leg1_state)} (type: {typeof trade.leg1_state})</div>
         <div>escrowDetails?.state: {escrowDetails ? String(escrowDetails.state) : "undefined"} (type: {escrowDetails ? typeof escrowDetails.state : "undefined"})</div>
@@ -249,8 +254,8 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
             parseFloat(balance || "0") === 0
           )}
         </div>
-      </div>
-      {console.log(
+      </div> */}
+      {/* {console.log(
         "[ALERT DEBUG]",
         {
           "trade.leg1_state": trade.leg1_state,
@@ -267,7 +272,7 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
             parseFloat(balance || "0") === 0
           )
         }
-      )}
+      )} */}
 
 
       <div className="flex items-center justify-between">

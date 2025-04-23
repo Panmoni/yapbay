@@ -25,28 +25,28 @@ export function useTradeParticipants(trade: Trade | null) {
         // Determine which account ID to fetch based on the user's role
         let counterpartyAccountId: number | null = null;
 
-        console.log("[DEBUG] useTradeParticipants - Current user ID:", currentAccount.id);
-        console.log("[DEBUG] useTradeParticipants - User role:", userRole);
-        console.log("[DEBUG] useTradeParticipants - Trade buyer ID:", trade.leg1_buyer_account_id);
-        console.log("[DEBUG] useTradeParticipants - Trade seller ID:", trade.leg1_seller_account_id);
+        // console.log("[DEBUG] useTradeParticipants - Current user ID:", currentAccount.id);
+        // console.log("[DEBUG] useTradeParticipants - User role:", userRole);
+        // console.log("[DEBUG] useTradeParticipants - Trade buyer ID:", trade.leg1_buyer_account_id);
+        // console.log("[DEBUG] useTradeParticipants - Trade seller ID:", trade.leg1_seller_account_id);
 
         if (userRole === 'buyer') {
           // If current user is buyer, counterparty is seller
           counterpartyAccountId = trade.leg1_seller_account_id;
-          console.log("[DEBUG] useTradeParticipants - Setting counterparty as seller:", counterpartyAccountId);
+          // console.log("[DEBUG] useTradeParticipants - Setting counterparty as seller:", counterpartyAccountId);
         } else {
           // If current user is seller, counterparty is buyer
           counterpartyAccountId = trade.leg1_buyer_account_id;
-          console.log("[DEBUG] useTradeParticipants - Setting counterparty as buyer:", counterpartyAccountId);
+          // console.log("[DEBUG] useTradeParticipants - Setting counterparty as buyer:", counterpartyAccountId);
         }
 
         // Ensure we're not fetching the current user's account as counterparty
         if (counterpartyAccountId && counterpartyAccountId !== currentAccount.id) {
           const counterpartyResponse = await getAccountById(counterpartyAccountId);
           setCounterparty(counterpartyResponse.data);
-          console.log(`[DEBUG] useTradeParticipants - Fetched counterparty with ID: ${counterpartyAccountId}`, counterpartyResponse.data);
+          // console.log(`[DEBUG] useTradeParticipants - Fetched counterparty with ID: ${counterpartyAccountId}`, counterpartyResponse.data);
         } else {
-          console.log('[DEBUG] useTradeParticipants - No valid counterparty ID found or counterparty is the current user');
+          // console.log('[DEBUG] useTradeParticipants - No valid counterparty ID found or counterparty is the current user');
           setCounterparty(null);
         }
       } catch (error) {
