@@ -1,6 +1,6 @@
 # YapBay Frontend Development Plan
 
-- reduce debugging output
+
 - Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
 
 ## Fund Escrow

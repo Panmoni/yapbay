@@ -3,12 +3,14 @@ import { Trade } from "@/api";
 
 interface TradeProgressBarProps {
   state: Trade['leg1_state'];
+  isExceptional?: boolean;
 }
 
-const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state }) => {
+const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state, isExceptional = false }) => {
   // Map states to progress percentages
   const stateToProgress: Record<string, number> = {
     'CREATED': 10,
+    'FUNDED': 25,
     'AWAITING_FIAT_PAYMENT': 40,
     'PENDING_CRYPTO_RELEASE': 70,
     'DISPUTED': 85,
@@ -19,6 +21,7 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state }) => {
   // Map states to user-friendly labels
   const stateToLabel: Record<string, string> = {
     'CREATED': 'Trade Created',
+    'FUNDED': 'Escrow Created',
     'AWAITING_FIAT_PAYMENT': 'Awaiting Fiat Payment',
     'PENDING_CRYPTO_RELEASE': 'Pending Crypto Release',
     'DISPUTED': 'Under Dispute',
@@ -49,7 +52,7 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state }) => {
         {/* Custom progress bar */}
         <div className="h-3 w-full bg-neutral-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-primary-600 rounded-full transition-all duration-500 ease-in-out"
+            className={`h-full ${isExceptional ? 'bg-red-500' : 'bg-primary-600'} rounded-full transition-all duration-500 ease-in-out`}
             style={{ width: `${progress}%` }}
           />
         </div>

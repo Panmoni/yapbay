@@ -57,6 +57,10 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
       buyer: "Waiting for seller to create and fund escrow",
       seller: "You need to create and fund the escrow"
     },
+    'FUNDED': {
+      buyer: "Escrow created, pending funding by seller",
+      seller: "Escrow created, pending your funding"
+    },
     'AWAITING_FIAT_PAYMENT': {
       buyer: "You need to make the fiat payment",
       seller: "Waiting for buyer to make fiat payment"
@@ -280,21 +284,24 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
         <p className="text-lg font-medium">{message}</p>
       </div>
 
-      <TradeProgressBar state={trade.leg1_state} />
+      <TradeProgressBar
+        state={trade.leg1_state}
+        isExceptional={trade.leg1_state === "FUNDED" && escrowDetails && Number(escrowDetails.state) === EscrowState.CREATED && parseFloat(balance || "0") < Number(escrowDetails.amount)}
+      />
 
       {renderTimers()}
       {renderActionButtons()}
 
-      {/* Exceptional case: Escrow is FUNDED in backend but not funded on-chain */}
+      {/* Exceptional case: Escrow is FUNDED in backend but not fully funded on-chain */}
       {trade.leg1_state === "FUNDED" &&
        escrowDetails &&
        Number(escrowDetails.state) === EscrowState.CREATED &&
-       parseFloat(balance || "0") === 0 && (
+       parseFloat(balance || "0") < Number(escrowDetails.amount) && (
           <div className="p-4 mb-2 rounded-md border border-amber-300 bg-amber-50 flex flex-col gap-2">
             {userRole === "seller" ? (
               <>
                 <div className="text-amber-900 font-semibold">
-                  Action Required: The escrow is marked as funded in the backend, but the on-chain balance is 0. You must fund the escrow to proceed.
+                  Action Required: The escrow is marked as funded in the backend, but the on-chain balance is insufficient. You must fund the escrow to proceed.
                 </div>
                 <div>
                   <Button
@@ -338,7 +345,7 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
               </>
             ) : (
               <div className="text-amber-900 font-semibold">
-                Warning: The escrow is not yet funded on-chain. Do not make the fiat payment until the seller has funded the escrow.
+                Warning: The escrow is not yet fully funded on-chain. Do not make the fiat payment until the seller has fully funded the escrow.
               </div>
             )}
           </div>
