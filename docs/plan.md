@@ -1,24 +1,20 @@
 # YapBay Frontend Development Plan
 
-refactor Home.tsx,
+refactor
 TradePage
 blockchainService
 
 and fix lint errors
 
-NEXT: re-test flow up to mark fiat paid and ensure API works and state updates on the frontend
-
 create a diagnostic tool to collate info from on-chain via RPC, trades db, escrows db, transaction db.
+
+## NExt Test
+
+NEXT: re-test flow up to mark fiat paid and ensure API works and state updates on the frontend
 
 When funding escrow, is the transaction getting recorded to the API?
 
 refresh my understanding of trade states
-
-## Trade Page
-
-- if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
-- refactor
-- customize sonners https://sonner.emilkowal.ski/toast
 
 ## escrow
 
@@ -27,6 +23,12 @@ refresh my understanding of trade states
 - auto cancel
 - event listener?
 - error handling?
+
+## Trade Page
+
+- if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
+- refactor
+- customize sonners https://sonner.emilkowal.ski/toast
 
 ## Refs
 
