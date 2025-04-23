@@ -14,12 +14,11 @@ import {
 } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { config } from '../config';
 
 interface EscrowDetailsPanelProps {
   escrowId: string | number;
-  trade: any;
-  userRole: string;
+  trade: { id: number };
+  userRole: 'buyer' | 'seller';
 }
 
 export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsPanelProps) {

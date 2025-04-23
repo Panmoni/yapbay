@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import { AlertDescription } from '@/components/ui/alert'; // Keep AlertDescription if needed elsewhere, or remove if not
 import TradeStatusDisplay from './components/TradeStatusDisplay';
 import { useTradeUpdates } from './hooks/useTradeUpdates';
+import { useEscrowDetails } from './hooks/useEscrowDetails';
 
 
 function TradePage() {
@@ -54,6 +55,15 @@ function TradePage() {
 
   // Use polling to get trade updates
   const { trade: tradeUpdates } = useTradeUpdates(id ? parseInt(id) : 0);
+  
+  // Fetch escrow details for the trade
+  const {
+    escrowDetails,
+    loading: escrowLoading,
+    error: escrowError,
+    balance,
+    refresh,
+  } = useEscrowDetails(trade?.leg1_escrow_onchain_id ?? null);
 
   // Update trade data when we receive updates via polling
   useEffect(() => {
@@ -439,6 +449,11 @@ function TradePage() {
             onDisputeTrade={handleDisputeTrade}
             onCancelTrade={handleCancelTrade}
             loading={actionLoading}
+            escrowDetails={escrowDetails}
+            escrowLoading={escrowLoading}
+            escrowError={escrowError}
+            balance={balance}
+            refreshEscrow={refresh}
           />
         </CardContent>
       </Card>

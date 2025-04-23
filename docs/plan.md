@@ -1,24 +1,27 @@
 # YapBay Frontend Development Plan
 
+- reduce debugging output
+- Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
 
+## Fund Escrow
+
+## Trade Progress
+- progress bar busted in funded state. buyer has not been prompted to do anything so that is busted too
 
 ## API integration
-- log in as user 2, create account
-- trade creation, details
-- trade process
+- log in as user 3, create account
+- migrate all old testing accounts to zen from brave, chrome, etc... also arbitrator address and yapbay funding address
 
-## test deployed contracts
-see contracts repo
+## escrow
+- mark fiat paid
+- release escrow
+- cancel escrow
+- auto cancel
+- event listener?
+- error handling?
 
-## chain: org this stuff
-- escrow functions
-    *   `createEscrow`: Called when a user accepts an offer or initiates a trade. Requires parameters like `tradeId`, `buyer`, `amount`, etc. Map API trade data to contract parameters.
-    *   `fundEscrow`: Called by the seller. Requires USDC approval first, then calls the contract function.
-    *   `markFiatPaid`: Called by the buyer.
-    *   `releaseEscrow`: Called by the seller after fiat payment confirmation.
-    *   `cancelEscrow`: Called under specific conditions (e.g., timeout).
-    *   `autoCancel`: Implement logic to check deadlines and allow calling this.
-    *   Dispute Handling (`openDisputeWithBond`, `respondToDisputeWithBond`, `resolveDisputeWithExplanation`, `defaultJudgment`): Implement UI and logic for the dispute process, including bond handling (requires USDC approval).
-- event listener (`EscrowCreated`, `FundsDeposited`, `FiatMarkedPaid`, `EscrowReleased`, `DisputeOpened`, etc.) 
-- **USDC Token Interaction:** Implement functions for approving USDC transfers to the escrow contract before funding or bonding. Use the standard ERC20 ABI.
-- **Error Handling:** Implement robust error handling for blockchain transactions (user rejection, gas issues, contract reverts).
+## Trade Page
+- if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
+
+## Ref
+https://celo-alfajores.blockscout.com/address/0xC8BFB8a31fFbAF5c85bD97a1728aC43418B5871C

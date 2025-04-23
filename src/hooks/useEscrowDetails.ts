@@ -104,7 +104,7 @@ export function useEscrowDetails(escrowId: string | number | null, contractAddre
       setLoading(false);
       setIsRefreshing(false);
     }
-  }, [escrowId]);
+  }, [escrowId, contractAddress]);
   
   // Initial fetch and polling setup
   useEffect(() => {

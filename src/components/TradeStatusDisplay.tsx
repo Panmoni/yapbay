@@ -6,6 +6,13 @@ import TradeTimer from "./TradeTimer";
 import TradeActionButton, { TradeAction } from "./TradeActionButton";
 import { isDeadlineExpired } from "@/hooks/useTradeUpdates";
 import { EscrowDetailsPanel } from "./EscrowDetailsPanel";
+import { EscrowState } from "@/hooks/useEscrowDetails";
+import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { checkAndFundEscrow } from "@/services/blockchainService";
+import { toast } from "sonner";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface TradeStatusDisplayProps {
   trade: Trade;
@@ -17,6 +24,11 @@ interface TradeStatusDisplayProps {
   onDisputeTrade?: () => void;
   onCancelTrade?: () => void;
   loading?: boolean;
+  escrowDetails?: { escrow_id: bigint; amount: bigint; state: bigint };
+  escrowLoading?: boolean;
+  escrowError?: Error | null;
+  balance?: string;
+  refreshEscrow?: () => Promise<void>;
 }
 
 const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
@@ -29,8 +41,14 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
   onDisputeTrade,
   onCancelTrade,
   loading = false,
+  escrowDetails,
+  balance,
+  refreshEscrow,
 }) => {
   const [localLoading, setLocalLoading] = useState<TradeAction | null>(null);
+
+  const { primaryWallet } = useDynamicContext();
+  const [fundLoading, setFundLoading] = useState(false);
 
   // Map states to user-friendly messages based on role
   const stateMessages: Record<string, Record<string, string>> = {
@@ -213,14 +231,44 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
 
   return (
     <div className="space-y-4 relative">
-      {loading && (
-        <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10 rounded-md">
-          <div className="flex flex-col items-center">
-            <div className="w-8 h-8 border-4 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-2 text-primary-700 font-medium">Processing...</p>
-          </div>
+      {/* DEBUG PANEL: Remove after troubleshooting */}
+      <div className="p-2 mb-2 bg-gray-100 border border-gray-300 rounded text-xs">
+        <div><b>DEBUG:</b></div>
+        <div>trade.leg1_state: {String(trade.leg1_state)} (type: {typeof trade.leg1_state})</div>
+        <div>escrowDetails?.state: {escrowDetails ? String(escrowDetails.state) : "undefined"} (type: {escrowDetails ? typeof escrowDetails.state : "undefined"})</div>
+        <div>EscrowState.CREATED: {String(EscrowState.CREATED)} (type: {typeof EscrowState.CREATED})</div>
+        <div>balance: {String(balance || "0")} (type: {typeof (balance || "string")})</div>
+        <div>parseFloat(balance || "0") === 0: {String(parseFloat(balance || "0") === 0)}</div>
+        <div>trade.leg1_state === "FUNDED": {String(trade.leg1_state === "FUNDED")}</div>
+        <div>escrowDetails?.state === EscrowState.CREATED: {String(escrowDetails ? Number(escrowDetails.state) === EscrowState.CREATED : false)}</div>
+        <div>
+          ALERT CONDITIONAL: {String(
+            trade.leg1_state === "FUNDED" &&
+            escrowDetails &&
+            Number(escrowDetails.state) === EscrowState.CREATED &&
+            parseFloat(balance || "0") === 0
+          )}
         </div>
+      </div>
+      {console.log(
+        "[ALERT DEBUG]",
+        {
+          "trade.leg1_state": trade.leg1_state,
+          "escrowDetails?.state": escrowDetails ? escrowDetails.state : undefined,
+          "EscrowState.CREATED": EscrowState.CREATED,
+          "balance": balance || "0",
+          "parseFloat(balance || '0') === 0": parseFloat(balance || "0") === 0,
+          "trade.leg1_state === 'FUNDED'": trade.leg1_state === "FUNDED",
+          "escrowDetails?.state === EscrowState.CREATED": escrowDetails ? Number(escrowDetails.state) === EscrowState.CREATED : false,
+          "ALERT CONDITIONAL": (
+            trade.leg1_state === "FUNDED" &&
+            escrowDetails &&
+            Number(escrowDetails.state) === EscrowState.CREATED &&
+            parseFloat(balance || "0") === 0
+          )
+        }
       )}
+
 
       <div className="flex items-center justify-between">
         <StatusBadge className="text-base py-1.5 px-3">{trade.leg1_state}</StatusBadge>
@@ -231,7 +279,66 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
 
       {renderTimers()}
       {renderActionButtons()}
-      
+
+      {/* Exceptional case: Escrow is FUNDED in backend but not funded on-chain */}
+      {trade.leg1_state === "FUNDED" &&
+       escrowDetails &&
+       Number(escrowDetails.state) === EscrowState.CREATED &&
+       parseFloat(balance || "0") === 0 && (
+          <div className="p-4 mb-2 rounded-md border border-amber-300 bg-amber-50 flex flex-col gap-2">
+            {userRole === "seller" ? (
+              <>
+                <div className="text-amber-900 font-semibold">
+                  Action Required: The escrow is marked as funded in the backend, but the on-chain balance is 0. You must fund the escrow to proceed.
+                </div>
+                <div>
+                  <Button
+                    onClick={async () => {
+                      if (!primaryWallet || !escrowDetails) return;
+                      setFundLoading(true);
+                      try {
+                        toast.info("Checking token allowance and funding escrow...", {
+                          description: "Please approve the transactions in your wallet.",
+                        });
+                        await checkAndFundEscrow(
+                          primaryWallet,
+                          escrowDetails.escrow_id.toString(),
+                          escrowDetails.amount.toString()
+                        );
+                        toast.success("Escrow funded successfully!");
+                        if (refreshEscrow) await refreshEscrow();
+                      } catch (err) {
+                        // @ts-expect-error - TypeScript may not recognize the message property on err
+                        toast.error(`Escrow Funding Failed: ${err?.message || "Unknown error"}`);
+                      } finally {
+                        setFundLoading(false);
+                      }
+                    }}
+                    disabled={fundLoading}
+                    className="bg-amber-500 hover:bg-amber-600 text-white"
+                  >
+                    {fundLoading ? (
+                      <span className="flex items-center gap-2">
+                        <RefreshCw size={16} className="animate-spin" />
+                        Funding...
+                      </span>
+                    ) : (
+                      "Fund Escrow Now"
+                    )}
+                  </Button>
+                  <p className="text-xs text-neutral-600 mt-1">
+                    This will check your token allowance and fund the escrow in one or two transactions.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="text-amber-900 font-semibold">
+                Warning: The escrow is not yet funded on-chain. Do not make the fiat payment until the seller has funded the escrow.
+              </div>
+            )}
+          </div>
+        )}
+
       {/* Add the escrow details panel if we have an on-chain escrow ID */}
       {trade.leg1_escrow_onchain_id && (
         <EscrowDetailsPanel
