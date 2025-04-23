@@ -113,7 +113,7 @@ function OffersPage() {
 
   const handleDeleteOffer = async (offerId: number) => {
     try {
-      await deleteOffer(offerId);
+      await deleteOffer(offerId.toString());
       setOffers(offers.filter((offer) => offer.id !== offerId));
       setFilteredOffers(filteredOffers.filter((offer) => offer.id !== offerId));
       setDeleteSuccess("Offer deleted successfully");
@@ -182,7 +182,7 @@ function OffersPage() {
         if (primaryWallet) {
           const namePromises = uniqueCreatorIds.map(async (id: number) => {
             try {
-              const accountResponse = await getAccountById(id);
+              const accountResponse = await getAccountById(id.toString());
               const account = accountResponse.data;
               return { id, username: account.username || account.wallet_address };
             } catch (err) {
