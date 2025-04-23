@@ -1,5 +1,6 @@
 import React from "react";
 import { Trade } from "@/api";
+import { TradeLegState } from "@/utils/tradeStates";
 
 interface TradeProgressBarProps {
   state: Trade['leg1_state'];
@@ -7,38 +8,54 @@ interface TradeProgressBarProps {
 }
 
 const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state, isExceptional = false }) => {
-  // Map states to progress percentages
+  // Map states to progress percentages - aligned with TradeLegState enum
   const stateToProgress: Record<string, number> = {
-    'CREATED': 10,
-    'FUNDED': 25,
-    'AWAITING_FIAT_PAYMENT': 40,
-    'PENDING_CRYPTO_RELEASE': 70,
-    'DISPUTED': 85,
-    'COMPLETED': 100,
-    'CANCELLED': 0
+    [TradeLegState.CREATED]: 0,
+    [TradeLegState.FUNDED]: 33,
+    [TradeLegState.FIAT_PAID]: 66,
+    [TradeLegState.RELEASED]: 90,
+    [TradeLegState.COMPLETED]: 100,
+    [TradeLegState.DISPUTED]: 75,
+    [TradeLegState.RESOLVED]: 90,
+    [TradeLegState.CANCELLED]: 0,
+    // Legacy state mappings for backward compatibility
+    'AWAITING_FIAT_PAYMENT': 50,
+    'PENDING_CRYPTO_RELEASE': 75
   };
 
   // Map states to user-friendly labels
   const stateToLabel: Record<string, string> = {
-    'CREATED': 'Trade Created',
-    'FUNDED': 'Escrow Created',
+    [TradeLegState.CREATED]: 'Trade Created',
+    [TradeLegState.FUNDED]: 'Escrow Funded',
+    [TradeLegState.FIAT_PAID]: 'Fiat Payment Confirmed',
+    [TradeLegState.RELEASED]: 'Crypto Released',
+    [TradeLegState.COMPLETED]: 'Trade Completed',
+    [TradeLegState.DISPUTED]: 'Under Dispute',
+    [TradeLegState.RESOLVED]: 'Dispute Resolved',
+    [TradeLegState.CANCELLED]: 'Trade Cancelled',
+    // Legacy state mappings for backward compatibility
     'AWAITING_FIAT_PAYMENT': 'Awaiting Fiat Payment',
-    'PENDING_CRYPTO_RELEASE': 'Pending Crypto Release',
-    'DISPUTED': 'Under Dispute',
-    'COMPLETED': 'Completed',
-    'CANCELLED': 'Cancelled'
+    'PENDING_CRYPTO_RELEASE': 'Pending Crypto Release'
   };
 
   const progress = stateToProgress[state] || 0;
   const label = stateToLabel[state] || 'Unknown State';
 
-  // Define milestone steps for the trade process
+  // Define 4 milestone steps for the trade process
   const milestones = [
-    { label: 'Created', position: 10, completed: progress >= 10 },
-    { label: 'Escrow Funded', position: 40, completed: progress >= 40 },
-    { label: 'Fiat Paid', position: 70, completed: progress >= 70 },
+    { label: 'Created', position: 0, completed: progress >= 0 },
+    { label: 'Escrow Funded', position: 33, completed: progress >= 33 },
+    { label: 'Fiat Paid', position: 66, completed: progress >= 66 },
     { label: 'Completed', position: 100, completed: progress >= 100 }
   ];
+
+  // Determine progress bar color based on state
+  const getProgressBarColor = () => {
+    if (isExceptional) return 'bg-red-500';
+    if (state === TradeLegState.DISPUTED) return 'bg-amber-500';
+    if (state === TradeLegState.CANCELLED) return 'bg-neutral-500';
+    return 'bg-primary-600';
+  };
 
   // Create our own progress bar instead of using the shadcn component
   return (
@@ -52,7 +69,7 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state, isExceptiona
         {/* Custom progress bar */}
         <div className="h-3 w-full bg-neutral-200 rounded-full overflow-hidden">
           <div
-            className={`h-full ${isExceptional ? 'bg-red-500' : 'bg-primary-600'} rounded-full transition-all duration-500 ease-in-out`}
+            className={`h-full ${getProgressBarColor()} rounded-full transition-all duration-500 ease-in-out`}
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -68,9 +85,21 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state, isExceptiona
               <div
                 className={`w-5 h-5 rounded-full border-2 ${
                   milestone.completed
-                    ? 'bg-primary-600 border-primary-700'
+                    ? state === TradeLegState.CANCELLED
+                      ? 'bg-neutral-500 border-neutral-600'
+                      : state === TradeLegState.DISPUTED
+                        ? 'bg-amber-500 border-amber-600'
+                        : isExceptional
+                          ? 'bg-red-500 border-red-600'
+                          : 'bg-primary-600 border-primary-700'
                     : 'bg-neutral-200 border-neutral-300'
-                } -mt-1`}
+                } -mt-1 ${
+                  // Add pulsing animation for current milestone
+                  (progress >= milestone.position &&
+                   (index === milestones.length - 1 ? progress === 100 : progress < milestones[index + 1]?.position))
+                    ? 'animate-pulse'
+                    : ''
+                }`}
               />
               <div
                 className={`mt-2 text-xs text-center whitespace-nowrap ${
