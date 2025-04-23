@@ -161,65 +161,22 @@ function TradePage() {
         throw recordError;
       }
 
-      // --- Start: Added Allowance Check and Funding ---
-      const escrowId = txResult.escrowId;
-      const tokenAddress = config.usdcAddressAlfajores as Address;
-      const escrowContractAddress = config.contractAddress as Address;
-      const requiredAmountBigInt = parseUnits(trade.leg1_crypto_amount, 6); // Assuming 6 decimals for USDC
-
-      toast.info('Checking token allowance...');
-      const currentAllowance = await getTokenAllowance(
-        primaryWallet,
-        tokenAddress,
-        escrowContractAddress
-      );
-
-      if (currentAllowance < requiredAmountBigInt) {
-        toast.info('Allowance insufficient. Please approve token spending.', {
-          description: 'Approve the transaction in your wallet to allow the escrow contract to handle the funds.',
-          duration: 10000, // Keep message longer
-        });
-        try {
-          await approveTokenSpending(
-            primaryWallet,
-            tokenAddress,
-            escrowContractAddress,
-            requiredAmountBigInt
-          );
-          toast.success('Token approval successful. Proceeding to fund escrow...');
-        } catch (approvalError) {
-          console.error('Error approving token spending:', approvalError);
-          toast.error(`Token Approval Failed: ${approvalError.message || 'Unknown error'}`);
-          // Stop the process if approval fails
-          setActionLoading(false);
-          return;
-        }
-      } else {
-        toast.info('Sufficient token allowance found.');
-      }
-
-      // Proceed to fund the escrow
-      toast.info('Funding escrow...', {
-        description: 'Please approve the transaction in your wallet.',
-      });
-      try {
-        await fundEscrowTransaction(primaryWallet, escrowId);
-        toast.success('Escrow created and funded successfully!');
-        // Polling will update the trade state, no need to fetch manually here
-        // const updatedTrade = await getTrade(trade.id);
-        // setTrade(updatedTrade.data);
-      } catch (fundError) {
-        console.error('Error funding escrow:', fundError);
-        toast.error(`Escrow Funding Failed: ${fundError.message || 'Unknown error'}`);
-        
-        // Even if funding fails, the escrow is created
-        // Show a more detailed message to the user
-        toast.info(
-          'The escrow was created but could not be funded. You can try funding it again from the Escrow Details panel.',
-          { duration: 10000 } // Show for longer
-        );
-      }
-      // --- End: Added Allowance Check and Funding ---
+   try {
+     // Existing code...
+   } catch (err) {
+     console.error('Error creating escrow:', err);
+     
+     // Show error using toast.error
+     let errorMessage = 'Failed to create escrow: Unknown error';
+     if (err.response?.data?.message) {
+       errorMessage = `API Error: ${err.response.data.message}`;
+     } else if (err instanceof Error) {
+       errorMessage = `Error: ${err.message}`;
+     }
+     toast.error(errorMessage);
+   } finally {
+     setActionLoading(false);
+   }
 
    } catch (err) {
      console.error('Error creating escrow:', err);

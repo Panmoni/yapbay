@@ -5,8 +5,6 @@
 
 ## Fund Escrow
 
-## Trade Progress
-- progress bar busted in funded state. buyer has not been prompted to do anything so that is busted too
 
 ## API integration
 - log in as user 3, create account

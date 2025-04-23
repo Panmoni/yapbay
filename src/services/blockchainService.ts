@@ -1,6 +1,4 @@
 import { ethers } from 'ethers';
-// Check which version of ethers we're using
-console.log("[DEBUG] Ethers version:", ethers.version || "v6+");
 import { config } from '../config';
 import YapBayEscrowABI from '../utils/YapBayEscrow.json';
 import { isEthereumWallet } from '@dynamic-labs/ethereum';
@@ -54,8 +52,8 @@ export const createEscrowTransaction = async (
   // Get the wallet client from Dynamic.xyz
   const walletClient = await wallet.getWalletClient();
   
-  console.log("[DEBUG] Wallet client:", walletClient);
-  console.log("[DEBUG] Wallet address:", wallet.address);
+  // console.log("[DEBUG] Wallet client:", walletClient);
+  // console.log("[DEBUG] Wallet address:", wallet.address);
   
   // We'll use the walletClient directly to interact with the contract
   // This is the correct way to use Dynamic.xyz's wallet integration
@@ -205,7 +203,7 @@ export const getTokenAllowance = async (
   const publicClient = await wallet.getPublicClient();
   const owner = ownerAddress || wallet.address as Address;
 
-  console.log(`[DEBUG] Checking allowance for owner ${owner} spender ${spenderAddress} on token ${tokenAddress}`);
+  // console.log(`[DEBUG] Checking allowance for owner ${owner} spender ${spenderAddress} on token ${tokenAddress}`);
 
   try {
     const allowance = await publicClient.readContract({
@@ -214,7 +212,7 @@ export const getTokenAllowance = async (
       functionName: 'allowance',
       args: [owner, spenderAddress],
     });
-    console.log(`[DEBUG] Allowance: ${allowance.toString()}`);
+    // console.log(`[DEBUG] Allowance: ${allowance.toString()}`);
     return allowance as bigint; // Ensure return type is bigint
   } catch (error) {
     console.error("[ERROR] Failed to get token allowance:", error);
@@ -360,13 +358,15 @@ export const checkAndFundEscrow = async (
   );
 
   // Approve token spending if needed
-  if (currentAllowance < amountBigInt) {
-    console.log(`[DEBUG] Approving token spending: ${amountBigInt.toString()}`);
+  // Enforce a fixed spending allowance of 100 USDC
+  const fixedAllowance = parseUnits("100", 6); // Fixed at 100 USDC with 6 decimals
+  if (currentAllowance < fixedAllowance) {
+    // console.log(`[DEBUG] Approving fixed token spending: ${fixedAllowance.toString()} (100 USDC)`);
     await approveTokenSpending(
       wallet,
       tokenAddress,
       escrowContractAddress,
-      amountBigInt
+      fixedAllowance
     );
   } else {
     console.log('[DEBUG] Token spending already approved');
