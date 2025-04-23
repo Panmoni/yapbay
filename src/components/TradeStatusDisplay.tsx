@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { tradeStateMessages } from "@/utils/tradeStates";
 
 interface TradeStatusDisplayProps {
   trade: Trade;
@@ -51,40 +52,8 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
   const { primaryWallet } = useDynamicContext();
   const [fundLoading, setFundLoading] = useState(false);
 
-  // Map states to user-friendly messages based on role
-  const stateMessages: Record<string, Record<string, string>> = {
-    'CREATED': {
-      buyer: "Waiting for seller to create and fund escrow",
-      seller: "You need to create and fund the escrow"
-    },
-    'FUNDED': {
-      buyer: "Escrow funded, pending your fiat payment",
-      seller: "Escrow funded, waiting for buyer to make fiat payment"
-    },
-    'AWAITING_FIAT_PAYMENT': {
-      buyer: "You need to make the fiat payment",
-      seller: "Waiting for buyer to make fiat payment"
-    },
-    'PENDING_CRYPTO_RELEASE': {
-      buyer: "Waiting for seller to release crypto",
-      seller: "Buyer has marked payment as sent. You need to release crypto."
-    },
-    'DISPUTED': {
-      buyer: "Trade is under dispute. Awaiting resolution.",
-      seller: "Trade is under dispute. Awaiting resolution."
-    },
-    'COMPLETED': {
-      buyer: "Trade completed successfully",
-      seller: "Trade completed successfully"
-    },
-    'CANCELLED': {
-      buyer: "Trade was cancelled",
-      seller: "Trade was cancelled"
-    }
-  };
-
-  // Get the appropriate message for the current state and role
-  const message = stateMessages[trade.leg1_state]?.[userRole] || "Unknown state";
+  // Get the appropriate message for the current state and role from the centralized tradeStateMessages
+  const message = tradeStateMessages[trade.leg1_state]?.[userRole] || "Unknown state";
 
   // Determine if deadlines have expired
   const escrowDeadlineExpired = isDeadlineExpired(trade.leg1_escrow_deposit_deadline);
