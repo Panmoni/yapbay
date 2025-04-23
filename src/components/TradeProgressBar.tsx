@@ -80,7 +80,7 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state, isExceptiona
             <div
               key={index}
               className="absolute"
-              style={{ left: `${milestone.position}%`, transform: 'translateX(-50%)' }}
+              style={{ left: `${milestone.position}%`}}
             >
               <div
                 className={`w-5 h-5 rounded-full border-2 ${
