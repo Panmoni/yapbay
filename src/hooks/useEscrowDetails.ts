@@ -122,7 +122,7 @@ export function useEscrowDetails(escrowId: string | number | null, contractAddre
     fetchEscrowDetails();
     
     // Set up polling - every 5 seconds
-    const interval = setInterval(() => fetchEscrowDetails(), 5000);
+    const interval = setInterval(() => fetchEscrowDetails(), 60000);
     
     // Cleanup
     return () => clearInterval(interval);

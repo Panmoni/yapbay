@@ -4,47 +4,9 @@ NEXT: re-test flow up to mark fiat paid and ensure API works and state updates o
 
 create a diagnostic tool to collate info from on-chain via RPC, trades db, escrows db, transaction db.
 
-sonner top right
+When funding escrow, is the transaction getting recorded to the API?
 
-## trade 8
-
-[TRADE] 
-Object { id: 8, leg1_offer_id: 7, leg2_offer_id: null, overall_status: "IN_PROGRESS", from_fiat_currency: "USD", destination_fiat_currency: "USD", from_bank: null, destination_bank: null, created_at: "2025-04-23T20:18:33.165Z", updated_at: "2025-04-23T20:18:33.165Z", … }
-TradePage.tsx:85:13
-Trade is in CREATED state TradeStatusDisplay.tsx:122:16
-User is seller, escrow deadline expired: false TradeStatusDisplay.tsx:124:18
-[DEBUG] User-requested decision logic: Evaluating renderTimers for state: CREATED TradeStatusDisplay.tsx:216:12
-[DEBUG] User-requested decision logic: Rendering timer for CREATED state. Deadline: 2025-04-23T20:33:33.165Z, Expired: false TradeStatusDisplay.tsx:220:14
-Trade is in CREATED state TradeStatusDisplay.tsx:122:16
-User is seller, escrow deadline expired: false TradeStatusDisplay.tsx:124:18
-[DEBUG] User-requested decision logic: Evaluating renderTimers for state: CREATED TradeStatusDisplay.tsx:216:12
-[DEBUG] User-requested decision logic: Rendering timer for CREATED state. Deadline: 2025-04-23T20:33:33.165Z, Expired: false TradeStatusDisplay.tsx:220:14
-[DEBUG] Creating escrow with parameters: 
-Object { tradeId: 8n, buyer: "0xDD304336Cf878dF7d2647435D5f57C2345B140C1", amount: "2220000", sequential: false, sequentialEscrowAddress: "0x0000000000000000000000000000000000000000", arbitrator: "0x6d2dAaA22a90AC8721D1f9C207D817AB7C490383" }
-blockchainService.ts:82:10
-Trade is in CREATED state TradeStatusDisplay.tsx:122:16
-User is seller, escrow deadline expired: false TradeStatusDisplay.tsx:124:18
-[DEBUG] User-requested decision logic: Evaluating renderTimers for state: CREATED TradeStatusDisplay.tsx:216:12
-[DEBUG] User-requested decision logic: Rendering timer for CREATED state. Deadline: 2025-04-23T20:33:33.165Z, Expired: false TradeStatusDisplay.tsx:220:14
-Trade is in CREATED state TradeStatusDisplay.tsx:122:16
-User is seller, escrow deadline expired: false TradeStatusDisplay.tsx:124:18
-[DEBUG] User-requested decision logic: Evaluating renderTimers for state: CREATED TradeStatusDisplay.tsx:216:12
-[DEBUG] User-requested decision logic: Rendering timer for CREATED state. Deadline: 2025-04-23T20:33:33.165Z, Expired: false TradeStatusDisplay.tsx:220:14
-[DEBUG] Transaction sent: 0x8715a857fcd9727beadd843547dc04cec704fed18a64a3f18e089f345983de8c blockchainService.ts:108:12
-[DEBUG] Transaction confirmed: 
-Object { blockHash: "0x31b4f05a048bb0269bdfd6dec27b40011c0c429bdefba06045cfda8be42270c2", blockNumber: 44484216n, contractAddress: null, cumulativeGasUsed: 445115n, effectiveGasPrice: 25001000000n, from: "0x14140b0dbc4736124ea9f5230d851f62f99b0ac5", gasUsed: 219597n, l1BaseFeeScalar: "0x0", l1BlobBaseFee: "0x1", l1BlobBaseFeeScalar: "0x0", … }
-blockchainService.ts:113:12
-[DEBUG] Escrow ID (string): 13 blockchainService.ts:154:12
-[DEBUG] Transaction result: 
-Object { escrowId: "13", txHash: "0x8715a857fcd9727beadd843547dc04cec704fed18a64a3f18e089f345983de8c", blockNumber: 44484216n }
-TradePage.tsx:139:14
-[DEBUG] Recording escrow with data: 
-Object { trade_id: 8, transaction_hash: "0x8715a857fcd9727beadd843547dc04cec704fed18a64a3f18e089f345983de8c", escrow_id: "13", seller: "0x14140b0dbC4736124ea9F5230D851f62F99b0ac5", buyer: "0xDD304336Cf878dF7d2647435D5f57C2345B140C1", amount: 2.22, sequential: false, arbitrator: "0x6d2dAaA22a90AC8721D1f9C207D817AB7C490383" }
-TradePage.tsx:153:14
-[DEBUG] Record escrow response: 
-Object { data: {…}, status: 200, statusText: "OK", headers: {…}, config: {…}, request: XMLHttpRequest }
-
-the fund escrow transaction did not get recorded to db I believe but the create one did
+refresh my understanding of trade states
 
 ## Refs
 Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
@@ -122,7 +84,6 @@ DynamicContextProvider@http://localhost:5173/node_modules/.vite/deps/@dynamic-la
 - migrate all old testing accounts to zen from brave, chrome, etc... also arbitrator address and yapbay funding address
 
 ## escrow
-- mark fiat paid
 - release escrow
 - cancel escrow
 - auto cancel
@@ -132,6 +93,7 @@ DynamicContextProvider@http://localhost:5173/node_modules/.vite/deps/@dynamic-la
 ## Trade Page
 - if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
 - refactor
+- customize sonners https://sonner.emilkowal.ski/toast
 
 ## Ref
 https://celo-alfajores.blockscout.com/address/0xC8BFB8a31fFbAF5c85bD97a1728aC43418B5871C

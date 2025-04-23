@@ -136,7 +136,7 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
                   </span>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Auto-refreshes every 5 seconds</p>
+                  <p>Auto-refreshes every minute</p>
                 </TooltipContent>
               </Tooltip>
             )}
@@ -294,6 +294,9 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
           ) : (
             <div className="py-4 text-center">No escrow details found</div>
           )}
+          <div className="mt-4 text-xs text-neutral-600 text-center">
+            Escrow data automatically updates every minute via RPC.
+          </div>
         </CollapsibleContent>
       </Collapsible>
     </TooltipProvider>
