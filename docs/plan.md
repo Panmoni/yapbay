@@ -1,9 +1,10 @@
 # YapBay Frontend Development Plan
 
-refactor Home.tsx, TradeConfirmationDialog
+refactor Home.tsx,
 TradePage
 blockchainService
-TradeStatusDisplay
+
+and fix lint errors
 
 NEXT: re-test flow up to mark fiat paid and ensure API works and state updates on the frontend
 
@@ -14,20 +15,21 @@ When funding escrow, is the transaction getting recorded to the API?
 refresh my understanding of trade states
 
 ## Trade Page
+
 - if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
 - refactor
 - customize sonners https://sonner.emilkowal.ski/toast
 
 ## escrow
+
 - release escrow
 - cancel escrow
 - auto cancel
 - event listener?
 - error handling?
 
-
-
 ## Refs
+
 Warning: Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?
 
 Check the render method of `Primitive.button.SlotClone`.
@@ -95,14 +97,11 @@ ErrorBoundary@http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-re
 ReinitializeContextProvider@http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=044397f3:47788:35
 DynamicContextProvider@http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=044397f3:49003:27 chunk-ROX75MGY.js:7410:37
 
-
-
-
 ## API integration
+
 - log in as user 3, create account
 - migrate all old testing accounts to zen from brave, chrome, etc... also arbitrator address and yapbay funding address
 
-
-
 ## Ref
+
 https://celo-alfajores.blockscout.com/address/0xC8BFB8a31fFbAF5c85bD97a1728aC43418B5871C
