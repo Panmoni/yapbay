@@ -6,7 +6,7 @@ import {
   getTradeById as getTrade,
   getAccountById,
   getOfferById,
-  markTradeFiatPaid,
+  markFiatPaid,
   recordEscrow,
   releaseEscrow,
   cancelEscrow,
@@ -17,9 +17,10 @@ import {
 } from './api';
 import {
   createEscrowTransaction,
-  fundEscrowTransaction, // Import the new function
-  getTokenAllowance,     // Import allowance check
-  approveTokenSpending   // Import approval function
+  fundEscrowTransaction,
+  markFiatPaidTransaction, // Import the markFiatPaid function
+  getTokenAllowance,
+  approveTokenSpending
 } from './services/blockchainService';
 import { config } from './config'; // Import config for contract addresses
 import { toast } from 'sonner';
@@ -195,23 +196,39 @@ function TradePage() {
   };
 
   const handleMarkFiatPaid = async () => {
-    if (!trade) return;
+    if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
 
     setActionLoading(true);
     try {
-      // Call API to mark fiat as paid
-      await markTradeFiatPaid(trade.id);
+      // Show notification message using toast
+      toast('Marking fiat as paid on blockchain...', {
+        description: 'Please approve the transaction in your wallet.',
+      });
+
+      // Call blockchain service to mark fiat as paid
+      const txHash = await markFiatPaidTransaction(
+        primaryWallet,
+        trade.leg1_escrow_onchain_id
+      );
+
+      console.log("[DEBUG] Mark Fiat Paid transaction result:", txHash);
+
+      // Call API to update backend state using the correct endpoint
+      // Use markFiatPaid instead of markTradeFiatPaid
+      await markFiatPaid(trade.id);
 
       // Refresh trade data
       const updatedTrade = await getTrade(trade.id);
-     setTrade(updatedTrade.data);
-   } catch (err) {
-     console.error('Error marking fiat as paid:', err);
-     toast.error(
-       err instanceof Error ? err.message : 'Failed to mark fiat as paid'
-     );
-   } finally {
-     setActionLoading(false);
+      setTrade(updatedTrade.data);
+      
+      toast.success('Fiat payment marked as paid successfully!');
+    } catch (err) {
+      console.error('Error marking fiat as paid:', err);
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to mark fiat as paid'
+      );
+    } finally {
+      setActionLoading(false);
     }
   };
 

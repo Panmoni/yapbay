@@ -293,7 +293,8 @@ export const fundEscrowTransaction = async (
 
   const escrowIdBigInt = BigInt(escrowId); // Convert escrowId to BigInt for the contract call
 
-  console.log(`[DEBUG] Funding escrow with ID: ${escrowIdBigInt.toString()}`);
+  console.log(`[DEBUG] Funding escrow with ID: ${escrowIdBigInt.toString()} (as string to avoid serialization issues)`);
+  console.log(`[DEBUG] Full transaction details: Escrow ID: ${escrowIdBigInt.toString()}, Wallet: ${wallet.address}, Contract: ${config.contractAddress}`);
 
   try {
     // Call the fundEscrow function on the smart contract
@@ -304,11 +305,11 @@ export const fundEscrowTransaction = async (
       args: [escrowIdBigInt] // Pass escrowId as BigInt
     });
 
-    console.log("[DEBUG] Fund Escrow transaction sent:", hash);
+    console.log("[DEBUG] Fund Escrow transaction sent:", hash, " - Escrow ID: ", escrowIdBigInt.toString());
 
     // Wait for the transaction to be mined
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    console.log("[DEBUG] Fund Escrow transaction confirmed:", receipt);
+    console.log("[DEBUG] Fund Escrow transaction confirmed:", JSON.stringify(receipt, (key, value) => typeof value === 'bigint' ? value.toString() : value));
 
      if (receipt.status !== 'success') {
         throw new Error(`Fund Escrow transaction failed with status: ${receipt.status}`);
@@ -320,7 +321,7 @@ export const fundEscrowTransaction = async (
 
     return hash;
   } catch (error) {
-    console.error(`[ERROR] Failed to fund escrow ${escrowId}:`, error);
+    console.error(`[ERROR] Failed to fund escrow ${escrowId}:`, error, " - Error details: ", JSON.stringify(error, (key, value) => typeof value === 'bigint' ? value.toString() : value));
     throw error;
   }
 };
@@ -374,4 +375,61 @@ export const checkAndFundEscrow = async (
 
   // Fund the escrow
   return fundEscrowTransaction(wallet, escrowId);
+};
+
+/**
+ * Marks the fiat payment as paid for an escrow on the blockchain.
+ * @param wallet The Dynamic.xyz wallet object
+ * @param escrowId The ID of the escrow to mark as paid (as a string or number)
+ * @returns The transaction hash.
+ */
+export const markFiatPaidTransaction = async (
+  wallet: any,
+  escrowId: string | number
+): Promise<string> => {
+  if (!isEthereumWallet(wallet)) {
+    throw new Error("Connected wallet is not an Ethereum wallet");
+  }
+
+  const walletClient = await wallet.getWalletClient();
+  const publicClient = await wallet.getPublicClient();
+
+  const contract = {
+    address: config.contractAddress as Address,
+    abi: YapBayEscrowABI.abi
+  };
+
+  const escrowIdBigInt = BigInt(escrowId); // Convert escrowId to BigInt for the contract call
+
+  console.log(`[DEBUG] Marking fiat as paid for escrow with ID: ${escrowIdBigInt.toString()}`);
+  console.log(`[DEBUG] Full transaction details: Escrow ID: ${escrowIdBigInt.toString()}, Wallet: ${wallet.address}, Contract: ${config.contractAddress}`);
+
+  try {
+    // Call the markFiatPaid function on the smart contract
+    const hash = await walletClient.writeContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: 'markFiatPaid',
+      args: [escrowIdBigInt] // Pass escrowId as BigInt
+    });
+
+    console.log("[DEBUG] Mark Fiat Paid transaction sent:", hash, " - Escrow ID: ", escrowIdBigInt.toString());
+
+    // Wait for the transaction to be mined
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    console.log("[DEBUG] Mark Fiat Paid transaction confirmed:", JSON.stringify(receipt, (key, value) => typeof value === 'bigint' ? value.toString() : value));
+
+    if (receipt.status !== 'success') {
+      throw new Error(`Mark Fiat Paid transaction failed with status: ${receipt.status}`);
+    }
+
+    // Optionally, parse logs for 'FiatMarkedPaid' event if needed
+    // const fiatMarkedPaidTopic = ethers.id('FiatMarkedPaid(uint256,uint256,uint256)');
+    // ... log parsing logic similar to createEscrow ...
+
+    return hash;
+  } catch (error) {
+    console.error(`[ERROR] Failed to mark fiat as paid for escrow ${escrowId}:`, error, " - Error details: ", JSON.stringify(error, (key, value) => typeof value === 'bigint' ? value.toString() : value));
+    throw error;
+  }
 };

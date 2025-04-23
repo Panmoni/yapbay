@@ -58,8 +58,8 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
       seller: "You need to create and fund the escrow"
     },
     'FUNDED': {
-      buyer: "Escrow created, pending funding by seller",
-      seller: "Escrow created, pending your funding"
+      buyer: "Escrow funded, pending your fiat payment",
+      seller: "Escrow funded, waiting for buyer to make fiat payment"
     },
     'AWAITING_FIAT_PAYMENT': {
       buyer: "You need to make the fiat payment",
@@ -119,12 +119,23 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
 
     switch (trade.leg1_state) {
       case 'CREATED':
-        console.log('Trade is in CREATED state');
+        // console.log('Trade is in CREATED state');
         if (userRole === 'seller') {
           console.log('User is seller, escrow deadline expired:', escrowDeadlineExpired);
           return escrowDeadlineExpired ? ['cancel'] : ['create_escrow'];
         }
         console.log('User is buyer, no actions available');
+        return [];
+        
+      case 'FUNDED':
+        // console.log('Trade is in FUNDED state');
+        if (userRole === 'buyer') {
+          console.log('User is buyer, showing mark_paid button');
+          return ['mark_paid'];
+        } else if (userRole === 'seller' && fiatPaymentDeadlineExpired) {
+          console.log('User is seller, fiat payment deadline expired:', fiatPaymentDeadlineExpired);
+          return ['cancel'];
+        }
         return [];
 
       case 'AWAITING_FIAT_PAYMENT':
@@ -211,30 +222,78 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
     );
   };
 
-  // Render timers based on state and deadlines
+  // Enhanced render timers with deadline enforcement, info text, and decision logs
   const renderTimers = () => {
+    // console.log(`[DEBUG] User-requested decision logic: Evaluating renderTimers for state: ${trade.leg1_state}`);
+    
     if (trade.leg1_state === 'CREATED' && trade.leg1_escrow_deposit_deadline) {
+      const isExpired = isDeadlineExpired(trade.leg1_escrow_deposit_deadline);
+      // console.log(`[DEBUG] User-requested decision logic: Rendering timer for CREATED state. Deadline: ${trade.leg1_escrow_deposit_deadline}, Expired: ${isExpired}`);
       return (
         <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
           <TradeTimer
             deadline={trade.leg1_escrow_deposit_deadline}
             label={userRole === 'seller' ? "Time remaining to fund escrow:" : "Waiting for seller to fund escrow:"}
           />
+          {isExpired ? (
+            <p className="text-red-600 text-sm mt-2">
+              Deadline expired: The deposit deadline has passed. Actions may be unavailable.
+            </p>
+          ) : (
+            <p className="text-amber-800 text-sm mt-2">
+              Deadline warning: Fund the escrow before the deadline to avoid trade failure.
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    // Add timer for FUNDED state with fiat payment deadline
+    if (trade.leg1_state === 'FUNDED' && trade.leg1_fiat_payment_deadline) {
+      const isExpired = isDeadlineExpired(trade.leg1_fiat_payment_deadline);
+      // console.log(`[DEBUG] User-requested decision logic: Rendering timer for FUNDED state. Deadline: ${trade.leg1_fiat_payment_deadline}, Expired: ${isExpired}`);
+      return (
+        <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+          <TradeTimer
+            deadline={trade.leg1_fiat_payment_deadline}
+            label={userRole === 'buyer' ? "Time remaining to mark fiat as paid:" : "Waiting for buyer to mark fiat as paid:"}
+          />
+          {isExpired ? (
+            <p className="text-red-600 text-sm mt-2">
+              Deadline expired: The fiat payment deadline has passed. The trade may be canceled.
+            </p>
+          ) : (
+            <p className="text-amber-800 text-sm mt-2">
+              Deadline warning: Mark fiat as paid before the deadline to proceed.
+            </p>
+          )}
         </div>
       );
     }
 
     if (trade.leg1_state === 'AWAITING_FIAT_PAYMENT' && trade.leg1_fiat_payment_deadline) {
+      const isExpired = isDeadlineExpired(trade.leg1_fiat_payment_deadline);
+      // console.log(`[DEBUG] User-requested decision logic: Rendering timer for AWAITING_FIAT_PAYMENT state. Deadline: ${trade.leg1_fiat_payment_deadline}, Expired: ${isExpired}`);
       return (
         <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
           <TradeTimer
             deadline={trade.leg1_fiat_payment_deadline}
             label={userRole === 'buyer' ? "Time remaining to make payment:" : "Waiting for buyer to make payment:"}
           />
+          {isExpired ? (
+            <p className="text-red-600 text-sm mt-2">
+              Deadline expired: The payment deadline has passed. The trade may be canceled.
+            </p>
+          ) : (
+            <p className="text-amber-800 text-sm mt-2">
+              Deadline warning: Complete payment before the deadline to proceed.
+            </p>
+          )}
         </div>
       );
     }
 
+    // console.log(`[DEBUG] User-requested decision logic: No timers to render for state: ${trade.leg1_state}`);
     return null;
   };
 
