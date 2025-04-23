@@ -206,7 +206,7 @@ function OffersPage() {
       }
     };
     fetchOffers();
-  }, []);
+  }, [primaryWallet]);
 
   const openTradeDialog = (offerId: number) => {
     setSelectedOfferId(offerId);
