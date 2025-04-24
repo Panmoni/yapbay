@@ -7,11 +7,7 @@ import { ethers } from 'ethers';
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronUp, RefreshCw, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -21,35 +17,28 @@ interface EscrowDetailsPanelProps {
   userRole: 'buyer' | 'seller';
 }
 
-export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsPanelProps) {
+export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const { primaryWallet } = useDynamicContext();
-  
-  const { 
-    escrowDetails, 
-    loading, 
-    error, 
-    balance, 
-    lastUpdated,
-    isRefreshing,
-    refresh 
-  } = useEscrowDetails(escrowId);
-  
+
+  const { escrowDetails, loading, error, balance, lastUpdated, isRefreshing, refresh } =
+    useEscrowDetails(escrowId);
+
   const handleFundEscrow = async () => {
     if (!primaryWallet || !escrowId || !escrowDetails) return;
-    
+
     setActionLoading(true);
     try {
       toast.info('Checking token allowance and funding escrow...', {
         description: 'Please approve the transactions in your wallet.',
       });
-      
+
       // Use the amount from the escrow details
       const amount = escrowDetails.amount.toString();
-      
+
       await checkAndFundEscrow(primaryWallet, escrowId, amount);
-      
+
       toast.success('Escrow funded successfully!');
       await refresh(); // Refresh escrow details
     } catch (err) {
@@ -59,29 +48,28 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
       setActionLoading(false);
     }
   };
-  
+
   // Determine if the escrow needs funding
-  const needsFunding = escrowDetails && 
-    escrowDetails.state === EscrowState.CREATED && 
-    parseFloat(balance) === 0;
-  
+  const needsFunding =
+    escrowDetails && escrowDetails.state === EscrowState.CREATED && parseFloat(balance) === 0;
+
   // Only show fund button for seller
   const showFundButton = userRole === 'seller' && needsFunding;
-  
+
   // Get block explorer URL for the network
   const getBlockExplorerUrl = (address: string) => {
     // Using Celo Alfajores explorer
     return `https://alfajores.celoscan.io/address/${address}`;
   };
-  
+
   // Format timestamp
   const formatTimestamp = (timestamp: bigint) => {
     if (!timestamp || timestamp === BigInt(0)) return 'Not set';
-    
+
     const date = new Date(Number(timestamp) * 1000);
     return date.toLocaleString();
   };
-  
+
   // Get state badge color
   const getStateBadgeColor = (state: EscrowState) => {
     switch (state) {
@@ -103,13 +91,13 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
         return 'bg-gray-100 text-gray-800';
     }
   };
-  
+
   // Format address for display
   const formatAddress = (address: string) => {
     if (!address || address === '0x0000000000000000000000000000000000000000') return 'None';
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
-  
+
   return (
     <TooltipProvider>
       <Collapsible
@@ -124,7 +112,7 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
               {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </Button>
           </CollapsibleTrigger>
-          
+
           <div className="flex items-center gap-2">
             {lastUpdated && (
               <Tooltip>
@@ -140,18 +128,13 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
                 </TooltipContent>
               </Tooltip>
             )}
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={refresh}
-              disabled={isRefreshing}
-            >
+
+            <Button variant="outline" size="sm" onClick={refresh} disabled={isRefreshing}>
               <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
             </Button>
           </div>
         </div>
-        
+
         <CollapsibleContent className="pt-4">
           {loading && !escrowDetails ? (
             <div className="py-4 text-center">Loading escrow details...</div>
@@ -190,9 +173,7 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Fiat Paid</div>
-                  <div className="font-medium">
-                    {escrowDetails.fiat_paid ? 'Yes' : 'No'}
-                  </div>
+                  <div className="font-medium">{escrowDetails.fiat_paid ? 'Yes' : 'No'}</div>
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Deposit Deadline</div>
@@ -202,17 +183,15 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Fiat Deadline</div>
-                  <div className="font-medium">
-                    {formatTimestamp(escrowDetails.fiat_deadline)}
-                  </div>
+                  <div className="font-medium">{formatTimestamp(escrowDetails.fiat_deadline)}</div>
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Seller</div>
                   <div className="font-medium flex items-center gap-1">
                     <span className="truncate">{formatAddress(escrowDetails.seller)}</span>
-                    <a 
-                      href={getBlockExplorerUrl(escrowDetails.seller)} 
-                      target="_blank" 
+                    <a
+                      href={getBlockExplorerUrl(escrowDetails.seller)}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:text-blue-700"
                     >
@@ -224,9 +203,9 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
                   <div className="text-sm text-neutral-500">Buyer</div>
                   <div className="font-medium flex items-center gap-1">
                     <span className="truncate">{formatAddress(escrowDetails.buyer)}</span>
-                    <a 
-                      href={getBlockExplorerUrl(escrowDetails.buyer)} 
-                      target="_blank" 
+                    <a
+                      href={getBlockExplorerUrl(escrowDetails.buyer)}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:text-blue-700"
                     >
@@ -238,9 +217,9 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
                   <div className="text-sm text-neutral-500">Arbitrator</div>
                   <div className="font-medium flex items-center gap-1">
                     <span className="truncate">{formatAddress(escrowDetails.arbitrator)}</span>
-                    <a 
-                      href={getBlockExplorerUrl(escrowDetails.arbitrator)} 
-                      target="_blank" 
+                    <a
+                      href={getBlockExplorerUrl(escrowDetails.arbitrator)}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:text-blue-700"
                     >
@@ -250,16 +229,15 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Sequential</div>
-                  <div className="font-medium">
-                    {escrowDetails.sequential ? 'Yes' : 'No'}
-                  </div>
+                  <div className="font-medium">{escrowDetails.sequential ? 'Yes' : 'No'}</div>
                 </div>
               </div>
-              
+
               {showFundButton && (
                 <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
                   <p className="text-amber-800 mb-3">
-                    <strong>Action Required:</strong> This escrow has been created but not yet funded. You need to fund it to proceed with the trade.
+                    <strong>Action Required:</strong> This escrow has been created but not yet
+                    funded. You need to fund it to proceed with the trade.
                   </p>
                   <div className="flex flex-col gap-2">
                     <Button
@@ -277,16 +255,18 @@ export function EscrowDetailsPanel({ escrowId, trade, userRole }: EscrowDetailsP
                       )}
                     </Button>
                     <p className="text-xs text-neutral-600">
-                      This will check your token allowance and fund the escrow in one or two transactions.
+                      This will check your token allowance and fund the escrow in one or two
+                      transactions.
                     </p>
                   </div>
                 </div>
               )}
-              
+
               {escrowDetails.state === EscrowState.CREATED && parseFloat(balance) > 0 && (
                 <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
                   <p className="text-blue-800">
-                    <strong>Note:</strong> The escrow has a balance but is still in CREATED state. This may indicate a pending transaction or a blockchain synchronization delay.
+                    <strong>Note:</strong> The escrow has a balance but is still in CREATED state.
+                    This may indicate a pending transaction or a blockchain synchronization delay.
                   </p>
                 </div>
               )}

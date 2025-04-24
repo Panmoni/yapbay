@@ -1,6 +1,6 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import ParticipantCard from "./ParticipantCard";
-import { Account, Trade } from "../api";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import ParticipantCard from './ParticipantCard';
+import { Account, Trade } from '../api';
 
 interface ParticipantsSectionProps {
   buyerAccount: Account | null;
@@ -16,8 +16,6 @@ function ParticipantsSection({
   sellerAccount,
   currentAccount,
   creator,
-  trade,
-  userRole
 }: ParticipantsSectionProps) {
   return (
     <Card className="border border-neutral-200 shadow-sm p-4">
