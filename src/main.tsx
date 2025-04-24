@@ -1,9 +1,9 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.tsx';
 
-import { DynamicContextProvider, EvmNetwork, DynamicWidget, mergeNetworks } from '@dynamic-labs/sdk-react-core';
+import { DynamicContextProvider, EvmNetwork, mergeNetworks } from '@dynamic-labs/sdk-react-core';
 import { EthereumWalletConnectors } from '@dynamic-labs/ethereum';
 
 const myEvmNetworks: EvmNetwork[] = [
@@ -28,12 +28,13 @@ const myEvmNetworks: EvmNetwork[] = [
 const DynamicSettings = {
   overrides: {
     evmNetworks: (dashboardNetworks: any[]) => {
-      const evmNetworks = dashboardNetworks.filter((network): network is EvmNetwork =>
-        'chainId' in network && typeof network.chainId === 'number'
+      const evmNetworks = dashboardNetworks.filter(
+        (network): network is EvmNetwork =>
+          'chainId' in network && typeof network.chainId === 'number'
       );
       return mergeNetworks(myEvmNetworks, evmNetworks);
     },
-  }
+  },
 };
 
 createRoot(document.getElementById('root')!).render(
@@ -46,7 +47,6 @@ createRoot(document.getElementById('root')!).render(
       }}
     >
       <App />
-      <DynamicWidget />
     </DynamicContextProvider>
-  </StrictMode>,
-)
+  </StrictMode>
+);
