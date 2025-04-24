@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Container from '@/components/Shared/Container';
 import OfferDescription from '@/components/Offer/OfferDescription';
+import { getMinutesFromTimeLimit } from '@/utils/timeUtils';
 
 function EditOfferPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,21 +23,6 @@ function EditOfferPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Helper to extract minutes, handling both object and string types
-  const getMinutesFromTimeLimit = (timeLimit: { minutes: number } | string | undefined): number => {
-    if (typeof timeLimit === 'object' && timeLimit !== null && 'minutes' in timeLimit) {
-      return timeLimit.minutes;
-    }
-    // Basic parsing for "X minutes" string format, otherwise default
-    if (typeof timeLimit === 'string') {
-      const match = timeLimit.match(/^(\d+)\s+minutes?$/i);
-      if (match && match[1]) {
-        return parseInt(match[1], 10);
-      }
-    }
-    // Default value if undefined, null, or unparseable string
-    return 60; // Or another appropriate default
-  };
   const [formData, setFormData] = useState<Partial<Offer>>({
     offer_type: 'BUY',
     token: 'USDC',

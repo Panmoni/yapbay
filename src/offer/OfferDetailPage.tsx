@@ -35,6 +35,7 @@ import Container from '@/components/Shared/Container';
 import OfferTypeTooltip from '@/components/Offer/OfferTypeTooltip';
 import OfferDescription from '@/components/Offer/OfferDescription';
 import { formatRate } from '@/utils/stringUtils'; // Added import
+import { getMinutesFromTimeLimit } from '@/utils/timeUtils';
 
 function OfferDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,23 +47,6 @@ function OfferDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [userAccount, setUserAccount] = useState<Account | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
-  // Helper to extract minutes, handling both object and string types
-  const getMinutesFromTimeLimit = (timeLimit: { minutes: number } | string | undefined): number => {
-    if (typeof timeLimit === 'object' && timeLimit !== null && 'minutes' in timeLimit) {
-      return timeLimit.minutes;
-    }
-    // Basic parsing for "X minutes" string format, otherwise default
-    if (typeof timeLimit === 'string') {
-      const match = timeLimit.match(/^(\d+)\s+minutes?$/i);
-      if (match && match[1]) {
-        return parseInt(match[1], 10);
-      }
-    }
-    // Default value if undefined, null, or unparseable string
-    // Using 0 as default display if parsing fails, adjust if needed
-    return 0;
-  };
 
   useEffect(() => {
     const fetchOfferAndCreator = async () => {
