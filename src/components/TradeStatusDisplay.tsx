@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import { Trade } from "@/api";
-import StatusBadge from "./StatusBadge";
-import TradeProgressBar from "./TradeProgressBar";
-import { TradeAction } from "./TradeActionButton";
-import { EscrowDetailsPanel } from "./EscrowDetailsPanel";
-import { EscrowState } from "@/hooks/useEscrowDetails";
-import { tradeStateMessages } from "@/utils/tradeStates";
+import React, { useState } from 'react';
+import { Trade } from '@/api';
+import StatusBadge from './StatusBadge';
+import TradeProgressBar from './TradeProgressBar';
+import { TradeAction } from './TradeActionButton';
+import { EscrowDetailsPanel } from './EscrowDetailsPanel';
+import { EscrowState } from '@/hooks/useEscrowDetails';
+import { tradeStateMessages } from '@/utils/tradeStates';
 
 // Import utility functions and components
-import { getAvailableActions } from "./TradeStatusDisplay/getAvailableActions";
-import { renderTimers } from "./TradeStatusDisplay/renderTimers";
-import { renderActionButtons } from "./TradeStatusDisplay/renderActionButtons";
-import { ExceptionalCases } from "./TradeStatusDisplay/renderExceptionalCases";
+import { getAvailableActions } from './TradeStatusDisplay/getAvailableActions';
+import { renderTimers } from './TradeStatusDisplay/renderTimers';
+import { renderActionButtons } from './TradeStatusDisplay/renderActionButtons';
+import { ExceptionalCases } from './TradeStatusDisplay/renderExceptionalCases';
 
 interface TradeStatusDisplayProps {
   trade: Trade;
@@ -48,7 +48,9 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
   const [lastLogTime, setLastLogTime] = useState<number>(0);
 
   // Get the appropriate message for the current state and role from the centralized tradeStateMessages
-  const message = tradeStateMessages[trade.leg1_state]?.[userRole] || "Unknown state";
+  const message = trade.leg1_state
+    ? tradeStateMessages[trade.leg1_state]?.[userRole] || 'Unknown state'
+    : 'Unknown state';
 
   // No longer need to calculate these here as they're handled in the utility functions
 
@@ -71,12 +73,11 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
     trade,
     userRole,
     lastLogTime,
-    setLastLogTime
+    setLastLogTime,
   });
 
   return (
     <div className="space-y-4 relative">
-
       <div className="flex items-center justify-between">
         <StatusBadge className="text-base py-1.5 px-3">{trade.leg1_state}</StatusBadge>
         <p className="text-lg font-medium">{message}</p>
@@ -84,7 +85,12 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
 
       <TradeProgressBar
         state={trade.leg1_state}
-        isExceptional={trade.leg1_state === "FUNDED" && escrowDetails && Number(escrowDetails.state) === EscrowState.CREATED && parseFloat(balance || "0") < Number(escrowDetails.amount)}
+        isExceptional={
+          trade.leg1_state === 'FUNDED' &&
+          escrowDetails &&
+          Number(escrowDetails.state) === EscrowState.CREATED &&
+          parseFloat(balance || '0') < Number(escrowDetails.amount)
+        }
       />
 
       {renderTimers({ trade, userRole })}
@@ -98,7 +104,7 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
         onMarkFiatPaid,
         onReleaseCrypto,
         onDisputeTrade,
-        onCancelTrade
+        onCancelTrade,
       })}
 
       {/* Handle exceptional cases */}

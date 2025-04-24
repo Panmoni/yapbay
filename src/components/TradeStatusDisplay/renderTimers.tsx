@@ -1,7 +1,6 @@
-import React from "react";
-import { Trade } from "@/api";
-import TradeTimer from "../TradeTimer";
-import { isDeadlineExpired } from "@/hooks/useTradeUpdates";
+import { Trade } from '@/api';
+import TradeTimer from '../TradeTimer';
+import { isDeadlineExpired } from '@/hooks/useTradeUpdates';
 
 interface RenderTimersProps {
   trade: Trade;
@@ -13,7 +12,7 @@ interface RenderTimersProps {
  */
 export const renderTimers = ({ trade, userRole }: RenderTimersProps) => {
   // console.log(`[DEBUG] User-requested decision logic: Evaluating renderTimers for state: ${trade.leg1_state}`);
-  
+
   if (trade.leg1_state === 'CREATED' && trade.leg1_escrow_deposit_deadline) {
     const isExpired = isDeadlineExpired(trade.leg1_escrow_deposit_deadline);
     // console.log(`[DEBUG] User-requested decision logic: Rendering timer for CREATED state. Deadline: ${trade.leg1_escrow_deposit_deadline}, Expired: ${isExpired}`);
@@ -21,7 +20,11 @@ export const renderTimers = ({ trade, userRole }: RenderTimersProps) => {
       <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
         <TradeTimer
           deadline={trade.leg1_escrow_deposit_deadline}
-          label={userRole === 'seller' ? "Time remaining to fund escrow:" : "Waiting for seller to fund escrow:"}
+          label={
+            userRole === 'seller'
+              ? 'Time remaining to fund escrow:'
+              : 'Waiting for seller to fund escrow:'
+          }
         />
         {isExpired ? (
           <p className="text-red-600 text-sm mt-2">
@@ -44,7 +47,11 @@ export const renderTimers = ({ trade, userRole }: RenderTimersProps) => {
       <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
         <TradeTimer
           deadline={trade.leg1_fiat_payment_deadline}
-          label={userRole === 'buyer' ? "Time remaining to mark fiat as paid:" : "Waiting for buyer to mark fiat as paid:"}
+          label={
+            userRole === 'buyer'
+              ? 'Time remaining to mark fiat as paid:'
+              : 'Waiting for buyer to mark fiat as paid:'
+          }
         />
         {isExpired ? (
           <p className="text-red-600 text-sm mt-2">
@@ -66,7 +73,11 @@ export const renderTimers = ({ trade, userRole }: RenderTimersProps) => {
       <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
         <TradeTimer
           deadline={trade.leg1_fiat_payment_deadline}
-          label={userRole === 'buyer' ? "Time remaining to make payment:" : "Waiting for buyer to make payment:"}
+          label={
+            userRole === 'buyer'
+              ? 'Time remaining to make payment:'
+              : 'Waiting for buyer to make payment:'
+          }
         />
         {isExpired ? (
           <p className="text-red-600 text-sm mt-2">

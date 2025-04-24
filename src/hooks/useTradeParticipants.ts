@@ -32,17 +32,17 @@ export function useTradeParticipants(trade: Trade | null) {
 
         if (userRole === 'buyer') {
           // If current user is buyer, counterparty is seller
-          counterpartyAccountId = trade.leg1_seller_account_id;
+          counterpartyAccountId = trade.leg1_seller_account_id ?? null;
           // console.log("[DEBUG] useTradeParticipants - Setting counterparty as seller:", counterpartyAccountId);
         } else {
           // If current user is seller, counterparty is buyer
-          counterpartyAccountId = trade.leg1_buyer_account_id;
+          counterpartyAccountId = trade.leg1_buyer_account_id ?? null;
           // console.log("[DEBUG] useTradeParticipants - Setting counterparty as buyer:", counterpartyAccountId);
         }
 
         // Ensure we're not fetching the current user's account as counterparty
         if (counterpartyAccountId && counterpartyAccountId !== currentAccount.id) {
-          const counterpartyResponse = await getAccountById(counterpartyAccountId);
+          const counterpartyResponse = await getAccountById(counterpartyAccountId.toString());
           setCounterparty(counterpartyResponse.data);
           // console.log(`[DEBUG] useTradeParticipants - Fetched counterparty with ID: ${counterpartyAccountId}`, counterpartyResponse.data);
         } else {
@@ -50,7 +50,7 @@ export function useTradeParticipants(trade: Trade | null) {
           setCounterparty(null);
         }
       } catch (error) {
-        console.error("Error fetching counterparty:", error);
+        console.error('Error fetching counterparty:', error);
         setCounterparty(null);
       } finally {
         setIsCounterpartyLoading(false);
@@ -64,6 +64,6 @@ export function useTradeParticipants(trade: Trade | null) {
     userRole,
     currentAccount,
     counterparty,
-    isLoading: isUserRoleLoading || isCounterpartyLoading
+    isLoading: isUserRoleLoading || isCounterpartyLoading,
   };
 }

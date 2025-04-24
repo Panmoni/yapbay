@@ -1,6 +1,6 @@
-import { Trade } from "@/api";
-import { TradeAction } from "../TradeActionButton";
-import { isDeadlineExpired } from "@/hooks/useTradeUpdates";
+import { Trade } from '@/api';
+import { TradeAction } from '../TradeActionButton';
+import { isDeadlineExpired } from '@/hooks/useTradeUpdates';
 
 interface GetAvailableActionsProps {
   trade: Trade;
@@ -16,22 +16,22 @@ export const getAvailableActions = ({
   trade,
   userRole,
   lastLogTime,
-  setLastLogTime
+  setLastLogTime,
 }: GetAvailableActionsProps): TradeAction[] => {
   const currentTime = Date.now();
   if (currentTime - lastLogTime >= 30000) {
     console.log('Evaluating available actions for:', {
       state: trade.leg1_state,
       userRole,
-      escrowDeadlineExpired: isDeadlineExpired(trade.leg1_escrow_deposit_deadline),
-      fiatPaymentDeadlineExpired: isDeadlineExpired(trade.leg1_fiat_payment_deadline)
+      escrowDeadlineExpired: isDeadlineExpired(trade.leg1_escrow_deposit_deadline ?? null),
+      fiatPaymentDeadlineExpired: isDeadlineExpired(trade.leg1_fiat_payment_deadline ?? null),
     });
     setLastLogTime(currentTime);
   }
 
   // Determine if deadlines have expired
-  const escrowDeadlineExpired = isDeadlineExpired(trade.leg1_escrow_deposit_deadline);
-  const fiatPaymentDeadlineExpired = isDeadlineExpired(trade.leg1_fiat_payment_deadline);
+  const escrowDeadlineExpired = isDeadlineExpired(trade.leg1_escrow_deposit_deadline ?? null);
+  const fiatPaymentDeadlineExpired = isDeadlineExpired(trade.leg1_fiat_payment_deadline ?? null);
 
   switch (trade.leg1_state) {
     case 'CREATED':
@@ -42,7 +42,7 @@ export const getAvailableActions = ({
       }
       console.log('User is buyer, no actions available');
       return [];
-      
+
     case 'FUNDED':
       // console.log('Trade is in FUNDED state');
       if (userRole === 'buyer') {

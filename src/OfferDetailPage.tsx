@@ -1,8 +1,16 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { getOfferById, getAccountById, createTrade, deleteOffer, Offer, Account, getAccount } from "./api";
-import { formatNumber } from "./lib/utils";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import {
+  getOfferById,
+  getAccountById,
+  createTrade,
+  deleteOffer,
+  Offer,
+  Account,
+  getAccount,
+} from './api';
+import { formatNumber } from './lib/utils';
 import {
   Card,
   CardContent,
@@ -10,10 +18,10 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { TooltipProvider } from "@/components/ui/tooltip";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import {
   Dialog,
   DialogContent,
@@ -21,11 +29,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { formatDistanceToNow } from "date-fns";
-import Container from "./components/Container";
-import OfferTypeTooltip from "./components/OfferTypeTooltip";
-import OfferDescription from "./components/OfferDescription";
+} from '@/components/ui/dialog';
+import { formatDistanceToNow } from 'date-fns';
+import Container from './components/Container';
+import OfferTypeTooltip from './components/OfferTypeTooltip';
+import OfferDescription from './components/OfferDescription';
 
 function OfferDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +46,23 @@ function OfferDetailPage() {
   const [userAccount, setUserAccount] = useState<Account | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  // Helper to extract minutes, handling both object and string types
+  const getMinutesFromTimeLimit = (timeLimit: { minutes: number } | string | undefined): number => {
+    if (typeof timeLimit === 'object' && timeLimit !== null && 'minutes' in timeLimit) {
+      return timeLimit.minutes;
+    }
+    // Basic parsing for "X minutes" string format, otherwise default
+    if (typeof timeLimit === 'string') {
+      const match = timeLimit.match(/^(\d+)\s+minutes?$/i);
+      if (match && match[1]) {
+        return parseInt(match[1], 10);
+      }
+    }
+    // Default value if undefined, null, or unparseable string
+    // Using 0 as default display if parsing fails, adjust if needed
+    return 0;
+  };
+
   useEffect(() => {
     const fetchOfferAndCreator = async () => {
       if (!id) return;
@@ -45,18 +70,18 @@ function OfferDetailPage() {
       setLoading(true);
       try {
         // Fetch offer details
-        const offerResponse = await getOfferById(parseInt(id));
+        const offerResponse = await getOfferById(id);
         const offerData = offerResponse.data;
         setOffer(offerData);
 
         // Fetch creator details
-        const creatorResponse = await getAccountById(offerData.creator_account_id);
+        const creatorResponse = await getAccountById(offerData.creator_account_id.toString());
         setCreator(creatorResponse.data);
 
         setError(null);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        console.error("[OfferDetailPage] Fetch failed:", err);
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        console.error('[OfferDetailPage] Fetch failed:', err);
         setError(`Failed to load offer details: ${errorMessage}`);
       } finally {
         setLoading(false);
@@ -75,7 +100,7 @@ function OfferDetailPage() {
         const response = await getAccount();
         setUserAccount(response.data);
       } catch (err) {
-        console.error("[OfferDetailPage] Failed to fetch user account:", err);
+        console.error('[OfferDetailPage] Failed to fetch user account:', err);
       }
     };
 
@@ -93,11 +118,11 @@ function OfferDetailPage() {
     if (!offer) return;
 
     try {
-      await deleteOffer(offer.id);
+      await deleteOffer(offer.id.toString());
       setIsDeleteDialogOpen(false);
       navigate('/offers', { state: { message: 'Offer deleted successfully' } });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(`Failed to delete offer: ${errorMessage}`);
     }
   };
@@ -108,7 +133,7 @@ function OfferDetailPage() {
     try {
       const tradeData = {
         leg1_offer_id: offer.id,
-        leg1_crypto_amount: "1000000", // Using string as API expects
+        leg1_crypto_amount: '1000000', // Using string as API expects
         from_fiat_currency: offer.fiat_currency,
         destination_fiat_currency: offer.fiat_currency,
       };
@@ -116,7 +141,7 @@ function OfferDetailPage() {
       await createTrade(tradeData);
       navigate('/my-trades', { state: { message: 'Trade started successfully' } });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(`Failed to start trade: ${errorMessage}`);
     }
   };
@@ -124,21 +149,21 @@ function OfferDetailPage() {
   const formatRate = (rate: number) => {
     if (rate > 1) return `+${((rate - 1) * 100).toFixed(2)}%`;
     if (rate < 1) return `-${((1 - rate) * 100).toFixed(2)}%`;
-    return "0%";
+    return '0%';
   };
 
   if (loading) {
     return (
       <TooltipProvider>
         <Container>
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex justify-center items-center py-16">
-              <p className="text-neutral-500">Loading offer details...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </Container>
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex justify-center items-center py-16">
+                <p className="text-neutral-500">Loading offer details...</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Container>
       </TooltipProvider>
     );
   }
@@ -147,14 +172,14 @@ function OfferDetailPage() {
     return (
       <TooltipProvider>
         <Container>
-        <Card>
-          <CardContent className="p-6">
-            <Alert variant="destructive" className="mb-0 border-none bg-red-50">
-              <AlertDescription className="text-red-700">{error}</AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      </Container>
+          <Card>
+            <CardContent className="p-6">
+              <Alert variant="destructive" className="mb-0 border-none bg-red-50">
+                <AlertDescription className="text-red-700">{error}</AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </Container>
       </TooltipProvider>
     );
   }
@@ -163,16 +188,16 @@ function OfferDetailPage() {
     return (
       <TooltipProvider>
         <Container>
-        <Card>
-          <CardContent className="p-6">
-            <Alert className="mb-0 bg-amber-50 border-amber-200">
-              <AlertDescription className="text-amber-700">
-                Offer not found or has been deleted.
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      </Container>
+          <Card>
+            <CardContent className="p-6">
+              <Alert className="mb-0 bg-amber-50 border-amber-200">
+                <AlertDescription className="text-amber-700">
+                  Offer not found or has been deleted.
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+        </Container>
       </TooltipProvider>
     );
   }
@@ -180,114 +205,130 @@ function OfferDetailPage() {
   return (
     <TooltipProvider>
       <Container>
-      <Card className="mb-4">
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <CardTitle className="text-primary-800 font-semibold">
-                Offer #{formatNumber(offer.id)}
-              </CardTitle>
-              <CardDescription>
-                Created {formatDistanceToNow(new Date(offer.created_at))} ago by {creator.username || creator.wallet_address} | Last updated {formatDistanceToNow(new Date(offer.updated_at))} ago
-              </CardDescription>
-              <div className="mt-4">
-                <OfferDescription offer={offer} />
+        <Card className="mb-4">
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <CardTitle className="text-primary-800 font-semibold">
+                  Offer #{formatNumber(offer.id)}
+                </CardTitle>
+                <CardDescription>
+                  Created {formatDistanceToNow(new Date(offer.created_at))} ago by{' '}
+                  {creator.username || creator.wallet_address} | Last updated{' '}
+                  {formatDistanceToNow(new Date(offer.updated_at))} ago
+                </CardDescription>
+                <div className="mt-4">
+                  <OfferDescription offer={offer} />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Link to="/offers">
+                  <Button variant="outline">Back to Offers</Button>
+                </Link>
+                {isOwner && (
+                  <Link to={`/edit-offer/${offer.id}`}>
+                    <Button
+                      variant="outline"
+                      className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800"
+                    >
+                      Edit
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
-            <div className="flex gap-2">
-              <Link to="/offers">
-                <Button variant="outline">Back to Offers</Button>
-              </Link>
-              {isOwner && (
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4">
+                  <span className="font-medium text-neutral-700">Type</span>
+                  <OfferTypeTooltip offerType={offer.offer_type} />
+                </div>
+
+                <div className="flex justify-between items-center p-4">
+                  <span className="font-medium text-neutral-700">Token</span>
+                  <span>{offer.token}</span>
+                </div>
+
+                <div className="flex justify-between items-center p-4">
+                  <span className="font-medium text-neutral-700">Amount Range</span>
+                  <span>
+                    {formatNumber(offer.min_amount)} - {formatNumber(offer.max_amount)}{' '}
+                    {offer.token}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center p-4">
+                  <span className="font-medium text-neutral-700">Available Amount</span>
+                  <span>
+                    {formatNumber(offer.total_available_amount)} {offer.token}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-center p-4">
+                  <span className="font-medium text-neutral-700">Rate Adjustment</span>
+                  <span
+                    className={
+                      offer.rate_adjustment > 1
+                        ? 'text-success-600'
+                        : offer.rate_adjustment < 1
+                        ? 'text-red-600'
+                        : 'text-neutral-600'
+                    }
+                  >
+                    {formatRate(offer.rate_adjustment)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center p-4">
+                  <span className="font-medium text-neutral-700">Fiat Currency</span>
+                  <span>{offer.fiat_currency}</span>
+                </div>
+
+                <div className="flex justify-between items-center p-4">
+                  <span className="font-medium text-neutral-700">Escrow Deposit Time Limit</span>
+                  <span>
+                    {formatNumber(getMinutesFromTimeLimit(offer.escrow_deposit_time_limit))} minutes
+                  </span>
+                </div>
+
+                <div className="flex justify-between items-center p-4">
+                  <span className="font-medium text-neutral-700">Fiat Payment Time Limit</span>
+                  <span>
+                    {formatNumber(getMinutesFromTimeLimit(offer.fiat_payment_time_limit))} minutes
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="font-medium text-neutral-700 mb-2">Terms and Conditions</h3>
+              <div className="p-4 whitespace-pre-wrap">{offer.terms || 'No terms specified'}</div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col sm:flex-row gap-3 justify-end border-t border-neutral-100 p-6">
+            {isOwner ? (
+              <>
                 <Link to={`/edit-offer/${offer.id}`}>
-                  <Button variant="outline" className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800">
-                    Edit
+                  <Button
+                    variant="outline"
+                    className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full sm:w-auto"
+                  >
+                    Edit Offer
                   </Button>
                 </Link>
-              )}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4">
-                <span className="font-medium text-neutral-700">Type</span>
-                <OfferTypeTooltip offerType={offer.offer_type} />
-              </div>
-
-              <div className="flex justify-between items-center p-4">
-                <span className="font-medium text-neutral-700">Token</span>
-                <span>{offer.token}</span>
-              </div>
-
-              <div className="flex justify-between items-center p-4">
-                <span className="font-medium text-neutral-700">Amount Range</span>
-                <span>{formatNumber(offer.min_amount)} - {formatNumber(offer.max_amount)} {offer.token}</span>
-              </div>
-
-              <div className="flex justify-between items-center p-4">
-                <span className="font-medium text-neutral-700">Available Amount</span>
-                <span>{formatNumber(offer.total_available_amount)} {offer.token}</span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4">
-                <span className="font-medium text-neutral-700">Rate Adjustment</span>
-                <span className={
-                  offer.rate_adjustment > 1
-                    ? 'text-success-600'
-                    : offer.rate_adjustment < 1
-                      ? 'text-red-600'
-                      : 'text-neutral-600'
-                }>
-                  {formatRate(offer.rate_adjustment)}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center p-4">
-                <span className="font-medium text-neutral-700">Fiat Currency</span>
-                <span>{offer.fiat_currency}</span>
-              </div>
-
-              <div className="flex justify-between items-center p-4">
-                <span className="font-medium text-neutral-700">Escrow Deposit Time Limit</span>
-                <span>{formatNumber(offer.escrow_deposit_time_limit.minutes)} minutes</span>
-              </div>
-
-              <div className="flex justify-between items-center p-4">
-                <span className="font-medium text-neutral-700">Fiat Payment Time Limit</span>
-                <span>{formatNumber(offer.fiat_payment_time_limit.minutes)} minutes</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <h3 className="font-medium text-neutral-700 mb-2">Terms and Conditions</h3>
-            <div className="p-4 whitespace-pre-wrap">
-              {offer.terms || "No terms specified"}
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row gap-3 justify-end border-t border-neutral-100 p-6">
-          {isOwner ? (
-            <>
-              <Link to={`/edit-offer/${offer.id}`}>
-                <Button variant="outline" className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full sm:w-auto">
-                  Edit Offer
+                <Button
+                  variant="outline"
+                  onClick={openDeleteDialog}
+                  className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 w-full sm:w-auto"
+                >
+                  Delete Offer
                 </Button>
-              </Link>
-              <Button
-                variant="outline"
-                onClick={openDeleteDialog}
-                className="border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 w-full sm:w-auto"
-              >
-                Delete Offer
-              </Button>
-            </>
-          ) : (
-            primaryWallet ? (
+              </>
+            ) : primaryWallet ? (
               <Button
                 onClick={handleStartTrade}
                 className="bg-success-500 hover:bg-success-600 text-white w-full sm:w-auto"
@@ -301,38 +342,34 @@ function OfferDetailPage() {
               >
                 Connect Wallet to Trade
               </Button>
-            )
-          )}
-        </CardFooter>
-      </Card>
-    </Container>
+            )}
+          </CardFooter>
+        </Card>
+      </Container>
 
-    {/* Delete Confirmation Dialog */}
-    <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-      <DialogContent className="bg-neutral-100 z-999">
-        <DialogHeader>
-          <DialogTitle>Confirm Deletion</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this offer? This action cannot be undone.
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="mt-4">
-          <Button
-            variant="outline"
-            onClick={() => setIsDeleteDialogOpen(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={handleDelete}
-            className="bg-red-500 hover:bg-red-600 text-white"
-          >
-            Delete Offer
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="bg-neutral-100 z-999">
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this offer? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              Delete Offer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
   );
 }

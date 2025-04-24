@@ -4,9 +4,6 @@ put a collapsible legend at bottom of trade page explaining trade stages and esc
 
 ## refactor
 
-TradePage
-blockchainService
-
 organize better these components
 
 ChatSection

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { getOfferById, updateOffer, Offer } from "./api";
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { getOfferById, updateOffer, Offer } from './api';
 import {
   Card,
   CardContent,
@@ -8,12 +8,12 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import Container from "./components/Container";
-import OfferDescription from "./components/OfferDescription";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import Container from './components/Container';
+import OfferDescription from './components/OfferDescription';
 
 function EditOfferPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,21 +21,37 @@ function EditOfferPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Helper to extract minutes, handling both object and string types
+  const getMinutesFromTimeLimit = (timeLimit: { minutes: number } | string | undefined): number => {
+    if (typeof timeLimit === 'object' && timeLimit !== null && 'minutes' in timeLimit) {
+      return timeLimit.minutes;
+    }
+    // Basic parsing for "X minutes" string format, otherwise default
+    if (typeof timeLimit === 'string') {
+      const match = timeLimit.match(/^(\d+)\s+minutes?$/i);
+      if (match && match[1]) {
+        return parseInt(match[1], 10);
+      }
+    }
+    // Default value if undefined, null, or unparseable string
+    return 60; // Or another appropriate default
+  };
   const [formData, setFormData] = useState<Partial<Offer>>({
-    offer_type: "BUY",
-    token: "USDC",
+    offer_type: 'BUY',
+    token: 'USDC',
     min_amount: 0,
     max_amount: 0,
     total_available_amount: 0,
     rate_adjustment: 1,
-    terms: "",
+    terms: '',
     escrow_deposit_time_limit: { minutes: 60 },
     fiat_payment_time_limit: { minutes: 60 },
-    fiat_currency: "USD",
+    fiat_currency: 'USD',
   });
 
   // Store the raw percentage input value separately to preserve user input exactly
-  const [rateAdjustmentInput, setRateAdjustmentInput] = useState("0.00");
+  const [rateAdjustmentInput, setRateAdjustmentInput] = useState('0.00');
 
   useEffect(() => {
     const fetchOffer = async () => {
@@ -43,7 +59,7 @@ function EditOfferPage() {
 
       setLoading(true);
       try {
-        const response = await getOfferById(parseInt(id));
+        const response = await getOfferById(id);
         const offerData = response.data;
 
         // Set form data from the fetched offer
@@ -65,8 +81,8 @@ function EditOfferPage() {
 
         setError(null);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        console.error("[EditOfferPage] Fetch failed:", err);
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        console.error('[EditOfferPage] Fetch failed:', err);
         setError(`Failed to load offer: ${errorMessage}`);
       } finally {
         setLoading(false);
@@ -79,9 +95,9 @@ function EditOfferPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
-    if (name === "min_amount" || name === "max_amount" || name === "total_available_amount") {
+    if (name === 'min_amount' || name === 'max_amount' || name === 'total_available_amount') {
       setFormData({ ...formData, [name]: parseFloat(value) || 0 });
-    } else if (name === "rate_adjustment") {
+    } else if (name === 'rate_adjustment') {
       // Store the exact input value
       setRateAdjustmentInput(value);
 
@@ -102,15 +118,15 @@ function EditOfferPage() {
     if (!id) return;
 
     try {
-      await updateOffer(parseInt(id), formData);
-      setSuccess("Offer updated successfully");
+      await updateOffer(id, formData);
+      setSuccess('Offer updated successfully');
 
       // Clear success message after 3 seconds and navigate back to offer detail
       setTimeout(() => {
         navigate(`/offer/${id}`, { state: { message: 'Offer updated successfully' } });
       }, 3000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(`Failed to update offer: ${errorMessage}`);
       window.scrollTo(0, 0); // Scroll to top to show error
     }
@@ -143,7 +159,9 @@ function EditOfferPage() {
               {!loading && formData && (
                 <div className="mt-4">
                   <OfferDescription offer={formData as Offer} />
-                  <p className="text-xs text-neutral-500 mt-2">To change the offer type, token or fiat currency, please create a new offer.</p>
+                  <p className="text-xs text-neutral-500 mt-2">
+                    To change the offer type, token or fiat currency, please create a new offer.
+                  </p>
                 </div>
               )}
             </div>
@@ -173,27 +191,21 @@ function EditOfferPage() {
                     Offer Type
                   </label>
                   <Input
-                    value={formData.offer_type === "BUY" ? "BUY (You want to buy crypto)" : "SELL (You want to sell crypto)"}
+                    value={
+                      formData.offer_type === 'BUY'
+                        ? 'BUY (You want to buy crypto)'
+                        : 'SELL (You want to sell crypto)'
+                    }
                     className="bg-neutral-50"
                     disabled
                   />
-                  <p className="text-xs text-neutral-500 mt-1">
-                    Offer type cannot be changed
-                  </p>
+                  <p className="text-xs text-neutral-500 mt-1">Offer type cannot be changed</p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-1">
-                    Token
-                  </label>
-                  <Input
-                    value={formData.token}
-                    className="bg-neutral-50"
-                    disabled
-                  />
-                  <p className="text-xs text-neutral-500 mt-1">
-                    Token cannot be changed
-                  </p>
+                  <label className="block text-sm font-medium text-neutral-700 mb-1">Token</label>
+                  <Input value={formData.token} className="bg-neutral-50" disabled />
+                  <p className="text-xs text-neutral-500 mt-1">Token cannot be changed</p>
                 </div>
 
                 <div>
@@ -263,14 +275,8 @@ function EditOfferPage() {
                   <label className="block text-sm font-medium text-neutral-700 mb-1">
                     Fiat Currency
                   </label>
-                  <Input
-                    value={formData.fiat_currency}
-                    className="bg-neutral-50"
-                    disabled
-                  />
-                  <p className="text-xs text-neutral-500 mt-1">
-                    Fiat currency cannot be changed
-                  </p>
+                  <Input value={formData.fiat_currency} className="bg-neutral-50" disabled />
+                  <p className="text-xs text-neutral-500 mt-1">Fiat currency cannot be changed</p>
                 </div>
 
                 <div>
@@ -279,7 +285,7 @@ function EditOfferPage() {
                   </label>
                   <Input
                     type="number"
-                    value={formData.escrow_deposit_time_limit?.minutes || 60}
+                    value={getMinutesFromTimeLimit(formData.escrow_deposit_time_limit)}
                     className="bg-neutral-50"
                     disabled
                   />
@@ -294,7 +300,7 @@ function EditOfferPage() {
                   </label>
                   <Input
                     type="number"
-                    value={formData.fiat_payment_time_limit?.minutes || 60}
+                    value={getMinutesFromTimeLimit(formData.fiat_payment_time_limit)}
                     className="bg-neutral-50"
                     disabled
                   />
@@ -320,10 +326,7 @@ function EditOfferPage() {
             </div>
 
             <CardFooter className="flex justify-end px-0 pt-4 pb-0">
-              <Button
-                type="submit"
-                className="bg-primary-700 hover:bg-primary-800 text-white"
-              >
+              <Button type="submit" className="bg-primary-700 hover:bg-primary-800 text-white">
                 Update Offer
               </Button>
             </CardFooter>

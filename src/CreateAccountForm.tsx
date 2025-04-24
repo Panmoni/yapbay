@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { createAccount, Account } from "./api";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useState } from 'react';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { createAccount, Account } from './api';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface CreateAccountFormProps {
   setAccount?: (account: Account | null) => void;
@@ -11,33 +11,33 @@ interface CreateAccountFormProps {
 
 function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
   const { primaryWallet } = useDynamicContext();
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
     setIsSubmitting(true);
 
     if (!primaryWallet?.address) {
-      setError("Wallet not connected.");
+      setError('Wallet not connected.');
       setIsSubmitting(false);
       return;
     }
 
     // Basic validation
     if (!username.trim()) {
-      setError("Username is required");
+      setError('Username is required');
       setIsSubmitting(false);
       return;
     }
 
     if (!email.trim()) {
-      setError("Email is required");
+      setError('Email is required');
       setIsSubmitting(false);
       return;
     }
@@ -45,7 +45,7 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address");
+      setError('Please enter a valid email address');
       setIsSubmitting(false);
       return;
     }
@@ -66,14 +66,14 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
         wallet_address: primaryWallet.address,
         username,
         email,
-        telegram_username: null,
-        telegram_id: null,
-        profile_photo_url: null,
-        phone_country_code: null,
-        phone_number: null,
-        available_from: null,
-        available_to: null,
-        timezone: null,
+        telegram_username: undefined,
+        telegram_id: undefined,
+        profile_photo_url: undefined,
+        phone_country_code: undefined,
+        phone_number: undefined,
+        available_from: undefined,
+        available_to: undefined,
+        timezone: undefined,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -84,8 +84,8 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
       }
 
       // Reset form values
-      setUsername("");
-      setEmail("");
+      setUsername('');
+      setEmail('');
     } catch (err) {
       setError(`Failed to create account: ${(err as Error).message}`);
     } finally {
@@ -113,7 +113,7 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
         </label>
         <Input
           id="wallet_address"
-          value={primaryWallet?.address || ""}
+          value={primaryWallet?.address || ''}
           className="font-mono text-sm bg-neutral-50"
           disabled
         />
@@ -128,7 +128,7 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
           id="username"
           type="text"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={e => setUsername(e.target.value)}
           className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           required
           placeholder="Choose a username"
@@ -144,7 +144,7 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
           id="email"
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={e => setEmail(e.target.value)}
           className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
           required
           placeholder="example@email.com"
@@ -157,7 +157,7 @@ function CreateAccountForm({ setAccount }: CreateAccountFormProps) {
         className="w-full bg-primary-700 hover:bg-primary-800 text-white mt-2"
         disabled={isSubmitting}
       >
-        {isSubmitting ? "Creating Account..." : "Create Account"}
+        {isSubmitting ? 'Creating Account...' : 'Create Account'}
       </Button>
     </form>
   );

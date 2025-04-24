@@ -1,6 +1,5 @@
-import React from "react";
-import { TradeAction } from "../TradeActionButton";
-import TradeActionButton from "../TradeActionButton";
+import { TradeAction } from '../TradeActionButton';
+import TradeActionButton from '../TradeActionButton';
 
 interface RenderActionButtonsProps {
   availableActions: TradeAction[];
@@ -28,7 +27,7 @@ export const renderActionButtons = ({
   onMarkFiatPaid,
   onReleaseCrypto,
   onDisputeTrade,
-  onCancelTrade
+  onCancelTrade,
 }: RenderActionButtonsProps) => {
   if (availableActions.length === 0) {
     return null;

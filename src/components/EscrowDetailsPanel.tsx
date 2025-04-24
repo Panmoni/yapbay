@@ -34,10 +34,7 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
         description: 'Please approve the transactions in your wallet.',
       });
 
-      // Use the amount from the escrow details
-      const amount = escrowDetails.amount.toString();
-
-      await checkAndFundEscrow(primaryWallet, escrowId, amount);
+      await checkAndFundEscrow(primaryWallet, escrowId);
 
       toast.success('Escrow funded successfully!');
       await refresh(); // Refresh escrow details

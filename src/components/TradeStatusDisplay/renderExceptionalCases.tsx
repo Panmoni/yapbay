@@ -58,11 +58,7 @@ export const ExceptionalCases: React.FC<ExceptionalCasesProps> = ({
                       toast.info('Checking token allowance and funding escrow...', {
                         description: 'Please approve the transactions in your wallet.',
                       });
-                      await checkAndFundEscrow(
-                        primaryWallet,
-                        escrowDetails.escrow_id.toString(),
-                        escrowDetails.amount.toString()
-                      );
+                      await checkAndFundEscrow(primaryWallet, escrowDetails.escrow_id.toString());
                       toast.success('Escrow funded successfully!');
                       if (refreshEscrow) await refreshEscrow();
                     } catch (err) {

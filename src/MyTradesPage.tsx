@@ -1,14 +1,21 @@
-import { useState, useEffect } from "react";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { Link } from "react-router-dom";
-import { getMyTrades, markTradeFiatPaid, Trade, Account } from "./api";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { formatDistanceToNow } from "date-fns";
-import { Badge } from "@/components/ui/badge";
-import Container from "./components/Container";
+import { useState, useEffect } from 'react';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { Link } from 'react-router-dom';
+import { getMyTrades, markTradeFiatPaid, Trade, Account } from './api';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { formatDistanceToNow } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import Container from './components/Container';
 
 interface MyTradesPageProps {
   account: Account | null;
@@ -38,8 +45,8 @@ function MyTradesPage({ account }: MyTradesPageProps) {
         );
         setError(null);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Unknown error";
-        console.error("[MyTradesPage] Fetch failed:", err);
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        console.error('[MyTradesPage] Fetch failed:', err);
         setError(`Failed to load your trades: ${errorMessage}`);
       } finally {
         setLoading(false);
@@ -50,7 +57,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
   }, [account, primaryWallet]);
 
   const handleMarkPaid = async (tradeId: number) => {
-    if (!window.confirm("Are you sure you want to mark this trade as paid?")) {
+    if (!window.confirm('Are you sure you want to mark this trade as paid?')) {
       return;
     }
 
@@ -63,27 +70,27 @@ function MyTradesPage({ account }: MyTradesPageProps) {
           trade.id === tradeId
             ? {
                 ...trade,
-                leg1_state: "PENDING_CRYPTO_RELEASE",
-                leg1_fiat_paid_at: new Date().toISOString()
+                leg1_state: 'PENDING_CRYPTO_RELEASE',
+                leg1_fiat_paid_at: new Date().toISOString(),
               }
             : trade
         )
       );
 
-      setActionSuccess("Trade marked as paid successfully");
+      setActionSuccess('Trade marked as paid successfully');
 
       // Clear success message after 3 seconds
       setTimeout(() => {
         setActionSuccess(null);
       }, 3000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(`Failed to mark trade as paid: ${errorMessage}`);
     }
   };
 
   const handleReleaseEscrow = async () => {
-    if (!window.confirm("Are you sure you want to release the escrow?")) {
+    if (!window.confirm('Are you sure you want to release the escrow?')) {
       return;
     }
 
@@ -99,37 +106,39 @@ function MyTradesPage({ account }: MyTradesPageProps) {
       //   arbitrator_token_account: arbitratorTokenAccount
       // });
 
-      alert("This is a placeholder for escrow release. Implement the actual release functionality.");
+      alert(
+        'This is a placeholder for escrow release. Implement the actual release functionality.'
+      );
 
       // For now, just show a success message
-      setActionSuccess("Release function would be called here in a real implementation");
+      setActionSuccess('Release function would be called here in a real implementation');
 
       // Clear success message after 3 seconds
       setTimeout(() => {
         setActionSuccess(null);
       }, 3000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       setError(`Failed to release escrow: ${errorMessage}`);
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "CREATED":
-        return "bg-primary-100 text-primary-800";
-      case "AWAITING_FIAT_PAYMENT":
-        return "bg-amber-100 text-amber-800";
-      case "PENDING_CRYPTO_RELEASE":
-        return "bg-secondary-100 text-secondary-800";
-      case "COMPLETED":
-        return "bg-green-100 text-green-800";
-      case "CANCELLED":
-        return "bg-neutral-100 text-neutral-800";
-      case "DISPUTED":
-        return "bg-red-100 text-red-800";
+      case 'CREATED':
+        return 'bg-primary-100 text-primary-800';
+      case 'AWAITING_FIAT_PAYMENT':
+        return 'bg-amber-100 text-amber-800';
+      case 'PENDING_CRYPTO_RELEASE':
+        return 'bg-secondary-100 text-secondary-800';
+      case 'COMPLETED':
+        return 'bg-green-100 text-green-800';
+      case 'CANCELLED':
+        return 'bg-neutral-100 text-neutral-800';
+      case 'DISPUTED':
+        return 'bg-red-100 text-red-800';
       default:
-        return "bg-neutral-100 text-neutral-800";
+        return 'bg-neutral-100 text-neutral-800';
     }
   };
 
@@ -217,7 +226,11 @@ function MyTradesPage({ account }: MyTradesPageProps) {
             <div className="p-10 text-center">
               <p className="text-neutral-500">You don't have any trades yet.</p>
               <p className="text-neutral-400 text-sm mt-2">
-                Visit the <Link to="/" className="text-primary-700 hover:text-primary-800">home page</Link> to start trading.
+                Visit the{' '}
+                <Link to="/" className="text-primary-700 hover:text-primary-800">
+                  home page
+                </Link>{' '}
+                to start trading.
               </p>
             </div>
           ) : (
@@ -225,14 +238,18 @@ function MyTradesPage({ account }: MyTradesPageProps) {
               <>
                 {/* Mobile card view */}
                 <div className="md:hidden p-4 space-y-4">
-                  {myTrades.map((trade) => (
+                  {myTrades.map(trade => (
                     <div key={trade.id} className="mobile-card-view">
                       <div className="mobile-card-view-header">
                         <span>#{trade.id}</span>
                         {isUserBuyer(trade) ? (
-                          <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">Buyer</Badge>
+                          <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">
+                            Buyer
+                          </Badge>
                         ) : (
-                          <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">Seller</Badge>
+                          <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">
+                            Seller
+                          </Badge>
                         )}
                       </div>
 
@@ -248,8 +265,12 @@ function MyTradesPage({ account }: MyTradesPageProps) {
 
                       <div className="mobile-card-view-row">
                         <span className="mobile-card-view-label">Status</span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(trade.leg1_state)}`}>
-                          {trade.leg1_state.replace(/_/g, ' ')}
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            trade.leg1_state || 'UNKNOWN'
+                          )}`}
+                        >
+                          {trade.leg1_state?.replace(/_/g, ' ') || 'Unknown State'}
                         </span>
                       </div>
 
@@ -261,7 +282,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                       </div>
 
                       <div className="mt-4 space-y-2">
-                        {isUserBuyer(trade) && trade.leg1_state === "AWAITING_FIAT_PAYMENT" && (
+                        {isUserBuyer(trade) && trade.leg1_state === 'AWAITING_FIAT_PAYMENT' && (
                           <Button
                             onClick={() => handleMarkPaid(trade.id)}
                             className="bg-primary-700 hover:bg-primary-800 text-white w-full"
@@ -270,7 +291,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                           </Button>
                         )}
 
-                        {isUserSeller(trade) && trade.leg1_state === "PENDING_CRYPTO_RELEASE" && (
+                        {isUserSeller(trade) && trade.leg1_state === 'PENDING_CRYPTO_RELEASE' && (
                           <Button
                             onClick={handleReleaseEscrow}
                             className="bg-success-500 hover:bg-success-600 text-white w-full"
@@ -307,21 +328,29 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {myTrades.map((trade) => (
+                      {myTrades.map(trade => (
                         <TableRow key={trade.id} className="hover:bg-neutral-50">
                           <TableCell className="font-medium">#{trade.id}</TableCell>
                           <TableCell>
                             {isUserBuyer(trade) ? (
-                              <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">Buyer</Badge>
+                              <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">
+                                Buyer
+                              </Badge>
                             ) : (
-                              <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">Seller</Badge>
+                              <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">
+                                Seller
+                              </Badge>
                             )}
                           </TableCell>
                           <TableCell>{trade.leg1_crypto_token}</TableCell>
                           <TableCell>{trade.leg1_crypto_amount}</TableCell>
                           <TableCell>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(trade.leg1_state)}`}>
-                              {trade.leg1_state.replace(/_/g, ' ')}
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                                trade.leg1_state || 'UNKNOWN'
+                              )}`}
+                            >
+                              {trade.leg1_state?.replace(/_/g, ' ') || 'Unknown State'}
                             </span>
                           </TableCell>
                           <TableCell className="text-neutral-500 text-sm">
@@ -329,31 +358,31 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              {isUserBuyer(trade) && trade.leg1_state === "AWAITING_FIAT_PAYMENT" && (
-                                <Button
-                                  onClick={() => handleMarkPaid(trade.id)}
-                                  className="bg-primary-700 hover:bg-primary-800 text-white text-sm px-3 py-1 h-8"
-                                >
-                                  Mark Paid
-                                </Button>
-                              )}
+                              {isUserBuyer(trade) &&
+                                trade.leg1_state === 'AWAITING_FIAT_PAYMENT' && (
+                                  <Button
+                                    onClick={() => handleMarkPaid(trade.id)}
+                                    className="bg-primary-700 hover:bg-primary-800 text-white text-sm px-3 py-1 h-8"
+                                  >
+                                    Mark Paid
+                                  </Button>
+                                )}
 
-                              {isUserSeller(trade) && trade.leg1_state === "PENDING_CRYPTO_RELEASE" && (
-                                <Button
-                                  onClick={handleReleaseEscrow}
-                                  className="bg-success-500 hover:bg-success-600 text-white text-sm px-3 py-1 h-8"
-                                >
-                                  Release
-                                </Button>
-                              )}
+                              {isUserSeller(trade) &&
+                                trade.leg1_state === 'PENDING_CRYPTO_RELEASE' && (
+                                  <Button
+                                    onClick={handleReleaseEscrow}
+                                    className="bg-success-500 hover:bg-success-600 text-white text-sm px-3 py-1 h-8"
+                                  >
+                                    Release
+                                  </Button>
+                                )}
 
                               <Button
                                 variant="outline"
                                 className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 text-sm px-3 py-1 h-8"
                               >
-                                <Link to={`/trade/${trade.id}`}>
-                                  Details
-                                </Link>
+                                <Link to={`/trade/${trade.id}`}>Details</Link>
                               </Button>
                             </div>
                           </TableCell>

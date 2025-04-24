@@ -1,6 +1,6 @@
-import React from "react";
-import { Trade } from "@/api";
-import { TradeLegState } from "@/utils/tradeStates";
+import React from 'react';
+import { Trade } from '@/api';
+import { TradeLegState } from '@/utils/tradeStates';
 
 interface TradeProgressBarProps {
   state: Trade['leg1_state'];
@@ -19,8 +19,8 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state, isExceptiona
     [TradeLegState.RESOLVED]: 90,
     [TradeLegState.CANCELLED]: 0,
     // Legacy state mappings for backward compatibility
-    'AWAITING_FIAT_PAYMENT': 50,
-    'PENDING_CRYPTO_RELEASE': 75
+    AWAITING_FIAT_PAYMENT: 50,
+    PENDING_CRYPTO_RELEASE: 75,
   };
 
   // Map states to user-friendly labels
@@ -34,19 +34,19 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state, isExceptiona
     [TradeLegState.RESOLVED]: 'Dispute Resolved',
     [TradeLegState.CANCELLED]: 'Trade Cancelled',
     // Legacy state mappings for backward compatibility
-    'AWAITING_FIAT_PAYMENT': 'Awaiting Fiat Payment',
-    'PENDING_CRYPTO_RELEASE': 'Pending Crypto Release'
+    AWAITING_FIAT_PAYMENT: 'Awaiting Fiat Payment',
+    PENDING_CRYPTO_RELEASE: 'Pending Crypto Release',
   };
 
-  const progress = stateToProgress[state] || 0;
-  const label = stateToLabel[state] || 'Unknown State';
+  const progress = state ? stateToProgress[state] || 0 : 0;
+  const label = state ? stateToLabel[state] || 'Unknown State' : 'Unknown State';
 
   // Define 4 milestone steps for the trade process
   const milestones = [
     { label: 'Created', position: 0, completed: progress >= 0 },
     { label: 'Escrow Funded', position: 33, completed: progress >= 33 },
     { label: 'Fiat Paid', position: 66, completed: progress >= 66 },
-    { label: 'Completed', position: 100, completed: progress >= 100 }
+    { label: 'Completed', position: 100, completed: progress >= 100 },
   ];
 
   // Determine progress bar color based on state
@@ -77,26 +77,24 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state, isExceptiona
         {/* Milestone markers */}
         <div className="absolute top-3 left-0 right-0 w-full">
           {milestones.map((milestone, index) => (
-            <div
-              key={index}
-              className="absolute"
-              style={{ left: `${milestone.position}%`}}
-            >
+            <div key={index} className="absolute" style={{ left: `${milestone.position}%` }}>
               <div
                 className={`w-5 h-5 rounded-full border-2 ${
                   milestone.completed
                     ? state === TradeLegState.CANCELLED
                       ? 'bg-neutral-500 border-neutral-600'
                       : state === TradeLegState.DISPUTED
-                        ? 'bg-amber-500 border-amber-600'
-                        : isExceptional
-                          ? 'bg-red-500 border-red-600'
-                          : 'bg-primary-600 border-primary-700'
+                      ? 'bg-amber-500 border-amber-600'
+                      : isExceptional
+                      ? 'bg-red-500 border-red-600'
+                      : 'bg-primary-600 border-primary-700'
                     : 'bg-neutral-200 border-neutral-300'
                 } -mt-1 ${
                   // Add pulsing animation for current milestone
-                  (progress >= milestone.position &&
-                   (index === milestones.length - 1 ? progress === 100 : progress < milestones[index + 1]?.position))
+                  progress >= milestone.position &&
+                  (index === milestones.length - 1
+                    ? progress === 100
+                    : progress < milestones[index + 1]?.position)
                     ? 'animate-pulse'
                     : ''
                 }`}
@@ -108,7 +106,7 @@ const TradeProgressBar: React.FC<TradeProgressBarProps> = ({ state, isExceptiona
                 style={{
                   transform: 'translateX(-50%)',
                   width: '80px',
-                  marginLeft: '40px'
+                  marginLeft: '40px',
                 }}
               >
                 {milestone.label}

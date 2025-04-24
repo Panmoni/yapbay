@@ -1,11 +1,17 @@
-import { useState } from "react";
-import { updateAccount, Account } from "./api";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { timezones } from "@/lib/timezones";
-import { countryCodes } from "@/lib/countryCodes";
+import { useState } from 'react';
+import { updateAccount, Account } from './api';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { timezones } from '@/lib/timezones';
+import { countryCodes } from '@/lib/countryCodes';
 
 interface EditAccountFormProps {
   account: Account;
@@ -15,50 +21,50 @@ interface EditAccountFormProps {
 
 function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormProps) {
   const [formData, setFormData] = useState({
-    username: account.username || "",
-    email: account.email || "",
-    telegram_username: account.telegram_username || "",
-    telegram_id: account.telegram_id ? String(account.telegram_id) : "",
-    profile_photo_url: account.profile_photo_url || "",
-    phone_country_code: account.phone_country_code || "",
-    phone_number: account.phone_number || "",
-    available_from: account.available_from || "",
-    available_to: account.available_to || "",
-    timezone: account.timezone || "",
+    username: account.username || '',
+    email: account.email || '',
+    telegram_username: account.telegram_username || '',
+    telegram_id: account.telegram_id ? String(account.telegram_id) : '',
+    profile_photo_url: account.profile_photo_url || '',
+    phone_country_code: account.phone_country_code || '',
+    phone_number: account.phone_number || '',
+    available_from: account.available_from || '',
+    available_to: account.available_to || '',
+    timezone: account.timezone || '',
   });
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
     // For country codes, extract just the phone code part
-    if (name === "phone_country_code") {
+    if (name === 'phone_country_code') {
       const phoneCode = value.split('_')[0];
-      setFormData((prev) => ({ ...prev, [name]: phoneCode }));
+      setFormData(prev => ({ ...prev, [name]: phoneCode }));
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setIsSubmitting(true);
 
     // Basic validation
     if (!formData.username) {
-      setError("Username is required");
+      setError('Username is required');
       setIsSubmitting(false);
       return;
     }
 
     if (!formData.email) {
-      setError("Email is required");
+      setError('Email is required');
       setIsSubmitting(false);
       return;
     }
@@ -66,7 +72,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      setError("Please enter a valid email address");
+      setError('Please enter a valid email address');
       setIsSubmitting(false);
       return;
     }
@@ -76,25 +82,25 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
       const updateData: Partial<Account> = {
         username: formData.username,
         email: formData.email,
-        telegram_username: formData.telegram_username || null,
-        telegram_id: formData.telegram_id ? Number(formData.telegram_id) : null,
-        profile_photo_url: formData.profile_photo_url || null,
-        phone_country_code: formData.phone_country_code || null,
-        phone_number: formData.phone_number || null,
-        available_from: formData.available_from || null,
-        available_to: formData.available_to || null,
-        timezone: formData.timezone || null,
+        telegram_username: formData.telegram_username || undefined,
+        telegram_id: formData.telegram_id ? Number(formData.telegram_id) : undefined,
+        profile_photo_url: formData.profile_photo_url || undefined,
+        phone_country_code: formData.phone_country_code || undefined,
+        phone_number: formData.phone_number || undefined,
+        available_from: formData.available_from || undefined,
+        available_to: formData.available_to || undefined,
+        timezone: formData.timezone || undefined,
       };
 
       console.log('PUT data being sent:', updateData);
-      const response = await updateAccount(account.id, updateData);
+      const response = await updateAccount(account.id.toString(), updateData);
       console.log('PUT response:', response);
 
       // Combine updated data with existing account data
       const updatedAccount: Account = {
         ...account,
         ...updateData,
-        id: response.data.id || account.id
+        id: response.data.id || account.id,
       };
 
       onSaveSuccess(updatedAccount);
@@ -107,9 +113,9 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
 
   // Find the matching country code value for the current phone_country_code
   const getCountryCodeValue = () => {
-    if (!formData.phone_country_code) return "";
+    if (!formData.phone_country_code) return '';
     const countryCode = countryCodes.find(cc => cc.value.startsWith(formData.phone_country_code));
-    return countryCode ? countryCode.value : "";
+    return countryCode ? countryCode.value : '';
   };
 
   return (
@@ -201,13 +207,13 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
         </label>
         <Select
           value={getCountryCodeValue()}
-          onValueChange={(value) => handleSelectChange("phone_country_code", value)}
+          onValueChange={value => handleSelectChange('phone_country_code', value)}
         >
           <SelectTrigger className="border-neutral-300 focus:ring-primary-500">
             <SelectValue placeholder="Select country code" />
           </SelectTrigger>
           <SelectContent className="bg-white shadow-md">
-            {countryCodes.map((code) => (
+            {countryCodes.map(code => (
               <SelectItem key={code.value} value={code.value}>
                 {code.label}
               </SelectItem>
@@ -237,13 +243,13 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
         </label>
         <Select
           value={formData.timezone}
-          onValueChange={(value) => handleSelectChange("timezone", value)}
+          onValueChange={value => handleSelectChange('timezone', value)}
         >
           <SelectTrigger className="border-neutral-300 focus:ring-primary-500">
             <SelectValue placeholder="Select your timezone" />
           </SelectTrigger>
           <SelectContent className="bg-white shadow-md">
-            {timezones.map((timezone) => (
+            {timezones.map(timezone => (
               <SelectItem key={timezone} value={timezone}>
                 {timezone}
               </SelectItem>
@@ -304,7 +310,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           className="bg-primary-700 hover:bg-primary-800 text-white flex-1"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Saving..." : "Save Changes"}
+          {isSubmitting ? 'Saving...' : 'Save Changes'}
         </Button>
         <Button
           type="button"
