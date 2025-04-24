@@ -4,6 +4,16 @@
 
 put a collapsible legend at bottom of trade page explaining trade stages and escrow stages, with buyer, seller roles, things that can go wrong, etc.
 
+## Trade Page
+
+- if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
+- customize sonners https://sonner.emilkowal.ski/toast
+
+## API integration
+
+- log in as user 3, create account
+- migrate all old testing accounts to zen from brave, chrome, etc... also arbitrator address and yapbay funding address
+
 ## Diagnostic tool
 
 create a diagnostic tool to collate info from on-chain via RPC, trades db, escrows db, transaction db.
@@ -24,22 +34,10 @@ refresh my understanding of trade states
 - event listener?
 - error handling?
 
-## Trade Page
-
-- if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
-- refactor
-- customize sonners https://sonner.emilkowal.ski/toast
-
-## API integration
-
-- log in as user 3, create account
-- migrate all old testing accounts to zen from brave, chrome, etc... also arbitrator address and yapbay funding address
-
 ## Future Normalization
 
-Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings?
-
-useUserAccount for Account Page?
+- Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings?
+- useUserAccount for Account Page?
 
 ## Ref
 
