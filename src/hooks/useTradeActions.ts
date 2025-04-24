@@ -1,0 +1,215 @@
+import { useState } from 'react';
+import { Trade, Account } from '../api';
+import {
+  createTradeEscrow,
+  markTradeFiatPaid,
+  releaseTradeCrypto,
+  disputeTrade,
+  cancelTrade,
+} from '../services/tradeService';
+
+interface UseTradeActionsProps {
+  trade: Trade | null;
+  primaryWallet: {
+    address?: string;
+    getWalletClient?: () => Promise<unknown>;
+    getPublicClient?: () => Promise<unknown>;
+  };
+  counterparty: Account | null;
+  userRole: string;
+  onRefresh: () => void;
+}
+
+interface UseTradeActionsResult {
+  createEscrow: () => Promise<void>;
+  markFiatPaid: () => Promise<void>;
+  releaseCrypto: () => Promise<void>;
+  disputeTrade: () => Promise<void>;
+  cancelTrade: () => Promise<void>;
+  actionLoading: boolean;
+}
+
+/**
+ * Custom hook to handle trade-related actions
+ */
+export function useTradeActions({
+  trade,
+  primaryWallet,
+  counterparty,
+  userRole,
+  onRefresh,
+}: UseTradeActionsProps): UseTradeActionsResult {
+  const [actionLoading, setActionLoading] = useState(false);
+
+  /**
+   * Create an escrow for the trade
+   */
+  const createEscrow = async () => {
+    if (!trade || !primaryWallet?.address) return;
+
+    setActionLoading(true);
+    try {
+      // Check if the wallet has the required methods
+      if (!primaryWallet.getWalletClient || !primaryWallet.getPublicClient) {
+        throw new Error('Wallet does not have required methods');
+      }
+
+      // Get fresh account data for both buyer and seller
+      const buyerId = trade.leg1_buyer_account_id;
+      const sellerId = trade.leg1_seller_account_id;
+
+      if (!buyerId || !sellerId) {
+        throw new Error('Missing buyer or seller account ID in trade data');
+      }
+
+      // Use the addresses from the trade data
+      const buyerAddress = counterparty?.wallet_address || '';
+      const sellerAddress = primaryWallet.address;
+
+      if (!buyerAddress) {
+        throw new Error(`Missing buyer wallet address`);
+      }
+
+      if (!sellerAddress) {
+        throw new Error(`Missing seller wallet address`);
+      }
+
+      // Create the escrow
+      // Make sure the wallet has the required methods
+      if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
+        await createTradeEscrow({
+          trade,
+          primaryWallet: {
+            address: primaryWallet.address,
+            getWalletClient: primaryWallet.getWalletClient,
+            getPublicClient: primaryWallet.getPublicClient,
+          },
+          buyerAddress,
+          sellerAddress,
+        });
+      } else {
+        throw new Error('Wallet does not have required methods');
+      }
+
+      // Refresh the trade data
+      onRefresh();
+    } catch (err) {
+      console.error('Error creating escrow:', err);
+      // Error handling is done in the service
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  /**
+   * Mark fiat as paid for the trade
+   */
+  const markFiatPaid = async () => {
+    if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
+
+    setActionLoading(true);
+    try {
+      // Make sure the wallet has the required methods
+      if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
+        await markTradeFiatPaid({
+          trade,
+          primaryWallet: {
+            address: primaryWallet.address,
+            getWalletClient: primaryWallet.getWalletClient,
+            getPublicClient: primaryWallet.getPublicClient,
+          },
+        });
+      } else {
+        throw new Error('Wallet does not have required methods');
+      }
+
+      // Refresh the trade data
+      onRefresh();
+    } catch (err) {
+      console.error('Error marking fiat as paid:', err);
+      // Error handling is done in the service
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  /**
+   * Release crypto for the trade
+   */
+  const releaseCrypto = async () => {
+    if (!trade || !primaryWallet?.address) return;
+
+    setActionLoading(true);
+    try {
+      await releaseTradeCrypto({
+        trade,
+        primaryWallet,
+      });
+
+      // Refresh the trade data
+      onRefresh();
+    } catch (err) {
+      console.error('Error releasing crypto:', err);
+      // Error handling is done in the service
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  /**
+   * Dispute the trade
+   */
+  const handleDisputeTrade = async () => {
+    if (!trade || !primaryWallet?.address) return;
+
+    setActionLoading(true);
+    try {
+      await disputeTrade({
+        trade,
+        primaryWallet,
+      });
+
+      // Refresh the trade data
+      onRefresh();
+    } catch (err) {
+      console.error('Error disputing trade:', err);
+      // Error handling is done in the service
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  /**
+   * Cancel the trade
+   */
+  const handleCancelTrade = async () => {
+    if (!trade || !primaryWallet?.address) return;
+
+    setActionLoading(true);
+    try {
+      await cancelTrade({
+        trade,
+        primaryWallet,
+        userRole,
+        counterpartyAddress: counterparty?.wallet_address,
+      });
+
+      // Refresh the trade data
+      onRefresh();
+    } catch (err) {
+      console.error('Error cancelling trade:', err);
+      // Error handling is done in the service
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  return {
+    createEscrow,
+    markFiatPaid,
+    releaseCrypto,
+    disputeTrade: handleDisputeTrade,
+    cancelTrade: handleCancelTrade,
+    actionLoading,
+  };
+}

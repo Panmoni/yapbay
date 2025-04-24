@@ -1,5 +1,19 @@
-import { createTrade, Offer } from '../api';
+import {
+  createTrade,
+  Offer,
+  Trade,
+  recordEscrow,
+  markFiatPaid,
+  releaseEscrow,
+  disputeEscrow,
+  cancelEscrow,
+  getTradeById,
+} from '../api';
 import { formatNumber } from '../lib/utils';
+import { handleApiError } from '../utils/errorHandling';
+import { toast } from 'sonner';
+import { createEscrowTransaction, markFiatPaidTransaction } from './blockchainService';
+import { config } from '../config';
 
 interface StartTradeParams {
   offerId: number;
@@ -63,5 +77,232 @@ export const startTrade = async ({
   } catch (err) {
     console.error('[TradeService] Trade failed:', err);
     onError(err instanceof Error ? err : new Error('Unknown error'));
+  }
+};
+
+/**
+ * Parameters for creating an escrow
+ */
+interface CreateEscrowParams {
+  trade: Trade;
+  primaryWallet: {
+    address?: string;
+    getWalletClient: () => Promise<unknown>;
+    getPublicClient: () => Promise<unknown>;
+  };
+  buyerAddress: string;
+  sellerAddress: string;
+}
+
+/**
+ * Creates an escrow for a trade on the blockchain and records it in the backend
+ */
+export const createTradeEscrow = async ({
+  trade,
+  primaryWallet,
+  buyerAddress,
+  sellerAddress,
+}: CreateEscrowParams) => {
+  try {
+    // Show notification message using toast
+    toast('Creating escrow on blockchain...', {
+      description: 'Please approve the transaction in your wallet.',
+    });
+
+    // Create the escrow transaction on the blockchain
+    const txResult = await createEscrowTransaction(primaryWallet, {
+      tradeId: trade.id,
+      buyer: buyerAddress,
+      amount: parseFloat(trade.leg1_crypto_amount || '0'),
+      sequential: false,
+      sequentialEscrowAddress: undefined,
+      arbitrator: config.arbitratorAddress || '0x0000000000000000000000000000000000000000',
+    });
+
+    console.log('[DEBUG] Transaction result:', txResult);
+
+    // Now notify the backend about the successful transaction
+    const recordData = {
+      trade_id: trade.id,
+      transaction_hash: txResult.txHash,
+      escrow_id: txResult.escrowId,
+      seller: sellerAddress,
+      buyer: buyerAddress,
+      amount: parseFloat(trade.leg1_crypto_amount || '0'),
+      sequential: false,
+      arbitrator: config.arbitratorAddress || '0x0000000000000000000000000000000000000000',
+    };
+
+    await recordEscrow(recordData);
+
+    toast.success('Escrow created successfully!');
+
+    return txResult;
+  } catch (err) {
+    console.error('Error creating escrow:', err);
+    const errorMessage = handleApiError(err, 'Failed to create escrow: Unknown error');
+    toast.error(errorMessage);
+    throw err;
+  }
+};
+
+/**
+ * Parameters for marking fiat as paid
+ */
+interface MarkFiatPaidParams {
+  trade: Trade;
+  primaryWallet: {
+    address?: string;
+    getWalletClient: () => Promise<unknown>;
+    getPublicClient: () => Promise<unknown>;
+  };
+}
+
+/**
+ * Marks fiat as paid for a trade on the blockchain and in the backend
+ */
+export const markTradeFiatPaid = async ({ trade, primaryWallet }: MarkFiatPaidParams) => {
+  try {
+    if (!trade.leg1_escrow_onchain_id) {
+      throw new Error('No escrow ID found for this trade');
+    }
+
+    // Show notification message using toast
+    toast('Marking fiat as paid on blockchain...', {
+      description: 'Please approve the transaction in your wallet.',
+    });
+
+    // Call blockchain service to mark fiat as paid
+    const txHash = await markFiatPaidTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
+
+    // Call API to update backend state
+    await markFiatPaid(trade.id);
+
+    toast.success('Fiat payment marked as paid successfully!');
+
+    return txHash;
+  } catch (err) {
+    console.error('Error marking fiat as paid:', err);
+    const errorMessage = handleApiError(err, 'Failed to mark fiat as paid');
+    toast.error(errorMessage);
+    throw err;
+  }
+};
+
+/**
+ * Parameters for releasing crypto
+ */
+interface ReleaseCryptoParams {
+  trade: Trade;
+  primaryWallet: { address?: string };
+}
+
+/**
+ * Releases crypto for a trade
+ */
+export const releaseTradeCrypto = async ({
+  trade,
+  primaryWallet,
+}: ReleaseCryptoParams): Promise<void> => {
+  try {
+    // Call API to release escrow
+    await releaseEscrow({
+      escrow_id: trade.id,
+      trade_id: trade.id,
+      authority: primaryWallet.address || '',
+      buyer_token_account: 'placeholder', // This would come from the wallet
+      arbitrator_token_account: 'placeholder', // This would be a system account
+    });
+
+    toast.success('Crypto released successfully!');
+  } catch (err) {
+    console.error('Error releasing crypto:', err);
+    const errorMessage = handleApiError(err, 'Failed to release crypto');
+    toast.error(errorMessage);
+    throw err;
+  }
+};
+
+/**
+ * Parameters for disputing a trade
+ */
+interface DisputeTradeParams {
+  trade: Trade;
+  primaryWallet: { address?: string };
+}
+
+/**
+ * Disputes a trade
+ */
+export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams): Promise<void> => {
+  try {
+    // Call API to dispute escrow
+    await disputeEscrow({
+      escrow_id: trade.id,
+      trade_id: trade.id,
+      disputing_party: primaryWallet.address || '',
+      disputing_party_token_account: 'placeholder', // This would come from the wallet
+    });
+
+    toast.success('Trade disputed successfully');
+  } catch (err) {
+    console.error('Error disputing trade:', err);
+    const errorMessage = handleApiError(err, 'Failed to dispute trade');
+    toast.error(errorMessage);
+    throw err;
+  }
+};
+
+/**
+ * Parameters for cancelling a trade
+ */
+interface CancelTradeParams {
+  trade: Trade;
+  primaryWallet: { address?: string };
+  userRole: string;
+  counterpartyAddress?: string;
+}
+
+/**
+ * Cancels a trade
+ */
+export const cancelTrade = async ({
+  trade,
+  primaryWallet,
+  userRole,
+  counterpartyAddress,
+}: CancelTradeParams): Promise<void> => {
+  try {
+    // Call API to cancel escrow
+    await cancelEscrow({
+      escrow_id: trade.id,
+      trade_id: trade.id,
+      seller: userRole === 'seller' ? primaryWallet.address || '' : counterpartyAddress || '',
+      authority: primaryWallet.address || '',
+    });
+
+    toast.success('Trade cancelled successfully');
+  } catch (err) {
+    console.error('Error cancelling trade:', err);
+    const errorMessage = handleApiError(err, 'Failed to cancel trade');
+    toast.error(errorMessage);
+    throw err;
+  }
+};
+
+/**
+ * Refreshes trade data
+ */
+export const refreshTrade = async (
+  tradeId: number,
+  setTrade: (trade: Trade) => void
+): Promise<void> => {
+  try {
+    const updatedTrade = await getTradeById(tradeId.toString());
+    setTrade(updatedTrade.data);
+  } catch (err) {
+    console.error('Error refreshing trade:', err);
+    const errorMessage = handleApiError(err, 'Failed to refresh trade data');
+    toast.error(errorMessage);
   }
 };

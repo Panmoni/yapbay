@@ -1,10 +1,51 @@
 # YapBay Frontend Development Plan
 
-refactor
+npm run lint
+
+put a collapsible legend at bottom of trade page explaining trade stages and escrow stages, with buyer, seller roles, things that can go wrong, etc.
+
+## refactor
+
 TradePage
 blockchainService
 
-and fix lint errors
+organize better these components
+
+ChatSection
+EscrowDetailsPanel
+FilterBar
+IntroMessageNotLoggedIn
+NoOffers
+OfferActionButtons
+OfferTypeTooltip
+ParticipantCard
+ParticipantSection
+TradeActionButton
+TradeDetailsCard
+TradeProgressBar
+TradeStatusDisplay
+TradeTimer
+
+CreateAccountForm
+CreateOfferPage
+EditAccountForm
+EditOfferPage
+
+new dirs
+/myoffers
+/mytrades
+/myescrows
+/trade
+
+Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings?
+
+useUserAccount for Account Page?
+
+stringutils elsewhere?
+
+and fix lint errors npm run lint
+
+## Diagnostic tool
 
 create a diagnostic tool to collate info from on-chain via RPC, trades db, escrows db, transaction db.
 
