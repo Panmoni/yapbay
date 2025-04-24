@@ -37,19 +37,19 @@ export const getAvailableActions = ({
     case 'CREATED':
       // console.log('Trade is in CREATED state');
       if (userRole === 'seller') {
-        console.log('User is seller, escrow deadline expired:', escrowDeadlineExpired);
+        // Removed log: console.log('User is seller, escrow deadline expired:', escrowDeadlineExpired);
         return escrowDeadlineExpired ? ['cancel'] : ['create_escrow'];
       }
-      console.log('User is buyer, no actions available');
+      // Removed log: console.log('User is buyer, no actions available');
       return [];
 
     case 'FUNDED':
       // console.log('Trade is in FUNDED state');
       if (userRole === 'buyer') {
-        console.log('User is buyer, showing mark_paid button');
+        // Removed log: console.log('User is buyer, showing mark_paid button');
         return ['mark_paid'];
       } else if (userRole === 'seller' && fiatPaymentDeadlineExpired) {
-        console.log('User is seller, fiat payment deadline expired:', fiatPaymentDeadlineExpired);
+        // Removed log: console.log('User is seller, fiat payment deadline expired:', fiatPaymentDeadlineExpired);
         return ['cancel'];
       }
       return [];
