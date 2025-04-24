@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { Account } from "./api";
-import CreateAccountForm from "./CreateAccountForm";
-import EditAccountForm from "./EditAccountForm";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import Container from "./components/Container";
+import { useState } from 'react';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { Account } from '@/api';
+import CreateAccountForm from '@/components/Account/CreateAccountForm';
+import EditAccountForm from '@/components/Account/EditAccountForm';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import Container from '@/components/Shared/Container';
 
 interface AccountPageProps {
   account: Account | null;
@@ -16,7 +16,7 @@ interface AccountPageProps {
 function AccountPage({ account, setAccount }: AccountPageProps) {
   const { primaryWallet } = useDynamicContext();
   const [isEditing, setIsEditing] = useState(false);
-  const [updateSuccess, setUpdateSuccess] = useState("");
+  const [updateSuccess, setUpdateSuccess] = useState('');
 
   if (!primaryWallet) {
     return (
@@ -28,7 +28,9 @@ function AccountPage({ account, setAccount }: AccountPageProps) {
           </CardHeader>
           <CardContent className="p-6">
             <Alert className="bg-neutral-50 border-neutral-200">
-              <AlertDescription>Please connect your wallet to view or create your account.</AlertDescription>
+              <AlertDescription>
+                Please connect your wallet to view or create your account.
+              </AlertDescription>
             </Alert>
           </CardContent>
         </Card>
@@ -39,11 +41,11 @@ function AccountPage({ account, setAccount }: AccountPageProps) {
   const handleSaveSuccess = (updatedAccount: Account) => {
     setAccount(updatedAccount);
     setIsEditing(false);
-    setUpdateSuccess("Your profile has been updated successfully");
+    setUpdateSuccess('Your profile has been updated successfully');
 
     // Clear success message after 3 seconds
     setTimeout(() => {
-      setUpdateSuccess("");
+      setUpdateSuccess('');
     }, 3000);
   };
 
@@ -134,10 +136,10 @@ function ProfileDisplay({ account }: { account: Account }) {
       <div className="border-b border-neutral-100 pb-4">
         <h3 className="text-sm font-medium text-neutral-500 mb-1">Phone</h3>
         <p className="text-neutral-700">
-          +{account.phone_country_code && account.phone_number
+          +
+          {account.phone_country_code && account.phone_number
             ? `${account.phone_country_code} ${account.phone_number}`
-            : '-'
-          }
+            : '-'}
         </p>
       </div>
 
@@ -151,8 +153,7 @@ function ProfileDisplay({ account }: { account: Account }) {
         <p className="text-neutral-700">
           {account.available_from && account.available_to
             ? `${account.available_from} - ${account.available_to}`
-            : '-'
-          }
+            : '-'}
         </p>
       </div>
 
@@ -165,7 +166,7 @@ function ProfileDisplay({ account }: { account: Account }) {
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-            hour12: false
+            hour12: false,
           })}
         </p>
       </div>

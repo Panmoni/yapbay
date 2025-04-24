@@ -1,7 +1,7 @@
 import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Trade, Offer, Account } from '../api';
-import { formatNumber } from '../lib/utils';
+import { Trade, Offer, Account } from '@/api';
+import { formatNumber } from '@/lib/utils';
 
 interface TradeDetailsCardProps {
   trade: Trade;

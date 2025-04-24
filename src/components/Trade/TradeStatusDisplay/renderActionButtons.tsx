@@ -1,5 +1,5 @@
-import { TradeAction } from '../TradeActionButton';
-import TradeActionButton from '../TradeActionButton';
+import { TradeAction } from './TradeActionButton';
+import TradeActionButton from './TradeActionButton';
 
 interface RenderActionButtonsProps {
   availableActions: TradeAction[];

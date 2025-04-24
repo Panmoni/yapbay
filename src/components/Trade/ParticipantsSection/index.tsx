@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import ParticipantCard from './ParticipantCard';
-import { Account, Trade } from '../api';
+import { Account, Trade } from '@/api';
 
 interface ParticipantsSectionProps {
   buyerAccount: Account | null;

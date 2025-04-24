@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { getOfferById, updateOffer, Offer } from './api';
+import { getOfferById, updateOffer, Offer } from '@/api';
 import {
   Card,
   CardContent,
@@ -12,8 +12,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import Container from './components/Container';
-import OfferDescription from './components/OfferDescription';
+import Container from '@/components/Shared/Container';
+import OfferDescription from '@/components/Offer/OfferDescription';
 
 function EditOfferPage() {
   const { id } = useParams<{ id: string }>();

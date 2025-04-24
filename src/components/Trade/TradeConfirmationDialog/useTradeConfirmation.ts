@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Offer, PricesResponse } from '../../api';
+import { Offer, PricesResponse } from '@/api';
 import { usePriceData } from './usePriceData';
 import { useAmountInput } from './useAmountInput';
 import { calculateTradeAmounts } from './calculateTradeAmounts';

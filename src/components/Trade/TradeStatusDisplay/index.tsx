@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Trade } from '@/api';
-import StatusBadge from './StatusBadge';
+import StatusBadge from '@/components/Shared/StatusBadge';
 import TradeProgressBar from './TradeProgressBar';
 import { TradeAction } from './TradeActionButton';
 import { EscrowDetailsPanel } from './EscrowDetailsPanel';
@@ -8,10 +8,10 @@ import { EscrowState } from '@/hooks/useEscrowDetails';
 import { tradeStateMessages } from '@/utils/tradeStates';
 
 // Import utility functions and components
-import { getAvailableActions } from './TradeStatusDisplay/getAvailableActions';
-import { renderTimers } from './TradeStatusDisplay/renderTimers';
-import { renderActionButtons } from './TradeStatusDisplay/renderActionButtons';
-import { ExceptionalCases } from './TradeStatusDisplay/renderExceptionalCases';
+import { getAvailableActions } from '@/components/Trade/TradeStatusDisplay/getAvailableActions';
+import { renderTimers } from '@/components/Trade/TradeStatusDisplay/renderTimers';
+import { renderActionButtons } from '@/components/Trade/TradeStatusDisplay/renderActionButtons';
+import { ExceptionalCases } from '@/components/Trade/TradeStatusDisplay/renderExceptionalCases';
 
 interface TradeStatusDisplayProps {
   trade: Trade;

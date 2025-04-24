@@ -1,4 +1,4 @@
-import { Offer, PricesResponse } from '../../api';
+import { Offer, PricesResponse } from '@/api';
 
 interface CalculateTradeAmountsResult {
   fiatAmount: number;

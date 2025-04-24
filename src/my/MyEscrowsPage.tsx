@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { getMyEscrows, Escrow, Account } from "./api";
+import { useState, useEffect } from 'react';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { getMyEscrows, Escrow, Account } from '@/api';
 import {
   Table,
   TableBody,
@@ -8,19 +8,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { formatDistanceToNow } from "date-fns";
-import { Badge } from "@/components/ui/badge";
-import Container from "./components/Container";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { formatDistanceToNow } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
+import Container from '@/components/Shared/Container';
 
 interface MyEscrowsPageProps {
   account: Account | null;
@@ -49,9 +43,8 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
         );
         setError(null);
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Unknown error";
-        console.error("[MyEscrowsPage] Fetch failed:", err);
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        console.error('[MyEscrowsPage] Fetch failed:', err);
         setError(`Failed to load your escrows: ${errorMessage}`);
       } finally {
         setLoading(false);
@@ -63,40 +56,35 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "CREATED":
-        return "bg-primary-100 text-primary-800";
-      case "FUNDED":
-        return "bg-amber-100 text-amber-800";
-      case "RELEASED":
-        return "bg-green-100 text-green-800";
-      case "CANCELLED":
-        return "bg-neutral-100 text-neutral-800";
-      case "DISPUTED":
-        return "bg-red-100 text-red-800";
+      case 'CREATED':
+        return 'bg-primary-100 text-primary-800';
+      case 'FUNDED':
+        return 'bg-amber-100 text-amber-800';
+      case 'RELEASED':
+        return 'bg-green-100 text-green-800';
+      case 'CANCELLED':
+        return 'bg-neutral-100 text-neutral-800';
+      case 'DISPUTED':
+        return 'bg-red-100 text-red-800';
       default:
-        return "bg-neutral-100 text-neutral-800";
+        return 'bg-neutral-100 text-neutral-800';
     }
   };
 
   const isUserSeller = (escrow: Escrow) => {
     return (
-      primaryWallet &&
-      escrow.seller_address.toLowerCase() ===
-        primaryWallet.address.toLowerCase()
+      primaryWallet && escrow.seller_address.toLowerCase() === primaryWallet.address.toLowerCase()
     );
   };
 
   const isUserBuyer = (escrow: Escrow) => {
     return (
-      primaryWallet &&
-      escrow.buyer_address.toLowerCase() === primaryWallet.address.toLowerCase()
+      primaryWallet && escrow.buyer_address.toLowerCase() === primaryWallet.address.toLowerCase()
     );
   };
 
   const abbreviateAddress = (address: string) => {
-    return address
-      ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}`
-      : "";
+    return address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : '';
   };
 
   if (!primaryWallet) {
@@ -104,16 +92,12 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       <Container>
         <Card>
           <CardHeader>
-            <CardTitle className="text-primary-800 font-semibold">
-              My Escrows
-            </CardTitle>
+            <CardTitle className="text-primary-800 font-semibold">My Escrows</CardTitle>
             <CardDescription>View your escrow contracts</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             <Alert className="bg-neutral-50 border-neutral-200">
-              <AlertDescription>
-                Please connect your wallet to view your escrows.
-              </AlertDescription>
+              <AlertDescription>Please connect your wallet to view your escrows.</AlertDescription>
             </Alert>
           </CardContent>
         </Card>
@@ -126,9 +110,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       <Container>
         <Card>
           <CardHeader>
-            <CardTitle className="text-primary-800 font-semibold">
-              My Escrows
-            </CardTitle>
+            <CardTitle className="text-primary-800 font-semibold">My Escrows</CardTitle>
             <CardDescription>View your escrow contracts</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -148,22 +130,15 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       <Card>
         <CardHeader>
           <div>
-            <CardTitle className="text-primary-800 font-semibold">
-              My Escrows
-            </CardTitle>
+            <CardTitle className="text-primary-800 font-semibold">My Escrows</CardTitle>
             <CardDescription>View your escrow contracts</CardDescription>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {error && (
             <div className="p-5">
-              <Alert
-                variant="destructive"
-                className="mb-0 border-none bg-red-50"
-              >
-                <AlertDescription className="text-red-700">
-                  {error}
-                </AlertDescription>
+              <Alert variant="destructive" className="mb-0 border-none bg-red-50">
+                <AlertDescription className="text-red-700">{error}</AlertDescription>
               </Alert>
             </div>
           )}
@@ -176,9 +151,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
 
           {!loading && myEscrows.length === 0 ? (
             <div className="p-10 text-center">
-              <p className="text-neutral-500">
-                You don't have any escrows yet.
-              </p>
+              <p className="text-neutral-500">You don't have any escrows yet.</p>
               <p className="text-neutral-400 text-sm mt-2">
                 Escrows are created when you start a trade.
               </p>
@@ -188,7 +161,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
               <>
                 {/* Mobile card view */}
                 <div className="md:hidden p-4 space-y-4">
-                  {myEscrows.map((escrow) => (
+                  {myEscrows.map(escrow => (
                     <div key={escrow.escrow_address} className="mobile-card-view">
                       <div className="mobile-card-view-header">
                         <span>Trade #{escrow.trade_id}</span>
@@ -201,9 +174,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                             Buyer
                           </Badge>
                         ) : (
-                          <Badge className="bg-neutral-100 text-neutral-800">
-                            Observer
-                          </Badge>
+                          <Badge className="bg-neutral-100 text-neutral-800">Observer</Badge>
                         )}
                       </div>
 
@@ -231,9 +202,11 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
 
                       <div className="mobile-card-view-row">
                         <span className="mobile-card-view-label">Status</span>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          escrow.status
-                        )}`}>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            escrow.status
+                          )}`}
+                        >
                           {escrow.status}
                         </span>
                       </div>
@@ -262,41 +235,22 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-primary-700 font-medium">
-                          Trade ID
-                        </TableHead>
-                        <TableHead className="text-primary-700 font-medium">
-                          Role
-                        </TableHead>
+                        <TableHead className="text-primary-700 font-medium">Trade ID</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Role</TableHead>
                         <TableHead className="text-primary-700 font-medium">
                           Escrow Address
                         </TableHead>
-                        <TableHead className="text-primary-700 font-medium">
-                          Token
-                        </TableHead>
-                        <TableHead className="text-primary-700 font-medium">
-                          Amount
-                        </TableHead>
-                        <TableHead className="text-primary-700 font-medium">
-                          Status
-                        </TableHead>
-                        <TableHead className="text-primary-700 font-medium">
-                          Created
-                        </TableHead>
-                        <TableHead className="text-primary-700 font-medium">
-                          Actions
-                        </TableHead>
+                        <TableHead className="text-primary-700 font-medium">Token</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Amount</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Status</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Created</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {myEscrows.map((escrow) => (
-                        <TableRow
-                          key={escrow.escrow_address}
-                          className="hover:bg-neutral-50"
-                        >
-                          <TableCell className="font-medium">
-                            #{escrow.trade_id}
-                          </TableCell>
+                      {myEscrows.map(escrow => (
+                        <TableRow key={escrow.escrow_address} className="hover:bg-neutral-50">
+                          <TableCell className="font-medium">#{escrow.trade_id}</TableCell>
                           <TableCell>
                             {isUserSeller(escrow) ? (
                               <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">
@@ -307,9 +261,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                                 Buyer
                               </Badge>
                             ) : (
-                              <Badge className="bg-neutral-100 text-neutral-800">
-                                Observer
-                              </Badge>
+                              <Badge className="bg-neutral-100 text-neutral-800">Observer</Badge>
                             )}
                           </TableCell>
                           <TableCell className="font-mono text-xs">

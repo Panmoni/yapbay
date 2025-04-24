@@ -1,19 +1,19 @@
-import { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
-import { formatNumber } from "./lib/utils";
-import { useDynamicContext, DynamicWidget, getAuthToken } from "@dynamic-labs/sdk-react-core";
-import { Account, setAuthToken, getPrices } from "./api";
-import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
+import { formatNumber } from './lib/utils';
+import { useDynamicContext, DynamicWidget, getAuthToken } from '@dynamic-labs/sdk-react-core';
+import { Account, setAuthToken, getPrices } from './api';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import StatusBadge from "./components/StatusBadge";
-import Container from "./components/Container";
+} from '@/components/ui/dropdown-menu';
+import StatusBadge from '@/components/Shared/StatusBadge';
+import Container from '@/components/Shared/Container';
 
 interface HeaderProps {
   isLoggedIn: boolean;
@@ -24,7 +24,9 @@ function Header({ isLoggedIn, account }: HeaderProps) {
   const { setShowAuthFlow, handleLogOut } = useDynamicContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [prices, setPrices] = useState<Record<string, {price: string, timestamp: number}> | null>(null);
+  const [prices, setPrices] = useState<Record<string, { price: string; timestamp: number }> | null>(
+    null
+  );
   const [priceError, setPriceError] = useState<string | null>(null);
 
   const fetchPrices = useCallback(async () => {
@@ -93,12 +95,10 @@ function Header({ isLoggedIn, account }: HeaderProps) {
             </div>
           ) : (
             <div className="hidden md:flex items-center gap-4">
-              {['USD', 'COP', 'EUR', 'NGN', 'VES'].map((currency) => (
+              {['USD', 'COP', 'EUR', 'NGN', 'VES'].map(currency => (
                 <div key={currency} className="flex flex-col items-center">
                   <span className="text-xs text-neutral-500">{currency}</span>
-                  <span className="text-sm font-medium">
-                    ...
-                  </span>
+                  <span className="text-sm font-medium">...</span>
                 </div>
               ))}
             </div>
@@ -118,9 +118,19 @@ function Header({ isLoggedIn, account }: HeaderProps) {
               stroke="currentColor"
             >
               {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               )}
             </svg>
           </button>
@@ -133,13 +143,16 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                 <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
                   <DropdownMenuTrigger className="focus:outline-none">
                     <Avatar className="cursor-pointer hover:ring-2 hover:ring-primary-700 transition">
-                      <AvatarImage src={account?.profile_photo_url || "/icon96.png"} />
-                      <AvatarFallback>{account?.username?.charAt(0) || "U"}</AvatarFallback>
+                      <AvatarImage src={account?.profile_photo_url || '/icon96.png'} />
+                      <AvatarFallback>{account?.username?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 bg-neutral-50 shadow-md">
                     <DropdownMenuItem asChild>
-                      <Link to="/account" className="w-full text-neutral-800 hover:text-primary-700">
+                      <Link
+                        to="/account"
+                        className="w-full text-neutral-800 hover:text-primary-700"
+                      >
                         My Account
                       </Link>
                     </DropdownMenuItem>
@@ -154,7 +167,10 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/escrows" className="w-full text-neutral-800 hover:text-primary-700">
+                      <Link
+                        to="/escrows"
+                        className="w-full text-neutral-800 hover:text-primary-700"
+                      >
                         My Escrows
                       </Link>
                     </DropdownMenuItem>

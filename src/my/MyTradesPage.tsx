@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Link } from 'react-router-dom';
-import { getMyTrades, markTradeFiatPaid, Trade, Account } from './api';
+import { getMyTrades, markTradeFiatPaid, Trade, Account } from '@/api';
 import {
   Table,
   TableBody,
@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import Container from './components/Container';
+import Container from '@/components/Shared/Container';
 
 interface MyTradesPageProps {
   account: Account | null;

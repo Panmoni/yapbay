@@ -11,12 +11,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Offer } from '../api';
-import { formatNumber } from '../lib/utils';
+import { Offer } from '@/api';
+import { formatNumber } from '@/lib/utils';
 
 // Import our custom hooks and components
-import { useTradeConfirmation } from './TradeConfirmationDialog/useTradeConfirmation';
-import { TradeCalculatedValues } from './TradeConfirmationDialog/TradeCalculatedValues';
+import { useTradeConfirmation } from './useTradeConfirmation';
+import { TradeCalculatedValues } from './TradeCalculatedValues';
 
 interface TradeConfirmationDialogProps {
   isOpen: boolean;

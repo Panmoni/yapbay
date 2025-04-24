@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { createOffer, getAccount, Account, Offer } from "./api";
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect } from 'react';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { createOffer, getAccount, Account, Offer } from '@/api';
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { CurrencyOptions } from "./lib/currencyOptions";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import Container from "./components/Container";
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { CurrencyOptions } from '@/lib/currencyOptions';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import Container from '@/components/Shared/Container';
 
 interface CreateOfferPageProps {
   account: Account | null;
@@ -32,10 +32,10 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
           setInternalAccount(response.data);
           setFormData(prev => ({
             ...prev,
-            creator_account_id: response.data.id.toString()
+            creator_account_id: response.data.id.toString(),
           }));
         } catch (err) {
-          console.error("Failed to fetch account:", err);
+          console.error('Failed to fetch account:', err);
         }
       }
     };
@@ -44,26 +44,26 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
 
   const account = propAccount || internalAccount;
   const [formData, setFormData] = useState({
-    creator_account_id: account?.id || "",
-    offer_type: "BUY" as "BUY" | "SELL",
-    token: "USDC",
-    min_amount: "",
-    max_amount: "",
-    total_available_amount: "",
-    rate_adjustment: "1.05",
-    terms: "Cash only",
-    escrow_deposit_time_limit: "15 minutes",
-    fiat_payment_time_limit: "30 minutes",
-    fiat_currency: "USD",
+    creator_account_id: account?.id || '',
+    offer_type: 'BUY' as 'BUY' | 'SELL',
+    token: 'USDC',
+    min_amount: '',
+    max_amount: '',
+    total_available_amount: '',
+    rate_adjustment: '1.05',
+    terms: 'Cash only',
+    escrow_deposit_time_limit: '15 minutes',
+    fiat_payment_time_limit: '30 minutes',
+    fiat_currency: 'USD',
   });
-  const [success, setSuccess] = useState("");
+  const [success, setSuccess] = useState('');
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
+    setError('');
+    setSuccess('');
 
     // Ensure account ID is a number
     let accountId: number;
@@ -75,7 +75,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
 
     // Basic validation
     if (!accountId) {
-      setError("Account ID is required");
+      setError('Account ID is required');
       return;
     }
 
@@ -84,17 +84,17 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
     const totalAmount = Number(formData.total_available_amount);
 
     if (minAmount <= 0) {
-      setError("Minimum amount must be greater than 0");
+      setError('Minimum amount must be greater than 0');
       return;
     }
 
     if (maxAmount < minAmount) {
-      setError("Maximum amount must be greater than or equal to minimum amount");
+      setError('Maximum amount must be greater than or equal to minimum amount');
       return;
     }
 
     if (totalAmount < maxAmount) {
-      setError("Total available amount must be at least as large as maximum amount");
+      setError('Total available amount must be at least as large as maximum amount');
       return;
     }
 
@@ -111,7 +111,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
         terms: formData.terms,
         escrow_deposit_time_limit: { minutes: 15 },
         fiat_payment_time_limit: { minutes: 30 },
-        fiat_currency: formData.fiat_currency
+        fiat_currency: formData.fiat_currency,
       };
 
       const response = await createOffer(data);
@@ -119,21 +119,21 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
 
       // Reset form
       setFormData({
-        creator_account_id: account?.id?.toString() || "",
-        offer_type: "BUY",
-        token: "USDC",
-        min_amount: "",
-        max_amount: "",
-        total_available_amount: "",
-        rate_adjustment: "1.05",
-        terms: "Cash only",
-        escrow_deposit_time_limit: "15 minutes",
-        fiat_payment_time_limit: "30 minutes",
-        fiat_currency: "USD",
+        creator_account_id: account?.id?.toString() || '',
+        offer_type: 'BUY',
+        token: 'USDC',
+        min_amount: '',
+        max_amount: '',
+        total_available_amount: '',
+        rate_adjustment: '1.05',
+        terms: 'Cash only',
+        escrow_deposit_time_limit: '15 minutes',
+        fiat_payment_time_limit: '30 minutes',
+        fiat_currency: 'USD',
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create offer");
-      console.error("Create offer error:", err);
+      setError(err instanceof Error ? err.message : 'Failed to create offer');
+      console.error('Create offer error:', err);
     }
   };
 
@@ -165,13 +165,15 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
             <Alert className="mb-6 bg-secondary-200 border-secondary-300">
               <AlertDescription className="text-secondary-900">
                 <span>
-                  {success} <Link
+                  {success}{' '}
+                  <Link
                     to="/offers"
                     className="inline underline text-primary-800 hover:text-primary-600"
                     style={{ display: 'inline !important' }}
                   >
                     View your offers
-                  </Link> to see and edit your offer.
+                  </Link>{' '}
+                  to see and edit your offer.
                 </span>
               </AlertDescription>
             </Alert>
@@ -196,23 +198,20 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 type="text"
                 value={formData.creator_account_id}
                 className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
-                onChange={(e) => setFormData({ ...formData, creator_account_id: e.target.value })}
+                onChange={e => setFormData({ ...formData, creator_account_id: e.target.value })}
                 disabled
               />
               <p className="text-xs text-neutral-500">This is your account identifier</p>
             </div>
 
             <div className="space-y-1">
-              <label
-                htmlFor="offer_type"
-                className="block text-sm font-medium text-neutral-700"
-              >
+              <label htmlFor="offer_type" className="block text-sm font-medium text-neutral-700">
                 Offer Type
               </label>
               <Select
                 value={formData.offer_type}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, offer_type: value as "BUY" | "SELL" })
+                onValueChange={value =>
+                  setFormData({ ...formData, offer_type: value as 'BUY' | 'SELL' })
                 }
               >
                 <SelectTrigger className="border-neutral-300 focus:ring-primary-500">
@@ -224,18 +223,15 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 </SelectContent>
               </Select>
               <p className="text-xs text-neutral-500">
-                {formData.offer_type === "BUY"
-                  ? "You want to buy USDC with fiat currency"
-                  : "You want to sell USDC for fiat currency"}
+                {formData.offer_type === 'BUY'
+                  ? 'You want to buy USDC with fiat currency'
+                  : 'You want to sell USDC for fiat currency'}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label
-                  htmlFor="min_amount"
-                  className="block text-sm font-medium text-neutral-700"
-                >
+                <label htmlFor="min_amount" className="block text-sm font-medium text-neutral-700">
                   Minimum Amount (USDC)
                 </label>
                 <Input
@@ -244,15 +240,12 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                   placeholder="10"
                   className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                   value={formData.min_amount}
-                  onChange={(e) => setFormData({ ...formData, min_amount: e.target.value })}
+                  onChange={e => setFormData({ ...formData, min_amount: e.target.value })}
                 />
               </div>
 
               <div className="space-y-1">
-                <label
-                  htmlFor="max_amount"
-                  className="block text-sm font-medium text-neutral-700"
-                >
+                <label htmlFor="max_amount" className="block text-sm font-medium text-neutral-700">
                   Maximum Amount (USDC)
                 </label>
                 <Input
@@ -261,7 +254,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                   placeholder="100"
                   className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                   value={formData.max_amount}
-                  onChange={(e) => setFormData({ ...formData, max_amount: e.target.value })}
+                  onChange={e => setFormData({ ...formData, max_amount: e.target.value })}
                 />
               </div>
             </div>
@@ -279,7 +272,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 placeholder="1000"
                 className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                 value={formData.total_available_amount}
-                onChange={(e) => setFormData({ ...formData, total_available_amount: e.target.value })}
+                onChange={e => setFormData({ ...formData, total_available_amount: e.target.value })}
               />
               <p className="text-xs text-neutral-500">
                 Total amount of USDC available for all trades from this offer
@@ -287,17 +280,12 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
             </div>
 
             <div className="space-y-1">
-              <label
-                htmlFor="fiat_currency"
-                className="block text-sm font-medium text-neutral-700"
-              >
+              <label htmlFor="fiat_currency" className="block text-sm font-medium text-neutral-700">
                 Fiat Currency
               </label>
               <Select
                 value={formData.fiat_currency}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, fiat_currency: value })
-                }
+                onValueChange={value => setFormData({ ...formData, fiat_currency: value })}
               >
                 <SelectTrigger className="border-neutral-300 focus:ring-primary-500">
                   <SelectValue placeholder="Select currency" />
@@ -306,9 +294,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                   <CurrencyOptions />
                 </SelectContent>
               </Select>
-              <p className="text-xs text-neutral-500">
-                Currency you want to trade in
-              </p>
+              <p className="text-xs text-neutral-500">Currency you want to trade in</p>
             </div>
 
             <div className="space-y-1">
@@ -324,7 +310,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 step="0.01"
                 className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                 value={formData.rate_adjustment}
-                onChange={(e) => setFormData({ ...formData, rate_adjustment: e.target.value })}
+                onChange={e => setFormData({ ...formData, rate_adjustment: e.target.value })}
               />
               <p className="text-xs text-neutral-500">
                 1.05 = +5% above market rate, 0.95 = -5% below market rate
@@ -332,10 +318,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
             </div>
 
             <div className="space-y-1">
-              <label
-                htmlFor="terms"
-                className="block text-sm font-medium text-neutral-700"
-              >
+              <label htmlFor="terms" className="block text-sm font-medium text-neutral-700">
                 Terms
               </label>
               <Input
@@ -343,7 +326,7 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 type="text"
                 className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
                 value={formData.terms}
-                onChange={(e) => setFormData({ ...formData, terms: e.target.value })}
+                onChange={e => setFormData({ ...formData, terms: e.target.value })}
               />
               <p className="text-xs text-neutral-500">
                 Additional terms or payment methods you accept

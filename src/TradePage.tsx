@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import ChatSection from './components/ChatSection';
-import ParticipantsSection from './components/ParticipantsSection';
-import TradeDetailsCard from './components/TradeDetailsCard';
+import ChatSection from '@/components/Trade/ChatSection';
+import ParticipantsSection from '@/components/Trade/ParticipantsSection';
+import TradeDetailsCard from '@/components/Trade/TradeDetailsCard';
 import { useTradeParticipants } from './hooks/useTradeParticipants';
 import { useTradeUpdates } from './hooks/useTradeUpdates';
 import { useEscrowDetails } from './hooks/useEscrowDetails';

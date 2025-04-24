@@ -1,5 +1,5 @@
 import React from 'react';
-import { Offer } from '../../api';
+import { Offer } from '@/api';
 import { formatNumber } from '../../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '../../components/ui/button';
@@ -12,8 +12,8 @@ import {
   TableRow,
 } from '../../components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui/tooltip';
-import OfferActionButtons from '../../components/OfferActionButtons';
-import TradeConfirmationDialog from '../../components/TradeConfirmationDialog';
+import OfferActionButtons from '@/components/Offer/OfferActionButtons';
+import TradeConfirmationDialog from '@/components/Trade/TradeConfirmationDialog';
 import { abbreviateWallet, formatRate } from '../../utils/stringUtils';
 
 interface DesktopOfferTableProps {

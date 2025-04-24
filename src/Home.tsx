@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import FilterBar from '@/components/FilterBar';
-import IntroMessageNotLoggedIn from './components/IntroMessageNotLoggedIn';
-import NoOffers from './components/NoOffers';
+import FilterBar from '@/components/Home/FilterBar';
+import IntroMessageNotLoggedIn from '@/components/Home/IntroMessageNotLoggedIn';
+import NoOffers from '@/components/Home/NoOffers';
 
 // Custom Components
 import MobileOfferList from './components/Home/MobileOfferList';

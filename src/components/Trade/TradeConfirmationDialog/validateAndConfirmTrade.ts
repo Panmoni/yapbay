@@ -1,5 +1,5 @@
-import { Offer } from '../../api';
-import { formatNumber } from '../../lib/utils';
+import { Offer } from '@/api';
+import { formatNumber } from '@/lib/utils';
 
 interface ValidateTradeResult {
   isValid: boolean;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { updateAccount, Account } from './api';
+import { updateAccount, Account } from '@/api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';

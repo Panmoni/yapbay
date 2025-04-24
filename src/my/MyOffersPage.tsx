@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Link } from 'react-router-dom';
-import { getOffers, deleteOffer, Offer, Account } from './api';
-import { formatNumber } from './lib/utils';
+import { getOffers, deleteOffer, Offer, Account } from '@/api';
+import { formatNumber } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -16,9 +16,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { formatDistanceToNow } from 'date-fns';
-import Container from './components/Container';
-import OfferTypeTooltip from './components/OfferTypeTooltip';
-import OfferActionButtons from './components/OfferActionButtons';
+import Container from '@/components/Shared/Container';
+import OfferTypeTooltip from '@/components/Offer/OfferTypeTooltip';
+import OfferActionButtons from '@/components/Offer/OfferActionButtons';
 
 interface MyOffersPageProps {
   account: Account | null;

@@ -1,5 +1,5 @@
 import { Trade } from '@/api';
-import { TradeAction } from '../TradeActionButton';
+import { TradeAction } from './TradeActionButton';
 import { isDeadlineExpired } from '@/hooks/useTradeUpdates';
 
 interface GetAvailableActionsProps {

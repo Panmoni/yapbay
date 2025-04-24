@@ -1,35 +1,5 @@
 # YapBay Frontend Development Plan
 
-## refactor
-
-organize better these components
-
-ChatSection
-EscrowDetailsPanel
-FilterBar
-IntroMessageNotLoggedIn
-NoOffers
-OfferActionButtons
-OfferTypeTooltip
-ParticipantCard
-ParticipantSection
-TradeActionButton
-TradeDetailsCard
-TradeProgressBar
-TradeStatusDisplay
-TradeTimer
-
-CreateAccountForm
-CreateOfferPage
-EditAccountForm
-EditOfferPage
-
-new dirs
-/myoffers
-/mytrades
-/myescrows
-/trade
-
 ## trade legend
 
 put a collapsible legend at bottom of trade page explaining trade stages and escrow stages, with buyer, seller roles, things that can go wrong, etc.

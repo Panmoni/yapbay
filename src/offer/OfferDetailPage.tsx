@@ -9,8 +9,8 @@ import {
   Offer,
   Account,
   getAccount,
-} from './api';
-import { formatNumber } from './lib/utils';
+} from '@/api';
+import { formatNumber } from '@/lib/utils';
 import {
   Card,
   CardContent,
@@ -31,9 +31,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { formatDistanceToNow } from 'date-fns';
-import Container from './components/Container';
-import OfferTypeTooltip from './components/OfferTypeTooltip';
-import OfferDescription from './components/OfferDescription';
+import Container from '@/components/Shared/Container';
+import OfferTypeTooltip from '@/components/Offer/OfferTypeTooltip';
+import OfferDescription from '@/components/Offer/OfferDescription';
 
 function OfferDetailPage() {
   const { id } = useParams<{ id: string }>();

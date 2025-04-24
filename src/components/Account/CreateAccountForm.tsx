@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { createAccount, Account } from './api';
+import { createAccount, Account } from '@/api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';

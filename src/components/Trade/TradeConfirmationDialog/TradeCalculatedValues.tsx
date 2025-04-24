@@ -1,6 +1,6 @@
 import React from 'react';
-import { Offer } from '../../api';
-import { formatNumber } from '../../lib/utils';
+import { Offer } from '@/api';
+import { formatNumber } from '@/lib/utils';
 
 interface TradeCalculatedValuesProps {
   offer: Offer;

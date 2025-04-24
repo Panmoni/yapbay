@@ -1,6 +1,6 @@
 import { Trade } from '@/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import TradeStatusDisplay from '@/components/TradeStatusDisplay';
+import TradeStatusDisplay from '@/components/Trade/TradeStatusDisplay';
 
 interface TradeStatusCardProps {
   trade: Trade;

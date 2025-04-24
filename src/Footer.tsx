@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from "react-router-dom";
-import Container from './components/Container';
-import StatusBadge from "./components/StatusBadge";
+import { Link } from 'react-router-dom';
+import Container from '@/components/Shared/Container';
+import StatusBadge from '@/components/Shared/StatusBadge';
 import { Twitter, Github, MessageCircle } from 'lucide-react';
 
 export const Footer: React.FC = () => {
@@ -28,19 +28,33 @@ export const Footer: React.FC = () => {
           <div className="footer-section">
             <h3 className="footer-title">Quick Links</h3>
             <nav className="footer-nav">
-              <a target="_blank" href="https://yapbay.com/" rel="noopener noreferrer">Features</a>
-              <a target="_blank" href="https://yapbay.com/about/" rel="noopener noreferrer">About</a>
-              <a target="_blank" href="https://yapbay.com/blog" rel="noopener noreferrer">Blog</a>
-              <a target="_blank" href="https://yapbay.com/roadmap/" rel="noopener noreferrer">Roadmap</a>
+              <a target="_blank" href="https://yapbay.com/" rel="noopener noreferrer">
+                Features
+              </a>
+              <a target="_blank" href="https://yapbay.com/about/" rel="noopener noreferrer">
+                About
+              </a>
+              <a target="_blank" href="https://yapbay.com/blog" rel="noopener noreferrer">
+                Blog
+              </a>
+              <a target="_blank" href="https://yapbay.com/roadmap/" rel="noopener noreferrer">
+                Roadmap
+              </a>
             </nav>
           </div>
 
           <div className="footer-section">
             <h3 className="footer-title">Legal</h3>
             <nav className="footer-nav">
-              <a target="_blank" href="https://yapbay.com/terms" rel="noopener noreferrer">Terms of Service</a>
-              <a target="_blank" href="https://yapbay.com/privacy" rel="noopener noreferrer">Privacy Policy</a>
-              <a target="_blank" href="https://yapbay.com/disclaimer" rel="noopener noreferrer">Disclaimer</a>
+              <a target="_blank" href="https://yapbay.com/terms" rel="noopener noreferrer">
+                Terms of Service
+              </a>
+              <a target="_blank" href="https://yapbay.com/privacy" rel="noopener noreferrer">
+                Privacy Policy
+              </a>
+              <a target="_blank" href="https://yapbay.com/disclaimer" rel="noopener noreferrer">
+                Disclaimer
+              </a>
             </nav>
           </div>
 
@@ -48,14 +62,20 @@ export const Footer: React.FC = () => {
             <h3 className="footer-title">Connect</h3>
 
             <p>
-              <a target="_blank" href="https://getwaitlist.com/waitlist/17774" rel="noopener noreferrer">Get on the Waitlist</a>
+              <a
+                target="_blank"
+                href="https://getwaitlist.com/waitlist/17774"
+                rel="noopener noreferrer"
+              >
+                Get on the Waitlist
+              </a>
             </p>
 
             <p>
-              <a className="!font-normal" href="mailto:hello@panmoni.com">hello@panmoni.com</a>
+              <a className="!font-normal" href="mailto:hello@panmoni.com">
+                hello@panmoni.com
+              </a>
             </p>
-
-
 
             <div className="social-links">
               <a
@@ -90,9 +110,32 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="footer-bottom">
-          <p className="mb-2">We welcome you for discussion and support in our <a href="https://t.me/Panmoni/288" target='_blank' rel="noopener noreferrer">Telegram</a> group.</p>
-          <p className="mb-4">Te damos la bienvenida para soporte en Español en <a href="https://t.me/Panmoni/291" target='_blank' rel="noopener noreferrer">Telegram</a>.</p>
-          <p>&copy; {new Date().getFullYear()} A <a className="panmoni-link" href="https://panmoni.com" target='_blank' rel="noopener noreferrer">Panmoni</a> project</p>
+          <p className="mb-2">
+            We welcome you for discussion and support in our{' '}
+            <a href="https://t.me/Panmoni/288" target="_blank" rel="noopener noreferrer">
+              Telegram
+            </a>{' '}
+            group.
+          </p>
+          <p className="mb-4">
+            Te damos la bienvenida para soporte en Español en{' '}
+            <a href="https://t.me/Panmoni/291" target="_blank" rel="noopener noreferrer">
+              Telegram
+            </a>
+            .
+          </p>
+          <p>
+            &copy; {new Date().getFullYear()} A{' '}
+            <a
+              className="panmoni-link"
+              href="https://panmoni.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Panmoni
+            </a>{' '}
+            project
+          </p>
         </div>
       </Container>
     </footer>

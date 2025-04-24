@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getPrices, PricesResponse } from '../../api';
+import { getPrices, PricesResponse } from '@/api';
 
 interface UsePriceDataResult {
   priceData: PricesResponse | null;

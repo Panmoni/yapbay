@@ -4,17 +4,17 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import HomePage from './Home';
-import CreateOfferPage from './CreateOfferPage';
-import AccountPage from './AccountPage';
+import CreateOfferPage from '@/offer/CreateOfferPage';
+import AccountPage from '@/my/MyAccountPage';
 import { getAccount, setAuthToken } from './api';
 import { Account } from './api';
-import Container from './components/Container';
+import Container from '@/components/Shared/Container';
 
-import MyOffersPage from './MyOffersPage';
-import MyTradesPage from './MyTradesPage';
-import MyEscrowsPage from './MyEscrowsPage';
-import OfferDetailPage from './OfferDetailPage';
-import EditOfferPage from './EditOfferPage';
+import MyOffersPage from './my/MyOffersPage';
+import MyTradesPage from './my/MyTradesPage';
+import MyEscrowsPage from './my/MyEscrowsPage';
+import OfferDetailPage from '@/offer/OfferDetailPage';
+import EditOfferPage from '@/offer/EditOfferPage';
 import TradePage from './TradePage';
 import { Toaster } from '@/components/ui/sonner'; // Import Toaster
 

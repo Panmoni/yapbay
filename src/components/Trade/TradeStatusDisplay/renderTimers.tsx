@@ -1,5 +1,5 @@
 import { Trade } from '@/api';
-import TradeTimer from '../TradeTimer';
+import TradeTimer from './TradeTimer';
 import { isDeadlineExpired } from '@/hooks/useTradeUpdates';
 
 interface RenderTimersProps {
