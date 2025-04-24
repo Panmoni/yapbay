@@ -36,6 +36,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       setLoading(true);
       try {
         const response = await getMyEscrows();
+        console.log('[MyEscrowsPage] Fetched escrows:', response.data);
         setMyEscrows(
           response.data.sort(
             (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -54,8 +55,8 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
     fetchMyEscrows();
   }, [account, primaryWallet]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (state: string) => {
+    switch (state) {
       case 'CREATED':
         return 'bg-primary-100 text-primary-800';
       case 'FUNDED':
@@ -162,7 +163,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                 {/* Mobile card view */}
                 <div className="md:hidden p-4 space-y-4">
                   {myEscrows.map(escrow => (
-                    <div key={escrow.escrow_address} className="mobile-card-view">
+                    <div key={escrow.onchain_escrow_id} className="mobile-card-view">
                       <div className="mobile-card-view-header">
                         <span>Trade #{escrow.trade_id}</span>
                         {isUserSeller(escrow) ? (
@@ -201,13 +202,13 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                       </div>
 
                       <div className="mobile-card-view-row">
-                        <span className="mobile-card-view-label">Status</span>
+                        <span className="mobile-card-view-label">State</span>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            escrow.status
+                            escrow.state
                           )}`}
                         >
-                          {escrow.status}
+                          {escrow.state}
                         </span>
                       </div>
 
@@ -242,14 +243,14 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                         </TableHead>
                         <TableHead className="text-primary-700 font-medium">Token</TableHead>
                         <TableHead className="text-primary-700 font-medium">Amount</TableHead>
-                        <TableHead className="text-primary-700 font-medium">Status</TableHead>
+                        <TableHead className="text-primary-700 font-medium">State</TableHead>
                         <TableHead className="text-primary-700 font-medium">Created</TableHead>
                         <TableHead className="text-primary-700 font-medium">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {myEscrows.map(escrow => (
-                        <TableRow key={escrow.escrow_address} className="hover:bg-neutral-50">
+                        <TableRow key={escrow.onchain_escrow_id} className="hover:bg-neutral-50">
                           <TableCell className="font-medium">#{escrow.trade_id}</TableCell>
                           <TableCell>
                             {isUserSeller(escrow) ? (
@@ -279,10 +280,10 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                           <TableCell>
                             <span
                               className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                escrow.status
+                                escrow.state
                               )}`}
                             >
-                              {escrow.status}
+                              {escrow.state}
                             </span>
                           </TableCell>
                           <TableCell className="text-neutral-500 text-sm">

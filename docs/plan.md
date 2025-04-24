@@ -1,5 +1,10 @@
 # YapBay Frontend Development Plan
 
+slim down the my pages
+
+User is buyer, showing mark_paid button getAvailableActions.ts:49:16
+dial down
+
 ## Trade Page
 
 - if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
@@ -29,6 +34,8 @@ refresh my understanding of trade states
 - auto cancel
 - event listener?
 - error handling?
+
+when recording the escrow it is saving its state as the trade state, not the escrow state.
 
 ## Future Normalization
 
