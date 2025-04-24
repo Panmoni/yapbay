@@ -146,17 +146,18 @@ export interface Trade {
 }
 
 export interface Escrow {
+  id: number;
   trade_id: number;
   escrow_address: string;
   seller_address: string;
   buyer_address: string;
+  arbitrator_address: string;
   token_type: string;
-  amount: string; // API returns this as string
-  deposit_timestamp: string | null;
-  status: 'CREATED' | 'FUNDED' | 'RELEASED' | 'CANCELLED' | 'DISPUTED';
-  dispute_id: number | null;
+  amount: string;
+  state: 'CREATED' | 'FUNDED' | 'RELEASED' | 'REFUNDED' | 'DISPUTED';
   sequential: boolean;
   sequential_escrow_address: string | null;
+  onchain_escrow_id: string | null;
   created_at: string;
   updated_at: string;
 }
