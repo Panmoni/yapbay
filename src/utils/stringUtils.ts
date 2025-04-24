@@ -1,3 +1,5 @@
+import { parseUnits, formatUnits } from 'viem'; // Import viem utilities
+
 /**
  * Abbreviates a wallet address by showing only the first and last 4 characters
  * @param address The wallet address to abbreviate
@@ -16,4 +18,14 @@ export const formatRate = (rate: number): string => {
   if (rate > 1) return `+${((rate - 1) * 100).toFixed(2)}%`;
   if (rate < 1) return `-${((1 - rate) * 100).toFixed(2)}%`;
   return '0%';
+};
+
+/**
+ * Utility function to format an amount for display
+ * @param amount The amount to format
+ * @param decimals The number of decimals
+ * @returns The formatted amount
+ */
+export const formatAmount = (amount: number, decimals: number = 6): string => {
+  return formatUnits(parseUnits(amount.toString(), decimals), decimals);
 };

@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { config } from '../config';
 import YapBayEscrowABI from '../utils/YapBayEscrow.json';
 import { isEthereumWallet } from '@dynamic-labs/ethereum';
-import { Address, parseUnits, formatUnits } from 'viem'; // Using viem for types and utils
+import { Address, parseUnits } from 'viem'; // Using viem for types and utils
 
 // Minimal ERC20 ABI for allowance and approve
 const erc20Abi = [
@@ -170,18 +170,6 @@ export const createEscrowTransaction = async (
     console.error('[ERROR] Failed to create escrow:', error);
     throw error;
   }
-};
-
-/**
- * Utility function to format an amount for display
- * @param amount The amount to format
- * @param decimals The number of decimals
- * @returns The formatted amount
- */
-export const formatAmount = (amount: number, decimals: number = 6): string => {
-  // In ethers v6, formatUnits and parseUnits are directly on the ethers object, not under utils
-  // Use viem's formatUnits and parseUnits
-  return formatUnits(parseUnits(amount.toString(), decimals), decimals);
 };
 
 /**
