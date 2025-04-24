@@ -5,7 +5,6 @@
 ## Trade Page
 
 - if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
-- customize sonners https://sonner.emilkowal.ski/toast
 
 ## API integration
 

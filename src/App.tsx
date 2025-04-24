@@ -16,6 +16,7 @@ import MyEscrowsPage from './my/MyEscrowsPage';
 import OfferDetailPage from '@/offer/OfferDetailPage';
 import EditOfferPage from '@/offer/EditOfferPage';
 import TradePage from './TradePage';
+import NotFoundPage from '@/pages/NotFoundPage'; // Import the 404 page
 import { Toaster } from '@/components/ui/sonner'; // Import Toaster
 
 function App() {
@@ -63,6 +64,8 @@ function App() {
               <Route path="/offer/:id" element={<OfferDetailPage />} />
               <Route path="/edit-offer/:id" element={<EditOfferPage />} />
               <Route path="/trade/:id" element={<TradePage />} />
+              {/* Catch-all route for 404 */}
+              <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Container>
         </main>
