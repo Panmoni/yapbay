@@ -24,7 +24,7 @@ export default tseslint.config(
   },
   // Add specific rule overrides for TradePage.tsx
   {
-    files: ['src/TradePage.tsx', 'src/main.tsx', 'src/services/blockchainService.ts'],
+    files: ['src/TradePage.tsx', 'src/main.tsx', 'src/services/chainService.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off', // Allow 'any' type in TradePage.tsx
     },

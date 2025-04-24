@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { Trade } from "@/api";
-import { EscrowState } from "@/hooks/useEscrowDetails";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
-import { checkAndFundEscrow } from "@/services/blockchainService";
-import { toast } from "sonner";
-import { RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import React, { useState } from 'react';
+import { Trade } from '@/api';
+import { EscrowState } from '@/hooks/useEscrowDetails';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { checkAndFundEscrow } from '@/services/chainService';
+import { toast } from 'sonner';
+import { RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface ExceptionalCasesProps {
   trade: Trade;
@@ -28,44 +28,46 @@ export const ExceptionalCases: React.FC<ExceptionalCasesProps> = ({
   userRole,
   escrowDetails,
   balance,
-  refreshEscrow
+  refreshEscrow,
 }) => {
   // Use dynamic context for wallet access
   const { primaryWallet } = useDynamicContext();
   const [fundLoading, setFundLoading] = useState(false);
 
   // Exceptional case: Escrow is FUNDED in backend but not fully funded on-chain
-  if (trade.leg1_state === "FUNDED" &&
-      escrowDetails &&
-      Number(escrowDetails.state) === EscrowState.CREATED &&
-      parseFloat(balance || "0") < Number(escrowDetails.amount)) {
+  if (
+    trade.leg1_state === 'FUNDED' &&
+    escrowDetails &&
+    Number(escrowDetails.state) === EscrowState.CREATED &&
+    parseFloat(balance || '0') < Number(escrowDetails.amount)
+  ) {
     return (
       <Alert className="mb-2 border-amber-300 bg-amber-50">
-        {userRole === "seller" ? (
+        {userRole === 'seller' ? (
           <>
             <AlertTitle className="text-amber-900">Action Required</AlertTitle>
             <AlertDescription className="text-amber-900">
-              The escrow is created, but the on-chain balance is insufficient. You must fully fund the escrow to proceed.
-              
+              The escrow is created, but the on-chain balance is insufficient. You must fully fund
+              the escrow to proceed.
               <div className="mt-3">
                 <Button
                   onClick={async () => {
                     if (!primaryWallet || !escrowDetails) return;
                     setFundLoading(true);
                     try {
-                      toast.info("Checking token allowance and funding escrow...", {
-                        description: "Please approve the transactions in your wallet.",
+                      toast.info('Checking token allowance and funding escrow...', {
+                        description: 'Please approve the transactions in your wallet.',
                       });
                       await checkAndFundEscrow(
                         primaryWallet,
                         escrowDetails.escrow_id.toString(),
                         escrowDetails.amount.toString()
                       );
-                      toast.success("Escrow funded successfully!");
+                      toast.success('Escrow funded successfully!');
                       if (refreshEscrow) await refreshEscrow();
                     } catch (err) {
                       // @ts-expect-error - TypeScript may not recognize the message property on err
-                      toast.error(`Escrow Funding Failed: ${err?.message || "Unknown error"}`);
+                      toast.error(`Escrow Funding Failed: ${err?.message || 'Unknown error'}`);
                     } finally {
                       setFundLoading(false);
                     }
@@ -79,11 +81,12 @@ export const ExceptionalCases: React.FC<ExceptionalCasesProps> = ({
                       Funding...
                     </span>
                   ) : (
-                    "Fund Escrow Now"
+                    'Fund Escrow Now'
                   )}
                 </Button>
                 <p className="text-xs text-neutral-600 mt-1">
-                  This will check your token allowance and fund the escrow in one or two transactions.
+                  This will check your token allowance and fund the escrow in one or two
+                  transactions.
                 </p>
               </div>
             </AlertDescription>
@@ -92,7 +95,8 @@ export const ExceptionalCases: React.FC<ExceptionalCasesProps> = ({
           <>
             <AlertTitle className="text-amber-900">Warning</AlertTitle>
             <AlertDescription className="text-amber-900">
-              The escrow is not yet fully funded on-chain. Do not make the fiat payment until the seller has fully funded the escrow.
+              The escrow is not yet fully funded on-chain. Do not make the fiat payment until the
+              seller has fully funded the escrow.
             </AlertDescription>
           </>
         )}

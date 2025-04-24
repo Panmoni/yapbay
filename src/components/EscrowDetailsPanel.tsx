@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useEscrowDetails, getEscrowStateName, EscrowState } from '../hooks/useEscrowDetails';
-import { checkAndFundEscrow } from '../services/blockchainService';
+import { checkAndFundEscrow } from '../services/chainService';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { toast } from 'sonner';
 import { ethers } from 'ethers';

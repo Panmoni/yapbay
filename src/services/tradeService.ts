@@ -12,7 +12,7 @@ import {
 import { formatNumber } from '../lib/utils';
 import { handleApiError } from '../utils/errorHandling';
 import { toast } from 'sonner';
-import { createEscrowTransaction, markFiatPaidTransaction } from './blockchainService';
+import { createEscrowTransaction, markFiatPaidTransaction } from './chainService';
 import { config } from '../config';
 
 interface StartTradeParams {
