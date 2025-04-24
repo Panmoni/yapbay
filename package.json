@@ -24,7 +24,6 @@
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
-    "@types/axios": "^0.9.36",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.8.4",
     "class-variance-authority": "^0.7.1",
