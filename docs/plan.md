@@ -1,25 +1,21 @@
 # YapBay Frontend Development Plan
 
-## Trade Page
-
-- if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
-
 ## API integration
 
 - log in as user 3, create account
-- migrate all old testing accounts to zen from brave, chrome, etc... also arbitrator address and yapbay funding address
+- migrate old testing metamask accts from brave
 
-## Diagnostic tool
+## Trade Page
 
-create a diagnostic tool to collate info from on-chain via RPC, trades db, escrows db, transaction db.
+- listener vs RPC on page... maybe I need both.
 
-## NExt Test
+## Next Test
 
 NEXT: re-test flow up to mark fiat paid and ensure API works and state updates on the frontend
 
 When funding escrow, is the transaction getting recorded to the API?
 
-refresh my understanding of trade states
+when recording the escrow it is saving its state as the trade state, not the escrow state.
 
 ## escrow
 
@@ -29,7 +25,11 @@ refresh my understanding of trade states
 - event listener?
 - error handling?
 
-when recording the escrow it is saving its state as the trade state, not the escrow state.
+## Diagnostic tool / admin dashboard
+
+create a diagnostic tool to collate info from on-chain via RPC, trades db, escrows db, transaction db.
+
+forerunner queryEscrowsBalances.ts
 
 ## Future Normalization
 
