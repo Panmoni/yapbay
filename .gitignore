@@ -26,3 +26,4 @@ dist-ssr
 node_modules/
 .env%
 .env
+stats.html
