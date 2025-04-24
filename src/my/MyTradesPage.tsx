@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Link } from 'react-router-dom';
-import { getMyTrades, markTradeFiatPaid, Trade, Account } from '@/api';
+import { getMyTrades, Trade, Account } from '@/api'; // Removed markTradeFiatPaid
 import {
   Table,
   TableBody,
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { formatDistanceToNow } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
+// Removed unused Badge import
 import Container from '@/components/Shared/Container';
 
 interface MyTradesPageProps {
@@ -26,7 +26,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
   const [myTrades, setMyTrades] = useState<Trade[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  // Removed actionSuccess state
 
   useEffect(() => {
     const fetchMyTrades = async () => {
@@ -56,72 +56,9 @@ function MyTradesPage({ account }: MyTradesPageProps) {
     fetchMyTrades();
   }, [account, primaryWallet]);
 
-  const handleMarkPaid = async (tradeId: number) => {
-    if (!window.confirm('Are you sure you want to mark this trade as paid?')) {
-      return;
-    }
+  // Removed handleMarkPaid function
 
-    try {
-      await markTradeFiatPaid(tradeId);
-
-      // Update the trade status locally
-      setMyTrades(trades =>
-        trades.map(trade =>
-          trade.id === tradeId
-            ? {
-                ...trade,
-                leg1_state: 'PENDING_CRYPTO_RELEASE',
-                leg1_fiat_paid_at: new Date().toISOString(),
-              }
-            : trade
-        )
-      );
-
-      setActionSuccess('Trade marked as paid successfully');
-
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setActionSuccess(null);
-      }, 3000);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Failed to mark trade as paid: ${errorMessage}`);
-    }
-  };
-
-  const handleReleaseEscrow = async () => {
-    if (!window.confirm('Are you sure you want to release the escrow?')) {
-      return;
-    }
-
-    // This is a placeholder function - you would need to implement the actual escrow release
-    // by calling your releaseEscrow API with the appropriate parameters
-    try {
-      // Example placeholder - you'd need the actual parameters for your escrow
-      // await releaseEscrow({
-      //   escrow_id: trade.escrow_id,
-      //   trade_id: tradeId,
-      //   authority: primaryWallet.address,
-      //   buyer_token_account: buyerTokenAccount,
-      //   arbitrator_token_account: arbitratorTokenAccount
-      // });
-
-      alert(
-        'This is a placeholder for escrow release. Implement the actual release functionality.'
-      );
-
-      // For now, just show a success message
-      setActionSuccess('Release function would be called here in a real implementation');
-
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setActionSuccess(null);
-      }, 3000);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Failed to release escrow: ${errorMessage}`);
-    }
-  };
+  // Removed handleReleaseEscrow function
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -142,15 +79,9 @@ function MyTradesPage({ account }: MyTradesPageProps) {
     }
   };
 
-  // Helper to determine if the current user is the buyer in this trade
-  const isUserBuyer = (trade: Trade) => {
-    return account && trade.leg1_buyer_account_id === account.id;
-  };
+  // Removed isUserBuyer function
 
-  // Helper to determine if the current user is the seller in this trade
-  const isUserSeller = (trade: Trade) => {
-    return account && trade.leg1_seller_account_id === account.id;
-  };
+  // Removed isUserSeller function
 
   if (!primaryWallet) {
     return (
@@ -208,13 +139,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
             </div>
           )}
 
-          {actionSuccess && (
-            <div className="p-5">
-              <Alert className="mb-0 bg-secondary-200 border-secondary-300">
-                <AlertDescription className="text-secondary-900">{actionSuccess}</AlertDescription>
-              </Alert>
-            </div>
-          )}
+          {/* Removed actionSuccess alert */}
 
           {loading && (
             <div className="flex justify-center items-center py-16">
@@ -242,15 +167,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                     <div key={trade.id} className="mobile-card-view">
                       <div className="mobile-card-view-header">
                         <span>#{trade.id}</span>
-                        {isUserBuyer(trade) ? (
-                          <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">
-                            Buyer
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">
-                            Seller
-                          </Badge>
-                        )}
+                        {/* Removed Buyer/Seller badge */}
                       </div>
 
                       <div className="mobile-card-view-row">
@@ -282,23 +199,9 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                       </div>
 
                       <div className="mt-4 space-y-2">
-                        {isUserBuyer(trade) && trade.leg1_state === 'AWAITING_FIAT_PAYMENT' && (
-                          <Button
-                            onClick={() => handleMarkPaid(trade.id)}
-                            className="bg-primary-700 hover:bg-primary-800 text-white w-full"
-                          >
-                            Mark Paid
-                          </Button>
-                        )}
+                        {/* Removed Mark Paid button */}
 
-                        {isUserSeller(trade) && trade.leg1_state === 'PENDING_CRYPTO_RELEASE' && (
-                          <Button
-                            onClick={handleReleaseEscrow}
-                            className="bg-success-500 hover:bg-success-600 text-white w-full"
-                          >
-                            Release
-                          </Button>
-                        )}
+                        {/* Removed Release button */}
 
                         <Button
                           variant="outline"
@@ -319,7 +222,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="text-primary-700 font-medium">Trade ID</TableHead>
-                        <TableHead className="text-primary-700 font-medium">Role</TableHead>
+                        {/* Removed Role column header */}
                         <TableHead className="text-primary-700 font-medium">Token</TableHead>
                         <TableHead className="text-primary-700 font-medium">Amount</TableHead>
                         <TableHead className="text-primary-700 font-medium">Status</TableHead>
@@ -331,17 +234,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                       {myTrades.map(trade => (
                         <TableRow key={trade.id} className="hover:bg-neutral-50">
                           <TableCell className="font-medium">#{trade.id}</TableCell>
-                          <TableCell>
-                            {isUserBuyer(trade) ? (
-                              <Badge className="bg-primary-100 text-primary-800 hover:bg-primary-200">
-                                Buyer
-                              </Badge>
-                            ) : (
-                              <Badge className="bg-secondary-200 text-secondary-900 hover:bg-secondary-300">
-                                Seller
-                              </Badge>
-                            )}
-                          </TableCell>
+                          {/* Removed Role cell */}
                           <TableCell>{trade.leg1_crypto_token}</TableCell>
                           <TableCell>{trade.leg1_crypto_amount}</TableCell>
                           <TableCell>
@@ -358,25 +251,9 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
-                              {isUserBuyer(trade) &&
-                                trade.leg1_state === 'AWAITING_FIAT_PAYMENT' && (
-                                  <Button
-                                    onClick={() => handleMarkPaid(trade.id)}
-                                    className="bg-primary-700 hover:bg-primary-800 text-white text-sm px-3 py-1 h-8"
-                                  >
-                                    Mark Paid
-                                  </Button>
-                                )}
+                              {/* Removed Mark Paid button */}
 
-                              {isUserSeller(trade) &&
-                                trade.leg1_state === 'PENDING_CRYPTO_RELEASE' && (
-                                  <Button
-                                    onClick={handleReleaseEscrow}
-                                    className="bg-success-500 hover:bg-success-600 text-white text-sm px-3 py-1 h-8"
-                                  >
-                                    Release
-                                  </Button>
-                                )}
+                              {/* Removed Release button */}
 
                               <Button
                                 variant="outline"

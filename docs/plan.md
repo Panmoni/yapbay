@@ -39,7 +39,7 @@ when recording the escrow it is saving its state as the trade state, not the esc
 
 ## Future Normalization
 
-- Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings?
+- Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings pages?
 - useUserAccount for Account Page?
 
 ## Ref
