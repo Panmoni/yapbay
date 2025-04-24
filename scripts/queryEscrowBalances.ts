@@ -1,4 +1,5 @@
 // scripts/queryEscrowBalances.ts
+// npx ts-node scripts/queryEscrowBalances.ts
 
 import { ethers } from 'ethers';
 import dotenv from 'dotenv';
