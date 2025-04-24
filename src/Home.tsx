@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Link, useNavigate } from 'react-router-dom';
-import { getOffers, Offer, deleteOffer } from './api';
+import { getOffers, Offer } from './api'; // Removed deleteOffer import
 
 // UI Components
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import OfferPagination from './components/Home/OfferPagination';
 // Custom Hooks
 import { useOfferFiltering } from './hooks/useOfferFiltering';
 import { useUserAccount, fetchCreatorNames } from './hooks/useUserAccount';
+import { useOfferDeletion } from './hooks/useOfferDeletion'; // Import the hook
 
 // Services
 import { startTrade } from './services/tradeService';
@@ -49,6 +50,21 @@ function HomePage() {
     itemsPerPage: 25,
   });
 
+  // Setup offer deletion hook
+  const { handleDeleteOffer: performDelete, isDeleting: isDeletingOffer } = useOfferDeletion({
+    setOffersState: setOffers,
+    onSuccess: message => {
+      setDeleteSuccess(message);
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setDeleteSuccess(null);
+      }, 3000);
+    },
+    onError: message => {
+      setError(message);
+    },
+  });
+
   // Fetch offers
   useEffect(() => {
     const fetchOffers = async () => {
@@ -75,22 +91,7 @@ function HomePage() {
     fetchOffers();
   }, [primaryWallet, setCreatorNames]);
 
-  // Handle delete offer
-  const handleDeleteOffer = async (offerId: number) => {
-    try {
-      await deleteOffer(offerId.toString());
-      setOffers(offers.filter(offer => offer.id !== offerId));
-      setDeleteSuccess('Offer deleted successfully');
-
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setDeleteSuccess(null);
-      }, 3000);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Failed to delete offer: ${errorMessage}`);
-    }
-  };
+  // Removed old handleDeleteOffer function
 
   // Open trade dialog
   const openTradeDialog = (offerId: number) => {
@@ -199,7 +200,8 @@ function HomePage() {
                     primaryWallet={primaryWallet}
                     isDialogOpen={isDialogOpen}
                     selectedOfferId={selectedOfferId}
-                    handleDeleteOffer={handleDeleteOffer}
+                    handleDeleteOffer={performDelete} // Use hook's delete function
+                    isDeletingOffer={isDeletingOffer} // Pass deleting state
                     openTradeDialog={openTradeDialog}
                     onOpenChange={open => !open && setIsDialogOpen(false)}
                     onConfirmTrade={handleConfirmTrade}
@@ -213,7 +215,8 @@ function HomePage() {
                     primaryWallet={primaryWallet}
                     isDialogOpen={isDialogOpen}
                     selectedOfferId={selectedOfferId}
-                    handleDeleteOffer={handleDeleteOffer}
+                    handleDeleteOffer={performDelete} // Use hook's delete function
+                    isDeletingOffer={isDeletingOffer} // Pass deleting state
                     openTradeDialog={openTradeDialog}
                     onOpenChange={open => !open && setIsDialogOpen(false)}
                     onConfirmTrade={handleConfirmTrade}

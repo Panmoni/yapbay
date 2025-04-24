@@ -1,5 +1,6 @@
 import { Offer } from '@/api';
 import { formatNumber } from '@/lib/utils';
+import { formatRate } from '@/utils/stringUtils'; // Added import
 
 interface OfferDescriptionProps {
   offer: Offer;
@@ -7,12 +8,7 @@ interface OfferDescriptionProps {
 }
 
 function OfferDescription({ offer, className = '' }: OfferDescriptionProps) {
-  // Format rate adjustment for display
-  const formatRate = (rate: number) => {
-    if (rate > 1) return `+${((rate - 1) * 100).toFixed(2)}%`;
-    if (rate < 1) return `-${((1 - rate) * 100).toFixed(2)}%`;
-    return '0%';
-  };
+  // Removed local formatRate function
 
   // Determine action based on offer type
   const action = offer.offer_type === 'BUY' ? 'buying' : 'selling';

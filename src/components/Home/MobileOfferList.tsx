@@ -16,6 +16,7 @@ interface MobileOfferListProps {
   isDialogOpen: boolean;
   selectedOfferId: number | null;
   handleDeleteOffer: (offerId: number) => Promise<void>;
+  isDeletingOffer?: boolean; // Add isDeletingOffer prop
   openTradeDialog: (offerId: number) => void;
   onOpenChange: (open: boolean) => void;
   onConfirmTrade: (offerId: number, amount: string, fiatAmount: number) => void;
@@ -29,6 +30,7 @@ const MobileOfferList: React.FC<MobileOfferListProps> = ({
   isDialogOpen,
   selectedOfferId,
   handleDeleteOffer,
+  isDeletingOffer, // Destructure prop
   openTradeDialog,
   onOpenChange,
   onConfirmTrade,
@@ -122,6 +124,7 @@ const MobileOfferList: React.FC<MobileOfferListProps> = ({
                 <OfferActionButtons
                   offerId={offer.id}
                   onDelete={handleDeleteOffer}
+                  isDeleting={isDeletingOffer} // Pass down isDeleting prop
                   isMobile={true}
                 />
               ) : (

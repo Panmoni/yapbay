@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -9,15 +9,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 
 interface OfferActionButtonsProps {
   offerId: number;
   onDelete: (offerId: number) => void;
   isMobile?: boolean;
+  isDeleting?: boolean; // Add isDeleting prop
 }
 
-function OfferActionButtons({ offerId, onDelete, isMobile = false }: OfferActionButtonsProps) {
+function OfferActionButtons({
+  offerId,
+  onDelete,
+  isMobile = false,
+  isDeleting = false, // Default to false
+}: OfferActionButtonsProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const openDeleteDialog = () => {
@@ -31,8 +37,8 @@ function OfferActionButtons({ offerId, onDelete, isMobile = false }: OfferAction
 
   return (
     <>
-      <div className={`flex gap-2 justify-center ${isMobile ? "mt-4" : ""}`}>
-        <Link to={`/offer/${offerId}`} className={isMobile ? "flex-1" : ""}>
+      <div className={`flex gap-2 justify-center ${isMobile ? 'mt-4' : ''}`}>
+        <Link to={`/offer/${offerId}`} className={isMobile ? 'flex-1' : ''}>
           <Button
             variant="outline"
             className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full h-8 px-2"
@@ -42,7 +48,7 @@ function OfferActionButtons({ offerId, onDelete, isMobile = false }: OfferAction
             <Eye size={16} />
           </Button>
         </Link>
-        <Link to={`/edit-offer/${offerId}`} className={isMobile ? "flex-1" : ""}>
+        <Link to={`/edit-offer/${offerId}`} className={isMobile ? 'flex-1' : ''}>
           <Button
             variant="outline"
             className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full h-8 px-2"
@@ -55,11 +61,14 @@ function OfferActionButtons({ offerId, onDelete, isMobile = false }: OfferAction
         <Button
           variant="outline"
           onClick={openDeleteDialog}
-          className={`border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 h-8 px-2 ${isMobile ? "flex-1" : ""}`}
+          className={`border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600 h-8 px-2 ${
+            isMobile ? 'flex-1' : ''
+          } ${isDeleting ? 'opacity-50 cursor-not-allowed' : ''}`}
           aria-label="Delete offer"
           title="Delete offer"
+          disabled={isDeleting} // Disable button when deleting
         >
-          <Trash2 size={16} />
+          {isDeleting ? '...' : <Trash2 size={16} />} {/* Show indicator */}
         </Button>
       </div>
 
@@ -73,18 +82,18 @@ function OfferActionButtons({ offerId, onDelete, isMobile = false }: OfferAction
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className={`bg-red-500 hover:bg-red-600 text-white ${
+                isDeleting ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+              disabled={isDeleting} // Disable confirmation button too
             >
-              Delete Offer
+              {isDeleting ? 'Deleting...' : 'Delete Offer'}
             </Button>
           </DialogFooter>
         </DialogContent>

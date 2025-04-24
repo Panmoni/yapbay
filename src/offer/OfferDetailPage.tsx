@@ -34,6 +34,7 @@ import { formatDistanceToNow } from 'date-fns';
 import Container from '@/components/Shared/Container';
 import OfferTypeTooltip from '@/components/Offer/OfferTypeTooltip';
 import OfferDescription from '@/components/Offer/OfferDescription';
+import { formatRate } from '@/utils/stringUtils'; // Added import
 
 function OfferDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -146,11 +147,7 @@ function OfferDetailPage() {
     }
   };
 
-  const formatRate = (rate: number) => {
-    if (rate > 1) return `+${((rate - 1) * 100).toFixed(2)}%`;
-    if (rate < 1) return `-${((1 - rate) * 100).toFixed(2)}%`;
-    return '0%';
-  };
+  // Removed local formatRate function
 
   if (loading) {
     return (

@@ -24,6 +24,7 @@ interface DesktopOfferTableProps {
   isDialogOpen: boolean;
   selectedOfferId: number | null;
   handleDeleteOffer: (offerId: number) => Promise<void>;
+  isDeletingOffer?: boolean; // Add isDeletingOffer prop
   openTradeDialog: (offerId: number) => void;
   onOpenChange: (open: boolean) => void;
   onConfirmTrade: (offerId: number, amount: string, fiatAmount: number) => void;
@@ -37,6 +38,7 @@ const DesktopOfferTable: React.FC<DesktopOfferTableProps> = ({
   isDialogOpen,
   selectedOfferId,
   handleDeleteOffer,
+  isDeletingOffer, // Destructure prop
   openTradeDialog,
   onOpenChange,
   onConfirmTrade,
@@ -123,7 +125,11 @@ const DesktopOfferTable: React.FC<DesktopOfferTableProps> = ({
               <TableCell>
                 {primaryWallet ? (
                   currentUserAccountId === offer.creator_account_id ? (
-                    <OfferActionButtons offerId={offer.id} onDelete={handleDeleteOffer} />
+                    <OfferActionButtons
+                      offerId={offer.id}
+                      onDelete={handleDeleteOffer}
+                      isDeleting={isDeletingOffer} // Pass down isDeleting prop
+                    />
                   ) : (
                     <TradeConfirmationDialog
                       isOpen={isDialogOpen && selectedOfferId === offer.id}

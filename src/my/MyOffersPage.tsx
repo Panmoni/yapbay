@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Link } from 'react-router-dom';
-import { getOffers, deleteOffer, Offer, Account } from '@/api';
+import { getOffers, Offer, Account } from '@/api'; // Removed deleteOffer import
 import { formatNumber } from '@/lib/utils';
+import { formatRate } from '@/utils/stringUtils';
+import { useOfferDeletion } from '@/hooks/useOfferDeletion'; // Import the hook
 import {
   Table,
   TableBody,
@@ -30,6 +32,21 @@ function MyOffersPage({ account }: MyOffersPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
+
+  // Setup offer deletion hook
+  const { handleDeleteOffer: performDelete, isDeleting: isDeletingOffer } = useOfferDeletion({
+    setOffersState: setMyOffers,
+    onSuccess: message => {
+      setDeleteSuccess(message);
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setDeleteSuccess(null);
+      }, 3000);
+    },
+    onError: message => {
+      setError(message);
+    },
+  });
 
   useEffect(() => {
     const fetchMyOffers = async () => {
@@ -59,27 +76,8 @@ function MyOffersPage({ account }: MyOffersPageProps) {
     fetchMyOffers();
   }, [account]);
 
-  const handleDeleteOffer = async (offerId: number) => {
-    try {
-      await deleteOffer(offerId.toString());
-      setMyOffers(myOffers.filter(offer => offer.id !== offerId));
-      setDeleteSuccess('Offer deleted successfully');
+  // Removed old handleDeleteOffer function
 
-      // Clear success message after 3 seconds
-      setTimeout(() => {
-        setDeleteSuccess(null);
-      }, 3000);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Failed to delete offer: ${errorMessage}`);
-    }
-  };
-
-  const formatRate = (rate: number) => {
-    if (rate > 1) return `+${((rate - 1) * 100).toFixed(2)}%`;
-    if (rate < 1) return `-${((1 - rate) * 100).toFixed(2)}%`;
-    return '0%';
-  };
   if (!primaryWallet) {
     return (
       <TooltipProvider>
@@ -228,7 +226,8 @@ function MyOffersPage({ account }: MyOffersPageProps) {
 
                         <OfferActionButtons
                           offerId={offer.id}
-                          onDelete={handleDeleteOffer}
+                          onDelete={performDelete} // Use hook's delete function
+                          isDeleting={isDeletingOffer} // Pass deleting state
                           isMobile={true}
                         />
                       </div>
@@ -283,7 +282,11 @@ function MyOffersPage({ account }: MyOffersPageProps) {
                               {formatDistanceToNow(new Date(offer.created_at))} ago
                             </TableCell>
                             <TableCell>
-                              <OfferActionButtons offerId={offer.id} onDelete={handleDeleteOffer} />
+                              <OfferActionButtons
+                                offerId={offer.id}
+                                onDelete={performDelete} // Use hook's delete function
+                                isDeleting={isDeletingOffer} // Pass deleting state
+                              />
                             </TableCell>
                           </TableRow>
                         ))}

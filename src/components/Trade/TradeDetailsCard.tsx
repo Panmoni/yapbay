@@ -2,6 +2,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Trade, Offer, Account } from '@/api';
 import { formatNumber } from '@/lib/utils';
+import { formatRate } from '@/utils/stringUtils'; // Added import
 
 interface TradeDetailsCardProps {
   trade: Trade;
@@ -17,11 +18,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
       ? parseFloat(trade.leg1_fiat_amount) / parseFloat(trade.leg1_crypto_amount)
       : 0;
 
-  const formatRate = (rate: number) => {
-    if (rate > 1) return `+${((rate - 1) * 100).toFixed(2)}%`;
-    if (rate < 1) return `-${((1 - rate) * 100).toFixed(2)}%`;
-    return '0%';
-  };
+  // Removed local formatRate function
 
   // The other party is the counterparty with a more descriptive role
   const otherParty = counterparty;
