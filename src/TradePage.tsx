@@ -15,6 +15,7 @@ import { TradeNavigation } from './components/Trade/TradeNavigation';
 import { LoadingIndicator } from './components/Trade/LoadingIndicator';
 import { TradeNotFoundAlert } from './components/Trade/TradeNotFoundAlert';
 import { refreshTrade } from './services/tradeService';
+import TradeLegend from './components/Trade/TradeLegend'; // Import the new component
 
 function TradePage() {
   const { id } = useParams<{ id: string }>();
@@ -124,6 +125,9 @@ function TradePage() {
       />
 
       <TradeNavigation />
+
+      {/* Add the TradeLegend component here, passing offer */}
+      <TradeLegend trade={trade} offer={offer} userRole={userRole} />
     </div>
   );
 }
