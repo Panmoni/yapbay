@@ -80,7 +80,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
             {offer && (
               <span className="ml-2">
                 <a
-                  href={`/offers/${offer.id}`}
+                  href={`/offer/${offer.id}`}
                   className="text-primary-700 hover:text-primary-800 underline text-sm"
                 >
                   [view source offer]
