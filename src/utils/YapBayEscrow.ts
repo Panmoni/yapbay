@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,250 +21,136 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../common";
+} from './common';
 
 export interface YapBayEscrowInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "ARBITRATION_DURATION"
-      | "DEPOSIT_DURATION"
-      | "DISPUTE_RESPONSE_DURATION"
-      | "FIAT_DURATION"
-      | "MAX_AMOUNT"
-      | "autoCancel"
-      | "cancelEscrow"
-      | "createEscrow"
-      | "defaultJudgment"
-      | "escrows"
-      | "fixedArbitrator"
-      | "fundEscrow"
-      | "initialize"
-      | "markFiatPaid"
-      | "nextEscrowId"
-      | "openDisputeWithBond"
-      | "owner"
-      | "paused"
-      | "proxiableUUID"
-      | "releaseEscrow"
-      | "renounceOwnership"
-      | "resolveDisputeWithExplanation"
-      | "respondToDisputeWithBond"
-      | "transferOwnership"
-      | "updateSequentialAddress"
-      | "upgradeTo"
-      | "upgradeToAndCall"
-      | "usdc"
+      | 'ARBITRATION_DURATION'
+      | 'DEPOSIT_DURATION'
+      | 'DISPUTE_RESPONSE_DURATION'
+      | 'FIAT_DURATION'
+      | 'MAX_AMOUNT'
+      | 'autoCancel'
+      | 'cancelEscrow'
+      | 'createEscrow'
+      | 'defaultJudgment'
+      | 'escrows'
+      | 'fixedArbitrator'
+      | 'fundEscrow'
+      | 'initialize'
+      | 'markFiatPaid'
+      | 'nextEscrowId'
+      | 'openDisputeWithBond'
+      | 'owner'
+      | 'paused'
+      | 'proxiableUUID'
+      | 'releaseEscrow'
+      | 'renounceOwnership'
+      | 'resolveDisputeWithExplanation'
+      | 'respondToDisputeWithBond'
+      | 'transferOwnership'
+      | 'updateSequentialAddress'
+      | 'upgradeTo'
+      | 'upgradeToAndCall'
+      | 'usdc'
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "AdminChanged"
-      | "BeaconUpgraded"
-      | "DisputeOpened"
-      | "DisputeResolved"
-      | "DisputeResponse"
-      | "EscrowCancelled"
-      | "EscrowCreated"
-      | "EscrowReleased"
-      | "FiatMarkedPaid"
-      | "FundsDeposited"
-      | "Initialized"
-      | "OwnershipTransferred"
-      | "Paused"
-      | "SequentialAddressUpdated"
-      | "Unpaused"
-      | "Upgraded"
+      | 'AdminChanged'
+      | 'BeaconUpgraded'
+      | 'DisputeOpened'
+      | 'DisputeResolved'
+      | 'DisputeResponse'
+      | 'EscrowCancelled'
+      | 'EscrowCreated'
+      | 'EscrowReleased'
+      | 'FiatMarkedPaid'
+      | 'FundsDeposited'
+      | 'Initialized'
+      | 'OwnershipTransferred'
+      | 'Paused'
+      | 'SequentialAddressUpdated'
+      | 'Unpaused'
+      | 'Upgraded'
   ): EventFragment;
 
+  encodeFunctionData(functionFragment: 'ARBITRATION_DURATION', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'DEPOSIT_DURATION', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'DISPUTE_RESPONSE_DURATION', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'FIAT_DURATION', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'MAX_AMOUNT', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'autoCancel', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'cancelEscrow', values: [BigNumberish]): string;
   encodeFunctionData(
-    functionFragment: "ARBITRATION_DURATION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "DEPOSIT_DURATION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "DISPUTE_RESPONSE_DURATION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "FIAT_DURATION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "MAX_AMOUNT",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "autoCancel",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "cancelEscrow",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "createEscrow",
+    functionFragment: 'createEscrow',
     values: [BigNumberish, AddressLike, BigNumberish, boolean, AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: 'defaultJudgment', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'escrows', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'fixedArbitrator', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'fundEscrow', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'initialize', values: [AddressLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'markFiatPaid', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'nextEscrowId', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "defaultJudgment",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "escrows",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "fixedArbitrator",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "fundEscrow",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "markFiatPaid",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nextEscrowId",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "openDisputeWithBond",
+    functionFragment: 'openDisputeWithBond',
     values: [BigNumberish, BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'paused', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'proxiableUUID', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'releaseEscrow', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "proxiableUUID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "releaseEscrow",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "resolveDisputeWithExplanation",
+    functionFragment: 'resolveDisputeWithExplanation',
     values: [BigNumberish, boolean, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "respondToDisputeWithBond",
+    functionFragment: 'respondToDisputeWithBond',
     values: [BigNumberish, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateSequentialAddress",
+    functionFragment: 'updateSequentialAddress',
     values: [BigNumberish, AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: 'upgradeTo', values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "upgradeTo",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeToAndCall",
+    functionFragment: 'upgradeToAndCall',
     values: [AddressLike, BytesLike]
   ): string;
-  encodeFunctionData(functionFragment: "usdc", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'usdc', values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "ARBITRATION_DURATION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "DEPOSIT_DURATION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "DISPUTE_RESPONSE_DURATION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "FIAT_DURATION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "MAX_AMOUNT", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "autoCancel", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "cancelEscrow",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "createEscrow",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "defaultJudgment",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "escrows", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "fixedArbitrator",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "fundEscrow", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "markFiatPaid",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "nextEscrowId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "openDisputeWithBond",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "proxiableUUID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "releaseEscrow",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "resolveDisputeWithExplanation",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "respondToDisputeWithBond",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateSequentialAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeToAndCall",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "usdc", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'ARBITRATION_DURATION', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'DEPOSIT_DURATION', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'DISPUTE_RESPONSE_DURATION', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'FIAT_DURATION', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'MAX_AMOUNT', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'autoCancel', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'cancelEscrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'createEscrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'defaultJudgment', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'escrows', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'fixedArbitrator', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'fundEscrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'markFiatPaid', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'nextEscrowId', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'openDisputeWithBond', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'paused', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'proxiableUUID', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'releaseEscrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'resolveDisputeWithExplanation', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'respondToDisputeWithBond', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'updateSequentialAddress', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'upgradeTo', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'upgradeToAndCall', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'usdc', data: BytesLike): Result;
 }
 
 export namespace AdminChangedEvent {
@@ -482,16 +368,8 @@ export namespace EscrowReleasedEvent {
 }
 
 export namespace FiatMarkedPaidEvent {
-  export type InputTuple = [
-    escrowId: BigNumberish,
-    tradeId: BigNumberish,
-    timestamp: BigNumberish
-  ];
-  export type OutputTuple = [
-    escrowId: bigint,
-    tradeId: bigint,
-    timestamp: bigint
-  ];
+  export type InputTuple = [escrowId: BigNumberish, tradeId: BigNumberish, timestamp: BigNumberish];
+  export type OutputTuple = [escrowId: bigint, tradeId: bigint, timestamp: bigint];
   export interface OutputObject {
     escrowId: bigint;
     tradeId: bigint;
@@ -656,31 +534,21 @@ export interface YapBayEscrow extends BaseContract {
     event: TCEvent
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  ARBITRATION_DURATION: TypedContractMethod<[], [bigint], "view">;
+  ARBITRATION_DURATION: TypedContractMethod<[], [bigint], 'view'>;
 
-  DEPOSIT_DURATION: TypedContractMethod<[], [bigint], "view">;
+  DEPOSIT_DURATION: TypedContractMethod<[], [bigint], 'view'>;
 
-  DISPUTE_RESPONSE_DURATION: TypedContractMethod<[], [bigint], "view">;
+  DISPUTE_RESPONSE_DURATION: TypedContractMethod<[], [bigint], 'view'>;
 
-  FIAT_DURATION: TypedContractMethod<[], [bigint], "view">;
+  FIAT_DURATION: TypedContractMethod<[], [bigint], 'view'>;
 
-  MAX_AMOUNT: TypedContractMethod<[], [bigint], "view">;
+  MAX_AMOUNT: TypedContractMethod<[], [bigint], 'view'>;
 
-  autoCancel: TypedContractMethod<
-    [_escrowId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  autoCancel: TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
 
-  cancelEscrow: TypedContractMethod<
-    [_escrowId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  cancelEscrow: TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
 
   createEscrow: TypedContractMethod<
     [
@@ -691,14 +559,10 @@ export interface YapBayEscrow extends BaseContract {
       _sequentialEscrowAddress: AddressLike
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  defaultJudgment: TypedContractMethod<
-    [_escrowId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  defaultJudgment: TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
 
   escrows: TypedContractMethod<
     [arg0: BigNumberish],
@@ -747,116 +611,86 @@ export interface YapBayEscrow extends BaseContract {
         dispute_resolution_hash: string;
       }
     ],
-    "view"
+    'view'
   >;
 
-  fixedArbitrator: TypedContractMethod<[], [string], "view">;
+  fixedArbitrator: TypedContractMethod<[], [string], 'view'>;
 
-  fundEscrow: TypedContractMethod<
-    [_escrowId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  fundEscrow: TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
 
   initialize: TypedContractMethod<
     [_usdc: AddressLike, _arbitrator: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  markFiatPaid: TypedContractMethod<
-    [_escrowId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  markFiatPaid: TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
 
-  nextEscrowId: TypedContractMethod<[], [bigint], "view">;
+  nextEscrowId: TypedContractMethod<[], [bigint], 'view'>;
 
   openDisputeWithBond: TypedContractMethod<
     [_escrowId: BigNumberish, evidenceHash: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  owner: TypedContractMethod<[], [string], "view">;
+  owner: TypedContractMethod<[], [string], 'view'>;
 
-  paused: TypedContractMethod<[], [boolean], "view">;
+  paused: TypedContractMethod<[], [boolean], 'view'>;
 
-  proxiableUUID: TypedContractMethod<[], [string], "view">;
+  proxiableUUID: TypedContractMethod<[], [string], 'view'>;
 
-  releaseEscrow: TypedContractMethod<
-    [_escrowId: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  releaseEscrow: TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
 
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  renounceOwnership: TypedContractMethod<[], [void], 'nonpayable'>;
 
   resolveDisputeWithExplanation: TypedContractMethod<
     [_escrowId: BigNumberish, decision: boolean, explanationHash: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   respondToDisputeWithBond: TypedContractMethod<
     [_escrowId: BigNumberish, evidenceHash: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferOwnership: TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
   updateSequentialAddress: TypedContractMethod<
     [_escrowId: BigNumberish, newSequentialAddress: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  upgradeTo: TypedContractMethod<
-    [newImplementation: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  upgradeTo: TypedContractMethod<[newImplementation: AddressLike], [void], 'nonpayable'>;
 
   upgradeToAndCall: TypedContractMethod<
     [newImplementation: AddressLike, data: BytesLike],
     [void],
-    "payable"
+    'payable'
   >;
 
-  usdc: TypedContractMethod<[], [string], "view">;
+  usdc: TypedContractMethod<[], [string], 'view'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'ARBITRATION_DURATION'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'DEPOSIT_DURATION'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "ARBITRATION_DURATION"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'DISPUTE_RESPONSE_DURATION'
+  ): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'FIAT_DURATION'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'MAX_AMOUNT'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "DEPOSIT_DURATION"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'autoCancel'
+  ): TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "DISPUTE_RESPONSE_DURATION"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'cancelEscrow'
+  ): TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "FIAT_DURATION"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "MAX_AMOUNT"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "autoCancel"
-  ): TypedContractMethod<[_escrowId: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "cancelEscrow"
-  ): TypedContractMethod<[_escrowId: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "createEscrow"
+    nameOrSignature: 'createEscrow'
   ): TypedContractMethod<
     [
       _tradeId: BigNumberish,
@@ -866,14 +700,12 @@ export interface YapBayEscrow extends BaseContract {
       _sequentialEscrowAddress: AddressLike
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "defaultJudgment"
-  ): TypedContractMethod<[_escrowId: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "escrows"
-  ): TypedContractMethod<
+    nameOrSignature: 'defaultJudgment'
+  ): TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'escrows'): TypedContractMethod<
     [arg0: BigNumberish],
     [
       [
@@ -920,198 +752,160 @@ export interface YapBayEscrow extends BaseContract {
         dispute_resolution_hash: string;
       }
     ],
-    "view"
+    'view'
   >;
+  getFunction(nameOrSignature: 'fixedArbitrator'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "fixedArbitrator"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'fundEscrow'
+  ): TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "fundEscrow"
-  ): TypedContractMethod<[_escrowId: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'initialize'
+  ): TypedContractMethod<[_usdc: AddressLike, _arbitrator: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "initialize"
-  ): TypedContractMethod<
-    [_usdc: AddressLike, _arbitrator: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'markFiatPaid'
+  ): TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'nextEscrowId'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "markFiatPaid"
-  ): TypedContractMethod<[_escrowId: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'openDisputeWithBond'
+  ): TypedContractMethod<[_escrowId: BigNumberish, evidenceHash: BytesLike], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'paused'): TypedContractMethod<[], [boolean], 'view'>;
+  getFunction(nameOrSignature: 'proxiableUUID'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "nextEscrowId"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'releaseEscrow'
+  ): TypedContractMethod<[_escrowId: BigNumberish], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "openDisputeWithBond"
-  ): TypedContractMethod<
-    [_escrowId: BigNumberish, evidenceHash: BytesLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "paused"
-  ): TypedContractMethod<[], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "proxiableUUID"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "releaseEscrow"
-  ): TypedContractMethod<[_escrowId: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "renounceOwnership"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "resolveDisputeWithExplanation"
+    nameOrSignature: 'resolveDisputeWithExplanation'
   ): TypedContractMethod<
     [_escrowId: BigNumberish, decision: boolean, explanationHash: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "respondToDisputeWithBond"
-  ): TypedContractMethod<
-    [_escrowId: BigNumberish, evidenceHash: BytesLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'respondToDisputeWithBond'
+  ): TypedContractMethod<[_escrowId: BigNumberish, evidenceHash: BytesLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'transferOwnership'
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "updateSequentialAddress"
+    nameOrSignature: 'updateSequentialAddress'
   ): TypedContractMethod<
     [_escrowId: BigNumberish, newSequentialAddress: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "upgradeTo"
-  ): TypedContractMethod<
-    [newImplementation: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'upgradeTo'
+  ): TypedContractMethod<[newImplementation: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "upgradeToAndCall"
-  ): TypedContractMethod<
-    [newImplementation: AddressLike, data: BytesLike],
-    [void],
-    "payable"
-  >;
-  getFunction(
-    nameOrSignature: "usdc"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'upgradeToAndCall'
+  ): TypedContractMethod<[newImplementation: AddressLike, data: BytesLike], [void], 'payable'>;
+  getFunction(nameOrSignature: 'usdc'): TypedContractMethod<[], [string], 'view'>;
 
   getEvent(
-    key: "AdminChanged"
+    key: 'AdminChanged'
   ): TypedContractEvent<
     AdminChangedEvent.InputTuple,
     AdminChangedEvent.OutputTuple,
     AdminChangedEvent.OutputObject
   >;
   getEvent(
-    key: "BeaconUpgraded"
+    key: 'BeaconUpgraded'
   ): TypedContractEvent<
     BeaconUpgradedEvent.InputTuple,
     BeaconUpgradedEvent.OutputTuple,
     BeaconUpgradedEvent.OutputObject
   >;
   getEvent(
-    key: "DisputeOpened"
+    key: 'DisputeOpened'
   ): TypedContractEvent<
     DisputeOpenedEvent.InputTuple,
     DisputeOpenedEvent.OutputTuple,
     DisputeOpenedEvent.OutputObject
   >;
   getEvent(
-    key: "DisputeResolved"
+    key: 'DisputeResolved'
   ): TypedContractEvent<
     DisputeResolvedEvent.InputTuple,
     DisputeResolvedEvent.OutputTuple,
     DisputeResolvedEvent.OutputObject
   >;
   getEvent(
-    key: "DisputeResponse"
+    key: 'DisputeResponse'
   ): TypedContractEvent<
     DisputeResponseEvent.InputTuple,
     DisputeResponseEvent.OutputTuple,
     DisputeResponseEvent.OutputObject
   >;
   getEvent(
-    key: "EscrowCancelled"
+    key: 'EscrowCancelled'
   ): TypedContractEvent<
     EscrowCancelledEvent.InputTuple,
     EscrowCancelledEvent.OutputTuple,
     EscrowCancelledEvent.OutputObject
   >;
   getEvent(
-    key: "EscrowCreated"
+    key: 'EscrowCreated'
   ): TypedContractEvent<
     EscrowCreatedEvent.InputTuple,
     EscrowCreatedEvent.OutputTuple,
     EscrowCreatedEvent.OutputObject
   >;
   getEvent(
-    key: "EscrowReleased"
+    key: 'EscrowReleased'
   ): TypedContractEvent<
     EscrowReleasedEvent.InputTuple,
     EscrowReleasedEvent.OutputTuple,
     EscrowReleasedEvent.OutputObject
   >;
   getEvent(
-    key: "FiatMarkedPaid"
+    key: 'FiatMarkedPaid'
   ): TypedContractEvent<
     FiatMarkedPaidEvent.InputTuple,
     FiatMarkedPaidEvent.OutputTuple,
     FiatMarkedPaidEvent.OutputObject
   >;
   getEvent(
-    key: "FundsDeposited"
+    key: 'FundsDeposited'
   ): TypedContractEvent<
     FundsDepositedEvent.InputTuple,
     FundsDepositedEvent.OutputTuple,
     FundsDepositedEvent.OutputObject
   >;
   getEvent(
-    key: "Initialized"
+    key: 'Initialized'
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
   >;
   getEvent(
-    key: "OwnershipTransferred"
+    key: 'OwnershipTransferred'
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "Paused"
-  ): TypedContractEvent<
-    PausedEvent.InputTuple,
-    PausedEvent.OutputTuple,
-    PausedEvent.OutputObject
-  >;
+    key: 'Paused'
+  ): TypedContractEvent<PausedEvent.InputTuple, PausedEvent.OutputTuple, PausedEvent.OutputObject>;
   getEvent(
-    key: "SequentialAddressUpdated"
+    key: 'SequentialAddressUpdated'
   ): TypedContractEvent<
     SequentialAddressUpdatedEvent.InputTuple,
     SequentialAddressUpdatedEvent.OutputTuple,
     SequentialAddressUpdatedEvent.OutputObject
   >;
   getEvent(
-    key: "Unpaused"
+    key: 'Unpaused'
   ): TypedContractEvent<
     UnpausedEvent.InputTuple,
     UnpausedEvent.OutputTuple,
     UnpausedEvent.OutputObject
   >;
   getEvent(
-    key: "Upgraded"
+    key: 'Upgraded'
   ): TypedContractEvent<
     UpgradedEvent.InputTuple,
     UpgradedEvent.OutputTuple,
@@ -1119,7 +913,7 @@ export interface YapBayEscrow extends BaseContract {
   >;
 
   filters: {
-    "AdminChanged(address,address)": TypedContractEvent<
+    'AdminChanged(address,address)': TypedContractEvent<
       AdminChangedEvent.InputTuple,
       AdminChangedEvent.OutputTuple,
       AdminChangedEvent.OutputObject
@@ -1130,7 +924,7 @@ export interface YapBayEscrow extends BaseContract {
       AdminChangedEvent.OutputObject
     >;
 
-    "BeaconUpgraded(address)": TypedContractEvent<
+    'BeaconUpgraded(address)': TypedContractEvent<
       BeaconUpgradedEvent.InputTuple,
       BeaconUpgradedEvent.OutputTuple,
       BeaconUpgradedEvent.OutputObject
@@ -1141,7 +935,7 @@ export interface YapBayEscrow extends BaseContract {
       BeaconUpgradedEvent.OutputObject
     >;
 
-    "DisputeOpened(uint256,uint256,address,uint256,uint256)": TypedContractEvent<
+    'DisputeOpened(uint256,uint256,address,uint256,uint256)': TypedContractEvent<
       DisputeOpenedEvent.InputTuple,
       DisputeOpenedEvent.OutputTuple,
       DisputeOpenedEvent.OutputObject
@@ -1152,7 +946,7 @@ export interface YapBayEscrow extends BaseContract {
       DisputeOpenedEvent.OutputObject
     >;
 
-    "DisputeResolved(uint256,bool,bytes32,string)": TypedContractEvent<
+    'DisputeResolved(uint256,bool,bytes32,string)': TypedContractEvent<
       DisputeResolvedEvent.InputTuple,
       DisputeResolvedEvent.OutputTuple,
       DisputeResolvedEvent.OutputObject
@@ -1163,7 +957,7 @@ export interface YapBayEscrow extends BaseContract {
       DisputeResolvedEvent.OutputObject
     >;
 
-    "DisputeResponse(uint256,address,uint256,bytes32)": TypedContractEvent<
+    'DisputeResponse(uint256,address,uint256,bytes32)': TypedContractEvent<
       DisputeResponseEvent.InputTuple,
       DisputeResponseEvent.OutputTuple,
       DisputeResponseEvent.OutputObject
@@ -1174,7 +968,7 @@ export interface YapBayEscrow extends BaseContract {
       DisputeResponseEvent.OutputObject
     >;
 
-    "EscrowCancelled(uint256,uint256,address,uint256,uint256,uint256)": TypedContractEvent<
+    'EscrowCancelled(uint256,uint256,address,uint256,uint256,uint256)': TypedContractEvent<
       EscrowCancelledEvent.InputTuple,
       EscrowCancelledEvent.OutputTuple,
       EscrowCancelledEvent.OutputObject
@@ -1185,7 +979,7 @@ export interface YapBayEscrow extends BaseContract {
       EscrowCancelledEvent.OutputObject
     >;
 
-    "EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)": TypedContractEvent<
+    'EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)': TypedContractEvent<
       EscrowCreatedEvent.InputTuple,
       EscrowCreatedEvent.OutputTuple,
       EscrowCreatedEvent.OutputObject
@@ -1196,7 +990,7 @@ export interface YapBayEscrow extends BaseContract {
       EscrowCreatedEvent.OutputObject
     >;
 
-    "EscrowReleased(uint256,uint256,address,uint256,uint256,uint256,string)": TypedContractEvent<
+    'EscrowReleased(uint256,uint256,address,uint256,uint256,uint256,string)': TypedContractEvent<
       EscrowReleasedEvent.InputTuple,
       EscrowReleasedEvent.OutputTuple,
       EscrowReleasedEvent.OutputObject
@@ -1207,7 +1001,7 @@ export interface YapBayEscrow extends BaseContract {
       EscrowReleasedEvent.OutputObject
     >;
 
-    "FiatMarkedPaid(uint256,uint256,uint256)": TypedContractEvent<
+    'FiatMarkedPaid(uint256,uint256,uint256)': TypedContractEvent<
       FiatMarkedPaidEvent.InputTuple,
       FiatMarkedPaidEvent.OutputTuple,
       FiatMarkedPaidEvent.OutputObject
@@ -1218,7 +1012,7 @@ export interface YapBayEscrow extends BaseContract {
       FiatMarkedPaidEvent.OutputObject
     >;
 
-    "FundsDeposited(uint256,uint256,uint256,uint256,uint256)": TypedContractEvent<
+    'FundsDeposited(uint256,uint256,uint256,uint256,uint256)': TypedContractEvent<
       FundsDepositedEvent.InputTuple,
       FundsDepositedEvent.OutputTuple,
       FundsDepositedEvent.OutputObject
@@ -1229,7 +1023,7 @@ export interface YapBayEscrow extends BaseContract {
       FundsDepositedEvent.OutputObject
     >;
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -1240,7 +1034,7 @@ export interface YapBayEscrow extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "OwnershipTransferred(address,address)": TypedContractEvent<
+    'OwnershipTransferred(address,address)': TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
@@ -1251,7 +1045,7 @@ export interface YapBayEscrow extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "Paused(address)": TypedContractEvent<
+    'Paused(address)': TypedContractEvent<
       PausedEvent.InputTuple,
       PausedEvent.OutputTuple,
       PausedEvent.OutputObject
@@ -1262,7 +1056,7 @@ export interface YapBayEscrow extends BaseContract {
       PausedEvent.OutputObject
     >;
 
-    "SequentialAddressUpdated(uint256,address,address,uint256)": TypedContractEvent<
+    'SequentialAddressUpdated(uint256,address,address,uint256)': TypedContractEvent<
       SequentialAddressUpdatedEvent.InputTuple,
       SequentialAddressUpdatedEvent.OutputTuple,
       SequentialAddressUpdatedEvent.OutputObject
@@ -1273,7 +1067,7 @@ export interface YapBayEscrow extends BaseContract {
       SequentialAddressUpdatedEvent.OutputObject
     >;
 
-    "Unpaused(address)": TypedContractEvent<
+    'Unpaused(address)': TypedContractEvent<
       UnpausedEvent.InputTuple,
       UnpausedEvent.OutputTuple,
       UnpausedEvent.OutputObject
@@ -1284,7 +1078,7 @@ export interface YapBayEscrow extends BaseContract {
       UnpausedEvent.OutputObject
     >;
 
-    "Upgraded(address)": TypedContractEvent<
+    'Upgraded(address)': TypedContractEvent<
       UpgradedEvent.InputTuple,
       UpgradedEvent.OutputTuple,
       UpgradedEvent.OutputObject
