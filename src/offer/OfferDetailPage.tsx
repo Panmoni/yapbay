@@ -5,7 +5,7 @@ import {
   getOfferById,
   getAccountById,
   createTrade,
-  deleteOffer,
+  // deleteOffer import is already removed, no change needed here.
   Offer,
   Account,
   getAccount,
@@ -36,6 +36,8 @@ import OfferTypeTooltip from '@/components/Offer/OfferTypeTooltip';
 import OfferDescription from '@/components/Offer/OfferDescription';
 import { formatRate } from '@/utils/stringUtils'; // Added import
 import { getMinutesFromTimeLimit } from '@/utils/timeUtils';
+import { toast } from 'sonner'; // Keep for success toast
+import { useOfferDeletion } from '@/hooks/useOfferDeletion'; // Import the hook
 
 function OfferDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -47,6 +49,22 @@ function OfferDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [userAccount, setUserAccount] = useState<Account | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Setup offer deletion hook
+  const { handleDeleteOffer: performDelete, isDeleting: isDeletingOffer } = useOfferDeletion({
+    // No setOffersState needed here
+    onSuccess: message => {
+      setIsDeleteDialogOpen(false);
+      toast.success(message); // Show success toast
+      navigate('/offers'); // Navigate after success
+    },
+    onError: message => {
+      // Hook handles the specific "active trades" toast.
+      // For other errors, set the local error state.
+      setError(message);
+      setIsDeleteDialogOpen(false); // Close dialog on error
+    },
+  });
 
   useEffect(() => {
     const fetchOfferAndCreator = async () => {
@@ -99,17 +117,10 @@ function OfferDetailPage() {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleDelete = async () => {
+  // Updated handleDelete to use the hook
+  const handleDelete = () => {
     if (!offer) return;
-
-    try {
-      await deleteOffer(offer.id.toString());
-      setIsDeleteDialogOpen(false);
-      navigate('/offers', { state: { message: 'Offer deleted successfully' } });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      setError(`Failed to delete offer: ${errorMessage}`);
-    }
+    performDelete(offer.id); // Call the hook's delete function
   };
 
   const handleStartTrade = async () => {
@@ -345,8 +356,9 @@ function OfferDetailPage() {
               variant="destructive"
               onClick={handleDelete}
               className="bg-red-500 hover:bg-red-600 text-white"
+              disabled={isDeletingOffer} // Ensure this uses the hook's state
             >
-              Delete Offer
+              {isDeletingOffer ? 'Deleting...' : 'Delete Offer'}
             </Button>
           </DialogFooter>
         </DialogContent>
