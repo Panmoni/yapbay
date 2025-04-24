@@ -1,7 +1,5 @@
 # YapBay Frontend Development Plan
 
-npm run lint
-
 put a collapsible legend at bottom of trade page explaining trade stages and escrow stages, with buyer, seller roles, things that can go wrong, etc.
 
 ## refactor
