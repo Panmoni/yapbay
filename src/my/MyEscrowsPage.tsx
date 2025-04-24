@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { Link } from 'react-router-dom';
 import { getMyEscrows, Escrow, Account } from '@/api';
 import {
   Table,
@@ -16,13 +17,17 @@ import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Container from '@/components/Shared/Container';
 
+interface ExtendedEscrow extends Escrow {
+  uniqueKey: string;
+}
+
 interface MyEscrowsPageProps {
   account: Account | null;
 }
 
 function MyEscrowsPage({ account }: MyEscrowsPageProps) {
   const { primaryWallet } = useDynamicContext();
-  const [myEscrows, setMyEscrows] = useState<Escrow[]>([]);
+  const [myEscrows, setMyEscrows] = useState<ExtendedEscrow[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,11 +41,23 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       setLoading(true);
       try {
         const response = await getMyEscrows();
-        console.log('[MyEscrowsPage] Fetched escrows:', response.data);
+        const escrows = response.data.map(escrow => ({
+          ...escrow,
+          // Generate a unique key combining onchain_escrow_id and escrow_address
+          uniqueKey: escrow.onchain_escrow_id
+            ? `${escrow.onchain_escrow_id}-${escrow.escrow_address}`
+            : escrow.escrow_address,
+        }));
         setMyEscrows(
-          response.data.sort(
-            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          )
+          escrows.sort((a, b) => {
+            // Handle null cases by putting them at the end
+            if (a.onchain_escrow_id === null) return 1;
+            if (b.onchain_escrow_id === null) return -1;
+            // Convert string IDs to numbers for comparison
+            const aId = Number(a.onchain_escrow_id);
+            const bId = Number(b.onchain_escrow_id);
+            return bId - aId; // Sort descending
+          })
         );
         setError(null);
       } catch (err) {
@@ -82,10 +99,6 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
     return (
       primaryWallet && escrow.buyer_address.toLowerCase() === primaryWallet.address.toLowerCase()
     );
-  };
-
-  const abbreviateAddress = (address: string) => {
-    return address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : '';
   };
 
   if (!primaryWallet) {
@@ -163,7 +176,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                 {/* Mobile card view */}
                 <div className="md:hidden p-4 space-y-4">
                   {myEscrows.map(escrow => (
-                    <div key={escrow.onchain_escrow_id} className="mobile-card-view">
+                    <div key={escrow.uniqueKey} className="mobile-card-view">
                       <div className="mobile-card-view-header">
                         <span>Trade #{escrow.trade_id}</span>
                         {isUserSeller(escrow) ? (
@@ -180,15 +193,8 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                       </div>
 
                       <div className="mobile-card-view-row">
-                        <span className="mobile-card-view-label">Escrow Address</span>
-                        <a
-                          href={`https://alfajores.celoscan.io/address/${escrow.escrow_address}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary-700 hover:text-primary-800 font-mono text-xs"
-                        >
-                          {abbreviateAddress(escrow.escrow_address)}
-                        </a>
+                        <span className="mobile-card-view-label">On-chain ID</span>
+                        <span className="font-mono text-xs">{escrow.onchain_escrow_id || '-'}</span>
                       </div>
 
                       <div className="mobile-card-view-row">
@@ -220,12 +226,14 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                       </div>
 
                       <div className="mt-4">
-                        <Button
-                          variant="outline"
-                          className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full"
-                        >
-                          View Trade
-                        </Button>
+                        <Link to={`/trade/${escrow.trade_id}`}>
+                          <Button
+                            variant="outline"
+                            className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full"
+                          >
+                            View Trade
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   ))}
@@ -236,11 +244,9 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="text-primary-700 font-medium">On-chain ID</TableHead>
                         <TableHead className="text-primary-700 font-medium">Trade ID</TableHead>
                         <TableHead className="text-primary-700 font-medium">Role</TableHead>
-                        <TableHead className="text-primary-700 font-medium">
-                          Escrow Address
-                        </TableHead>
                         <TableHead className="text-primary-700 font-medium">Token</TableHead>
                         <TableHead className="text-primary-700 font-medium">Amount</TableHead>
                         <TableHead className="text-primary-700 font-medium">State</TableHead>
@@ -250,7 +256,10 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                     </TableHeader>
                     <TableBody>
                       {myEscrows.map(escrow => (
-                        <TableRow key={escrow.onchain_escrow_id} className="hover:bg-neutral-50">
+                        <TableRow key={escrow.uniqueKey} className="hover:bg-neutral-50">
+                          <TableCell className="font-medium">
+                            {escrow.onchain_escrow_id || '-'}
+                          </TableCell>
                           <TableCell className="font-medium">#{escrow.trade_id}</TableCell>
                           <TableCell>
                             {isUserSeller(escrow) ? (
@@ -264,16 +273,6 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                             ) : (
                               <Badge className="bg-neutral-100 text-neutral-800">Observer</Badge>
                             )}
-                          </TableCell>
-                          <TableCell className="font-mono text-xs">
-                            <a
-                              href={`https://alfajores.celoscan.io/address/${escrow.escrow_address}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary-700 hover:text-primary-800"
-                            >
-                              {abbreviateAddress(escrow.escrow_address)}
-                            </a>
                           </TableCell>
                           <TableCell>{escrow.token_type}</TableCell>
                           <TableCell>{escrow.amount}</TableCell>
@@ -290,12 +289,14 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                             {formatDistanceToNow(new Date(escrow.created_at))} ago
                           </TableCell>
                           <TableCell>
-                            <Button
-                              variant="outline"
-                              className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 text-sm px-3 py-1 h-8"
-                            >
-                              View Trade
-                            </Button>
+                            <Link to={`/trade/${escrow.trade_id}`}>
+                              <Button
+                                variant="outline"
+                                className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 text-sm px-3 py-1 h-8"
+                              >
+                                View Trade
+                              </Button>
+                            </Link>
                           </TableCell>
                         </TableRow>
                       ))}
