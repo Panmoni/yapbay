@@ -46,25 +46,25 @@ export const createEscrowTransaction = async (
   }
 ) => {
   if (!isEthereumWallet(wallet)) {
-    throw new Error("Connected wallet is not an Ethereum wallet");
+    throw new Error('Connected wallet is not an Ethereum wallet');
   }
 
   // Get the wallet client from Dynamic.xyz
   const walletClient = await wallet.getWalletClient();
-  
+
   // console.log("[DEBUG] Wallet client:", walletClient);
   // console.log("[DEBUG] Wallet address:", wallet.address);
-  
+
   // We'll use the walletClient directly to interact with the contract
   // This is the correct way to use Dynamic.xyz's wallet integration
-  
+
   // Get the public client for reading from the blockchain
   const publicClient = await wallet.getPublicClient();
-  
+
   // Create a contract instance using the wallet client for writing
   const contract = {
     address: config.contractAddress as Address, // Use Address type from viem
-    abi: YapBayEscrowABI.abi
+    abi: YapBayEscrowABI.abi,
   };
 
   // Convert amount using viem's parseUnits
@@ -75,17 +75,20 @@ export const createEscrowTransaction = async (
 
   // Set default values for optional parameters
   const sequential = params.sequential || false;
-  const sequentialEscrowAddress = params.sequentialEscrowAddress || '0x0000000000000000000000000000000000000000' as Address; // Zero address in viem
+  const sequentialEscrowAddress =
+    params.sequentialEscrowAddress || ('0x0000000000000000000000000000000000000000' as Address); // Zero address in viem
   // Use provided arbitrator or get from config
-  const arbitrator = params.arbitrator ? params.arbitrator as Address : config.arbitratorAddress as Address;
+  const arbitrator = params.arbitrator
+    ? (params.arbitrator as Address)
+    : (config.arbitratorAddress as Address);
 
-  console.log("[DEBUG] Creating escrow with parameters:", {
+  console.log('[DEBUG] Creating escrow with parameters:', {
     tradeId: BigInt(params.tradeId), // Contract expects BigInt for uint256
     buyer: params.buyer,
     amount: amountInSmallestUnit.toString(),
     sequential,
     sequentialEscrowAddress,
-    arbitrator // Include in logs for debugging, but not used in contract call
+    arbitrator, // Include in logs for debugging, but not used in contract call
   });
 
   try {
@@ -101,68 +104,70 @@ export const createEscrowTransaction = async (
         params.buyer as Address, // Ensure buyer is Address type
         amountInSmallestUnit,
         sequential,
-        sequentialEscrowAddress
-      ]
+        sequentialEscrowAddress,
+      ],
     });
 
-    console.log("[DEBUG] Transaction sent:", hash);
+    console.log('[DEBUG] Transaction sent:', hash);
 
     // Wait for the transaction to be mined
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    
-    console.log("[DEBUG] Transaction confirmed:", receipt);
+
+    console.log('[DEBUG] Transaction confirmed:', receipt);
 
     // --- Corrected Log Parsing Logic ---
     // 1. Find the relevant log first
-    const eventSignature = 'EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)';
+    const eventSignature =
+      'EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)';
     const eventTopic = ethers.id(eventSignature); // ethers v6 way to get event topic
 
-    const escrowCreatedLog = receipt.logs.find(log =>
-        log.address.toLowerCase() === contract.address.toLowerCase() &&
-        log.topics[0] === eventTopic
+    const escrowCreatedLog = receipt.logs.find(
+      log =>
+        log.address.toLowerCase() === contract.address.toLowerCase() && log.topics[0] === eventTopic
     );
 
     // 2. Check if the log was found
     if (!escrowCreatedLog) {
-        console.error("[ERROR] Raw logs:", receipt.logs);
-        throw new Error("EscrowCreated event log not found in transaction receipt");
+      console.error('[ERROR] Raw logs:', receipt.logs);
+      throw new Error('EscrowCreated event log not found in transaction receipt');
     }
 
     // 3. Decode the found log
     let escrowId: string | null = null;
     try {
-        const iface = new ethers.Interface(contract.abi);
-        const decodedLog = iface.parseLog({ topics: [...escrowCreatedLog.topics], data: escrowCreatedLog.data }); // Spread topics
-        if (decodedLog && decodedLog.name === 'EscrowCreated') {
-            escrowId = decodedLog.args.escrowId.toString();
-        } else {
-             throw new Error("Found log, but it was not the EscrowCreated event or decoding failed.");
-        }
+      const iface = new ethers.Interface(contract.abi);
+      const decodedLog = iface.parseLog({
+        topics: [...escrowCreatedLog.topics],
+        data: escrowCreatedLog.data,
+      }); // Spread topics
+      if (decodedLog && decodedLog.name === 'EscrowCreated') {
+        escrowId = decodedLog.args.escrowId.toString();
+      } else {
+        throw new Error('Found log, but it was not the EscrowCreated event or decoding failed.');
+      }
     } catch (parseError) {
-        console.error("[ERROR] Failed to parse EscrowCreated log:", parseError);
-        console.error("[ERROR] Log details:", escrowCreatedLog);
-        throw new Error("Failed to parse EscrowCreated event log.");
+      console.error('[ERROR] Failed to parse EscrowCreated log:', parseError);
+      console.error('[ERROR] Log details:', escrowCreatedLog);
+      throw new Error('Failed to parse EscrowCreated event log.');
     }
-
 
     // 4. Check if escrowId was extracted
     if (escrowId === null) {
-         // This case should ideally be caught by the errors above, but added for safety
-        throw new Error("EscrowCreated event log found, but escrowId could not be extracted.");
+      // This case should ideally be caught by the errors above, but added for safety
+      throw new Error('EscrowCreated event log found, but escrowId could not be extracted.');
     }
 
-    console.log("[DEBUG] Escrow ID (string):", escrowId);
+    console.log('[DEBUG] Escrow ID (string):', escrowId);
 
     // 5. Return the result from the try block
     return {
-        escrowId, // Return as string
-        txHash: hash,
-        blockNumber: receipt.blockNumber
+      escrowId, // Return as string
+      txHash: hash,
+      blockNumber: receipt.blockNumber,
     };
     // --- End Corrected Log Parsing Logic ---
-
   } catch (error) {
-    console.error("[ERROR] Failed to create escrow:", error);
+    console.error('[ERROR] Failed to create escrow:', error);
     throw error;
   }
 };
@@ -176,12 +181,8 @@ export const createEscrowTransaction = async (
 export const formatAmount = (amount: number, decimals: number = 6): string => {
   // In ethers v6, formatUnits and parseUnits are directly on the ethers object, not under utils
   // Use viem's formatUnits and parseUnits
-  return formatUnits(
-    parseUnits(amount.toString(), decimals),
-    decimals
-  );
+  return formatUnits(parseUnits(amount.toString(), decimals), decimals);
 };
-
 
 /**
  * Checks the token allowance granted by an owner to a spender.
@@ -198,10 +199,10 @@ export const getTokenAllowance = async (
   ownerAddress?: Address
 ): Promise<bigint> => {
   if (!isEthereumWallet(wallet)) {
-    throw new Error("Connected wallet is not an Ethereum wallet");
+    throw new Error('Connected wallet is not an Ethereum wallet');
   }
   const publicClient = await wallet.getPublicClient();
-  const owner = ownerAddress || wallet.address as Address;
+  const owner = ownerAddress || (wallet.address as Address);
 
   // console.log(`[DEBUG] Checking allowance for owner ${owner} spender ${spenderAddress} on token ${tokenAddress}`);
 
@@ -215,7 +216,7 @@ export const getTokenAllowance = async (
     // console.log(`[DEBUG] Allowance: ${allowance.toString()}`);
     return allowance as bigint; // Ensure return type is bigint
   } catch (error) {
-    console.error("[ERROR] Failed to get token allowance:", error);
+    console.error('[ERROR] Failed to get token allowance:', error);
     throw error;
   }
 };
@@ -235,12 +236,16 @@ export const approveTokenSpending = async (
   amount: bigint
 ): Promise<string> => {
   if (!isEthereumWallet(wallet)) {
-    throw new Error("Connected wallet is not an Ethereum wallet");
+    throw new Error('Connected wallet is not an Ethereum wallet');
   }
   const walletClient = await wallet.getWalletClient();
   const publicClient = await wallet.getPublicClient();
 
-  console.log(`[DEBUG] Approving ${spenderAddress} to spend ${amount.toString()} tokens from ${wallet.address} on ${tokenAddress}`);
+  console.log(
+    `[DEBUG] Approving ${spenderAddress} to spend ${amount.toString()} tokens from ${
+      wallet.address
+    } on ${tokenAddress}`
+  );
 
   try {
     const hash = await walletClient.writeContract({
@@ -250,23 +255,22 @@ export const approveTokenSpending = async (
       args: [spenderAddress, amount],
     });
 
-    console.log("[DEBUG] Approve transaction sent:", hash);
+    console.log('[DEBUG] Approve transaction sent:', hash);
 
     // Wait for the transaction to be mined
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    console.log("[DEBUG] Approve transaction confirmed:", receipt);
+    console.log('[DEBUG] Approve transaction confirmed:', receipt);
 
     if (receipt.status !== 'success') {
-        throw new Error(`Approve transaction failed with status: ${receipt.status}`);
+      throw new Error(`Approve transaction failed with status: ${receipt.status}`);
     }
 
     return hash;
   } catch (error) {
-    console.error("[ERROR] Failed to approve token spending:", error);
+    console.error('[ERROR] Failed to approve token spending:', error);
     throw error;
   }
 };
-
 
 /**
  * Funds an existing escrow on the blockchain.
@@ -280,7 +284,7 @@ export const fundEscrowTransaction = async (
   escrowId: string | number
 ): Promise<string> => {
   if (!isEthereumWallet(wallet)) {
-    throw new Error("Connected wallet is not an Ethereum wallet");
+    throw new Error('Connected wallet is not an Ethereum wallet');
   }
 
   const walletClient = await wallet.getWalletClient();
@@ -288,13 +292,19 @@ export const fundEscrowTransaction = async (
 
   const contract = {
     address: config.contractAddress as Address,
-    abi: YapBayEscrowABI.abi
+    abi: YapBayEscrowABI.abi,
   };
 
   const escrowIdBigInt = BigInt(escrowId); // Convert escrowId to BigInt for the contract call
 
-  console.log(`[DEBUG] Funding escrow with ID: ${escrowIdBigInt.toString()} (as string to avoid serialization issues)`);
-  console.log(`[DEBUG] Full transaction details: Escrow ID: ${escrowIdBigInt.toString()}, Wallet: ${wallet.address}, Contract: ${config.contractAddress}`);
+  console.log(
+    `[DEBUG] Funding escrow with ID: ${escrowIdBigInt.toString()} (as string to avoid serialization issues)`
+  );
+  console.log(
+    `[DEBUG] Full transaction details: Escrow ID: ${escrowIdBigInt.toString()}, Wallet: ${
+      wallet.address
+    }, Contract: ${config.contractAddress}`
+  );
 
   try {
     // Call the fundEscrow function on the smart contract
@@ -302,17 +312,25 @@ export const fundEscrowTransaction = async (
       address: contract.address,
       abi: contract.abi,
       functionName: 'fundEscrow',
-      args: [escrowIdBigInt] // Pass escrowId as BigInt
+      args: [escrowIdBigInt], // Pass escrowId as BigInt
     });
 
-    console.log("[DEBUG] Fund Escrow transaction sent:", hash, " - Escrow ID: ", escrowIdBigInt.toString());
+    console.log(
+      '[DEBUG] Fund Escrow transaction sent:',
+      hash,
+      ' - Escrow ID: ',
+      escrowIdBigInt.toString()
+    );
 
     // Wait for the transaction to be mined
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    console.log("[DEBUG] Fund Escrow transaction confirmed:", JSON.stringify(receipt, (key, value) => typeof value === 'bigint' ? value.toString() : value));
+    console.log(
+      '[DEBUG] Fund Escrow transaction confirmed:',
+      JSON.stringify(receipt, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
 
-     if (receipt.status !== 'success') {
-        throw new Error(`Fund Escrow transaction failed with status: ${receipt.status}`);
+    if (receipt.status !== 'success') {
+      throw new Error(`Fund Escrow transaction failed with status: ${receipt.status}`);
     }
 
     // Optionally, parse logs for 'FundsDeposited' event if needed
@@ -321,7 +339,12 @@ export const fundEscrowTransaction = async (
 
     return hash;
   } catch (error) {
-    console.error(`[ERROR] Failed to fund escrow ${escrowId}:`, error, " - Error details: ", JSON.stringify(error, (key, value) => typeof value === 'bigint' ? value.toString() : value));
+    console.error(
+      `[ERROR] Failed to fund escrow ${escrowId}:`,
+      error,
+      ' - Error details: ',
+      JSON.stringify(error, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
     throw error;
   }
 };
@@ -336,39 +359,24 @@ export const fundEscrowTransaction = async (
  */
 export const checkAndFundEscrow = async (
   wallet: any,
-  escrowId: string | number,
-  amount: string | number
+  escrowId: string | number
 ): Promise<string> => {
   if (!isEthereumWallet(wallet)) {
-    throw new Error("Connected wallet is not an Ethereum wallet");
+    throw new Error('Connected wallet is not an Ethereum wallet');
   }
-
-  // Convert amount to BigInt if it's a string or number
-  const amountBigInt = typeof amount === 'string'
-    ? parseUnits(amount, 6) // Assuming 6 decimals for USDC
-    : BigInt(amount);
 
   const tokenAddress = config.usdcAddressAlfajores as Address;
   const escrowContractAddress = config.contractAddress as Address;
 
   // Check allowance
-  const currentAllowance = await getTokenAllowance(
-    wallet,
-    tokenAddress,
-    escrowContractAddress
-  );
+  const currentAllowance = await getTokenAllowance(wallet, tokenAddress, escrowContractAddress);
 
   // Approve token spending if needed
   // Enforce a fixed spending allowance of 100 USDC
-  const fixedAllowance = parseUnits("100", 6); // Fixed at 100 USDC with 6 decimals
+  const fixedAllowance = parseUnits('100', 6); // Fixed at 100 USDC with 6 decimals
   if (currentAllowance < fixedAllowance) {
     // console.log(`[DEBUG] Approving fixed token spending: ${fixedAllowance.toString()} (100 USDC)`);
-    await approveTokenSpending(
-      wallet,
-      tokenAddress,
-      escrowContractAddress,
-      fixedAllowance
-    );
+    await approveTokenSpending(wallet, tokenAddress, escrowContractAddress, fixedAllowance);
   } else {
     console.log('[DEBUG] Token spending already approved');
   }
@@ -388,7 +396,7 @@ export const markFiatPaidTransaction = async (
   escrowId: string | number
 ): Promise<string> => {
   if (!isEthereumWallet(wallet)) {
-    throw new Error("Connected wallet is not an Ethereum wallet");
+    throw new Error('Connected wallet is not an Ethereum wallet');
   }
 
   const walletClient = await wallet.getWalletClient();
@@ -396,13 +404,17 @@ export const markFiatPaidTransaction = async (
 
   const contract = {
     address: config.contractAddress as Address,
-    abi: YapBayEscrowABI.abi
+    abi: YapBayEscrowABI.abi,
   };
 
   const escrowIdBigInt = BigInt(escrowId); // Convert escrowId to BigInt for the contract call
 
   console.log(`[DEBUG] Marking fiat as paid for escrow with ID: ${escrowIdBigInt.toString()}`);
-  console.log(`[DEBUG] Full transaction details: Escrow ID: ${escrowIdBigInt.toString()}, Wallet: ${wallet.address}, Contract: ${config.contractAddress}`);
+  console.log(
+    `[DEBUG] Full transaction details: Escrow ID: ${escrowIdBigInt.toString()}, Wallet: ${
+      wallet.address
+    }, Contract: ${config.contractAddress}`
+  );
 
   try {
     // Call the markFiatPaid function on the smart contract
@@ -410,14 +422,22 @@ export const markFiatPaidTransaction = async (
       address: contract.address,
       abi: contract.abi,
       functionName: 'markFiatPaid',
-      args: [escrowIdBigInt] // Pass escrowId as BigInt
+      args: [escrowIdBigInt], // Pass escrowId as BigInt
     });
 
-    console.log("[DEBUG] Mark Fiat Paid transaction sent:", hash, " - Escrow ID: ", escrowIdBigInt.toString());
+    console.log(
+      '[DEBUG] Mark Fiat Paid transaction sent:',
+      hash,
+      ' - Escrow ID: ',
+      escrowIdBigInt.toString()
+    );
 
     // Wait for the transaction to be mined
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    console.log("[DEBUG] Mark Fiat Paid transaction confirmed:", JSON.stringify(receipt, (key, value) => typeof value === 'bigint' ? value.toString() : value));
+    console.log(
+      '[DEBUG] Mark Fiat Paid transaction confirmed:',
+      JSON.stringify(receipt, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
 
     if (receipt.status !== 'success') {
       throw new Error(`Mark Fiat Paid transaction failed with status: ${receipt.status}`);
@@ -429,7 +449,12 @@ export const markFiatPaidTransaction = async (
 
     return hash;
   } catch (error) {
-    console.error(`[ERROR] Failed to mark fiat as paid for escrow ${escrowId}:`, error, " - Error details: ", JSON.stringify(error, (key, value) => typeof value === 'bigint' ? value.toString() : value));
+    console.error(
+      `[ERROR] Failed to mark fiat as paid for escrow ${escrowId}:`,
+      error,
+      ' - Error details: ',
+      JSON.stringify(error, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
     throw error;
   }
 };
