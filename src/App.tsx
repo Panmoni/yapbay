@@ -67,7 +67,7 @@ function App() {
           </Container>
         </main>
         <Footer />
-        <Toaster richColors /> {/* Add Toaster here */}
+        <Toaster position="bottom-right" closeButton={true} duration={10000} richColors />
       </div>
     </Router>
   );

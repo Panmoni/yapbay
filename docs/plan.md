@@ -1,5 +1,7 @@
 # YapBay Frontend Development Plan
 
+404 page
+
 ## Trade Page
 
 - if I'm going to update via RPC on the state of the escrow at any given time, do I need listener? Do I need to be checking the API? Normalize that.
