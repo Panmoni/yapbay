@@ -42,9 +42,11 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    // For country codes, extract just the phone code part
     if (name === 'phone_country_code') {
-      const phoneCode = value.split('_')[0];
+      // Find the country object by its label (which is now the 'value')
+      const selectedCountry = countryCodes.find(cc => cc.label === value);
+      // Extract the actual numeric code from the original 'value' property
+      const phoneCode = selectedCountry ? selectedCountry.value : '';
       setFormData(prev => ({ ...prev, [name]: phoneCode }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
@@ -112,10 +114,13 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
   };
 
   // Find the matching country code value for the current phone_country_code
-  const getCountryCodeValue = () => {
+  // Find the matching country code label for the current numeric phone_country_code
+  const getCountryCodeLabel = () => {
     if (!formData.phone_country_code) return '';
-    const countryCode = countryCodes.find(cc => cc.value.startsWith(formData.phone_country_code));
-    return countryCode ? countryCode.value : '';
+    // Find the country object by the stored numeric code
+    const countryCode = countryCodes.find(cc => cc.value === formData.phone_country_code);
+    // Return the label, which is now used as the value for the Select component
+    return countryCode ? countryCode.label : '';
   };
 
   return (
@@ -206,7 +211,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           Country Code
         </label>
         <Select
-          value={getCountryCodeValue()}
+          value={getCountryCodeLabel()}
           onValueChange={value => handleSelectChange('phone_country_code', value)}
         >
           <SelectTrigger className="border-neutral-300 focus:ring-primary-500">
@@ -214,7 +219,7 @@ function EditAccountForm({ account, onSaveSuccess, onCancel }: EditAccountFormPr
           </SelectTrigger>
           <SelectContent className="bg-white shadow-md">
             {countryCodes.map(code => (
-              <SelectItem key={code.value} value={code.value}>
+              <SelectItem key={code.label} value={code.label}>
                 {code.label}
               </SelectItem>
             ))}
