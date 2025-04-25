@@ -1,5 +1,7 @@
 # YapBay Frontend Development Plan
 
+double check is offer detail page showing the right roles in buy vs sell etc.
+
 ## API integration
 
 - log in as user 3, create account
