@@ -14,8 +14,8 @@ function ChatSection({ counterparty }: ChatSectionProps) {
         <CardDescription>Communicate with your trading partner</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="text-center py-4 border border-neutral-100 rounded-md p-4">
-          <p className="text-neutral-500 mb-4">Chat functionality coming soon</p>
+        <div className="text-center p-4">
+          <p className="text-neutral-600 mb-4">Chat functionality coming soon</p>
           {counterparty?.telegram_username && (
             <Button
               onClick={() =>
