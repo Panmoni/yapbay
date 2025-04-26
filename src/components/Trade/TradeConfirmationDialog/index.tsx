@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Offer } from '@/api';
 import { formatNumber } from '@/lib/utils';
+import { ExternalLink } from 'lucide-react';
 
 // Import our custom hooks and components
 import { useTradeConfirmation } from './useTradeConfirmation';
@@ -202,7 +203,22 @@ const TradeConfirmationDialog = ({
               {offer.offer_type === 'BUY' ? (
                 <p>
                   <strong>Note:</strong> As the seller, you will be prompted to create the on-chain
-                  escrow account and to pay for it in CELO.
+                  escrow account and to pay for it in CELO. Please ensure you have sufficient{' '}
+                  <a
+                    href="https://faucet.celo.org/alfajores"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center"
+                  >
+                    CELO
+                    <ExternalLink className="ml-1 h-3 w-3" />
+                  </a>{' '}
+                  and{' '}
+                  <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
+                    USDC
+                    <ExternalLink className="ml-1 h-3 w-3" />
+                  </a>
+                  .
                 </p>
               ) : (
                 <p>
