@@ -44,15 +44,7 @@ function TradePage() {
   const { createEscrow, markFiatPaid, releaseCrypto, disputeTrade, cancelTrade, actionLoading } =
     useTradeActions({
       trade,
-      primaryWallet: primaryWallet
-        ? {
-            address: primaryWallet.address,
-            getWalletClient: (primaryWallet as any).getWalletClient?.bind(primaryWallet),
-            getPublicClient: (primaryWallet as any).getPublicClient?.bind(primaryWallet),
-          }
-        : {
-            address: undefined,
-          },
+      primaryWallet: primaryWallet || { address: undefined },
       counterparty,
       userRole,
       onRefresh: handleRefreshTrade,

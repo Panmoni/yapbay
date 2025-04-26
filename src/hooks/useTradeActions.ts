@@ -75,15 +75,28 @@ export function useTradeActions({
       }
 
       // Create the escrow
-      // Make sure the wallet has the required methods
-      if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
+      // Make sure the wallet has the required methods and they are properly bound
+      if (typeof primaryWallet.getWalletClient === 'function' && typeof primaryWallet.getPublicClient === 'function') {
+        // Create a properly structured wallet object with bound methods
+        const walletForEscrow = {
+          address: primaryWallet.address,
+          getWalletClient: async () => {
+            if (primaryWallet.getWalletClient) {
+              return await primaryWallet.getWalletClient();
+            }
+            throw new Error('getWalletClient is not available');
+          },
+          getPublicClient: async () => {
+            if (primaryWallet.getPublicClient) {
+              return await primaryWallet.getPublicClient();
+            }
+            throw new Error('getPublicClient is not available');
+          }
+        };
+        
         await createTradeEscrow({
           trade,
-          primaryWallet: {
-            address: primaryWallet.address,
-            getWalletClient: primaryWallet.getWalletClient,
-            getPublicClient: primaryWallet.getPublicClient,
-          },
+          primaryWallet: walletForEscrow,
           buyerAddress,
           sellerAddress,
         });
@@ -115,8 +128,18 @@ export function useTradeActions({
           trade,
           primaryWallet: {
             address: primaryWallet.address,
-            getWalletClient: primaryWallet.getWalletClient,
-            getPublicClient: primaryWallet.getPublicClient,
+            getWalletClient: async () => {
+              if (primaryWallet.getWalletClient) {
+                return await primaryWallet.getWalletClient();
+              }
+              throw new Error('getWalletClient is not available');
+            },
+            getPublicClient: async () => {
+              if (primaryWallet.getPublicClient) {
+                return await primaryWallet.getPublicClient();
+              }
+              throw new Error('getPublicClient is not available');
+            }
           },
         });
       } else {

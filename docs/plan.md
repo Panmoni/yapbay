@@ -1,42 +1,25 @@
 # YapBay Frontend Development Plan
 
-double check is offer detail page showing the right roles in buy vs sell etc.
+creating and funding escrow are still separate steps, and when we fund the escrow, the database is not getting updated.
 
-## API integration
+This might be a listener failure or maybe the listener does not run often off.
 
-- log in as user 3, create account
-- migrate old testing metamask accts from brave
-
-## Trade Page
-
-- listener vs RPC on page... maybe I need both.
-
-## Next Test
-
-NEXT: re-test flow up to mark fiat paid and ensure API works and state updates on the frontend
-
-When funding escrow, is the transaction getting recorded to the API?
-
-when recording the escrow it is saving its state as the trade state, not the escrow state.
+- re-test flow up to mark fiat paid and ensure API works and state updates on the frontend
+- When funding escrow, is the transaction getting recorded to the API?
+- when recording the escrow it is saving its state as the trade state, not the escrow state.
+- ensure listener is working properly.
+- check events table and log
 
 ## escrow
 
 - release escrow
 - cancel escrow
-- auto cancel
-- event listener?
-- error handling?
 
-## Diagnostic tool / admin dashboard
-
-create a diagnostic tool to collate info from on-chain via RPC, trades db, escrows db, transaction db.
-
-forerunner queryEscrowsBalances.ts
-
-## Future Normalization
+## Roadmap
 
 - Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings pages?
 - useUserAccount for Account Page?
+- make sure RPC is efficient, maybe cache some of them.. run it through a redis?
 
 ## Ref
 

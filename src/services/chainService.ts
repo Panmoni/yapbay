@@ -1,7 +1,6 @@
 import { ethers } from 'ethers';
 import { config } from '../config';
 import YapBayEscrowABI from '../utils/YapBayEscrow.json';
-import { isEthereumWallet } from '@dynamic-labs/ethereum';
 import { Address, parseUnits } from 'viem'; // Using viem for types and utils
 
 // Minimal ERC20 ABI for allowance and approve
@@ -45,8 +44,8 @@ export const createEscrowTransaction = async (
     arbitrator?: string; // Optional parameter for arbitrator address
   }
 ) => {
-  if (!isEthereumWallet(wallet)) {
-    throw new Error('Connected wallet is not an Ethereum wallet');
+  if (!wallet.getWalletClient || !wallet.getPublicClient) {
+    throw new Error('Wallet must implement getWalletClient and getPublicClient');
   }
 
   // Get the wallet client from Dynamic.xyz
@@ -122,7 +121,7 @@ export const createEscrowTransaction = async (
     const eventTopic = ethers.id(eventSignature); // ethers v6 way to get event topic
 
     const escrowCreatedLog = receipt.logs.find(
-      log =>
+      (log: any) =>
         log.address.toLowerCase() === contract.address.toLowerCase() && log.topics[0] === eventTopic
     );
 
@@ -186,8 +185,8 @@ export const getTokenAllowance = async (
   spenderAddress: Address,
   ownerAddress?: Address
 ): Promise<bigint> => {
-  if (!isEthereumWallet(wallet)) {
-    throw new Error('Connected wallet is not an Ethereum wallet');
+  if (!wallet.getWalletClient || !wallet.getPublicClient) {
+    throw new Error('Wallet must implement getWalletClient and getPublicClient');
   }
   const publicClient = await wallet.getPublicClient();
   const owner = ownerAddress || (wallet.address as Address);
@@ -223,8 +222,8 @@ export const approveTokenSpending = async (
   spenderAddress: Address,
   amount: bigint
 ): Promise<string> => {
-  if (!isEthereumWallet(wallet)) {
-    throw new Error('Connected wallet is not an Ethereum wallet');
+  if (!wallet.getWalletClient || !wallet.getPublicClient) {
+    throw new Error('Wallet must implement getWalletClient and getPublicClient');
   }
   const walletClient = await wallet.getWalletClient();
   const publicClient = await wallet.getPublicClient();
@@ -271,8 +270,8 @@ export const fundEscrowTransaction = async (
   wallet: any,
   escrowId: string | number
 ): Promise<string> => {
-  if (!isEthereumWallet(wallet)) {
-    throw new Error('Connected wallet is not an Ethereum wallet');
+  if (!wallet.getWalletClient || !wallet.getPublicClient) {
+    throw new Error('Wallet must implement getWalletClient and getPublicClient');
   }
 
   const walletClient = await wallet.getWalletClient();
@@ -349,8 +348,8 @@ export const checkAndFundEscrow = async (
   wallet: any,
   escrowId: string | number
 ): Promise<string> => {
-  if (!isEthereumWallet(wallet)) {
-    throw new Error('Connected wallet is not an Ethereum wallet');
+  if (!wallet.getWalletClient || !wallet.getPublicClient) {
+    throw new Error('Wallet must implement getWalletClient and getPublicClient');
   }
 
   const tokenAddress = config.usdcAddressAlfajores as Address;
@@ -383,8 +382,8 @@ export const markFiatPaidTransaction = async (
   wallet: any,
   escrowId: string | number
 ): Promise<string> => {
-  if (!isEthereumWallet(wallet)) {
-    throw new Error('Connected wallet is not an Ethereum wallet');
+  if (!wallet.getWalletClient || !wallet.getPublicClient) {
+    throw new Error('Wallet must implement getWalletClient and getPublicClient');
   }
 
   const walletClient = await wallet.getWalletClient();
