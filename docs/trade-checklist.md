@@ -2,6 +2,14 @@
 
 A step-by-step checklist for ensuring a trade completes successfully in YapBay.
 
+## What Works
+
+- trade creation
+- statuses are right, create escrow button appears for seller.
+- deadline countdown and auto cancel for escrow payment works.
+  -post cancellation statuses are right
+  - trade cancellations table is working
+
 ## Pre-Trade Setup ✅
 
 - [ ] Buyer and seller accounts exist and are loaded in the UI
@@ -16,6 +24,8 @@ A step-by-step checklist for ensuring a trade completes successfully in YapBay.
 - [ ] Transaction mined and confirmed
 - [ ] Backend `recordEscrow` API called with `trade_id`, `escrow_id`, `transaction_hash`, addresses, and amount
 - [ ] Trade leg state updates to **FUNDED** (UI shows “Escrow funded, pending fiat payment”)
+
+events
 
 ## Fiat Payment (Buyer)
 
