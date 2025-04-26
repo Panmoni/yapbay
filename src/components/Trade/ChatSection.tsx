@@ -21,7 +21,7 @@ function ChatSection({ counterparty }: ChatSectionProps) {
               onClick={() =>
                 window.open(`https://t.me/${counterparty.telegram_username}`, '_blank')
               }
-              className="bg-info-500 hover:bg-info-600 text-white"
+              className="bg-primary-500 hover:bg-primary-600 text-white"
             >
               <svg
                 className="w-6 h-6 mr-1"
