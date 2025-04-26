@@ -12,7 +12,7 @@ export enum EscrowState {
   RELEASED = 3,
   CANCELLED = 4,
   DISPUTED = 5,
-  RESOLVED = 6
+  RESOLVED = 6,
 }
 
 // Define the escrow details type
@@ -44,103 +44,96 @@ export function useEscrowDetails(escrowId: string | number | null, contractAddre
   const [balance, setBalance] = useState('0');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // Function to fetch escrow details
-  const fetchEscrowDetails = useCallback(async (showToast = false) => {
-    if (!escrowId) {
-      setLoading(false);
-      return;
-    }
-    
-    // Use provided contract address or fall back to config
-    const escrowContractAddress = contractAddress || config.contractAddress as string;
-    
-    try {
-      setIsRefreshing(true);
-      
-      // Connect to the blockchain
-      const provider = new ethers.JsonRpcProvider(config.celoRpcUrl);
-      const contract = new ethers.Contract(
-        escrowContractAddress,
-        YapBayEscrowABI.abi,
-        provider
-      );
-      
-      // Fetch escrow details
-      const escrow = await contract.escrows(escrowId);
-      
-      // Fetch token balance if we have a contract address
-      let escrowBalance = BigInt(0);
+  const fetchEscrowDetails = useCallback(
+    async (showToast = false) => {
+      if (!escrowId) {
+        setLoading(false);
+        return;
+      }
+
+      // Use provided contract address or fall back to config
+      const escrowContractAddress = contractAddress || (config.contractAddress as string);
+
       try {
-        if (config.usdcAddressAlfajores) {
-          const tokenContract = new ethers.Contract(
-            config.usdcAddressAlfajores as string,
-            ['function balanceOf(address) view returns (uint256)'],
-            provider
-          );
-          escrowBalance = await tokenContract.balanceOf(escrowContractAddress);
+        setIsRefreshing(true);
+
+        // Connect to the blockchain
+        const provider = new ethers.JsonRpcProvider(config.celoRpcUrl);
+        const contract = new ethers.Contract(escrowContractAddress, YapBayEscrowABI.abi, provider);
+
+        // Fetch escrow details
+        const escrow = await contract.escrows(escrowId);
+
+        // Calculate the balance based on escrow state and amount, rather than querying the contract's total balance
+        let escrowBalance = BigInt(0);
+        const escrowState = Number(escrow.state);
+        const escrowAmount = escrow.amount;
+
+        // If the escrow is FUNDED or in a later state (except CANCELLED), use the escrow amount as the balance
+        if (escrowState >= EscrowState.FUNDED && escrowState !== EscrowState.CANCELLED) {
+          escrowBalance = escrowAmount;
         }
-      } catch (balanceError) {
-        console.error('Error fetching token balance:', balanceError);
-        // Don't fail the whole operation if just the balance fetch fails
+
+        setBalance(ethers.formatUnits(escrowBalance, 6)); // USDC has 6 decimals
+        setEscrowDetails(escrow as unknown as EscrowDetails);
+        setLastUpdated(new Date());
+        setError(null);
+
+        if (showToast) {
+          toast.success('Escrow details refreshed');
+        }
+      } catch (err) {
+        console.error('Error fetching escrow details:', err);
+        setError(err instanceof Error ? err : new Error('Unknown error fetching escrow details'));
+
+        if (showToast) {
+          toast.error('Failed to refresh escrow details');
+        }
+      } finally {
+        setLoading(false);
+        setIsRefreshing(false);
       }
-      
-      setBalance(ethers.formatUnits(escrowBalance, 6)); // USDC has 6 decimals
-      setEscrowDetails(escrow as unknown as EscrowDetails);
-      setLastUpdated(new Date());
-      setError(null);
-      
-      if (showToast) {
-        toast.success('Escrow details refreshed');
-      }
-    } catch (err) {
-      console.error('Error fetching escrow details:', err);
-      setError(err instanceof Error ? err : new Error('Unknown error fetching escrow details'));
-      
-      if (showToast) {
-        toast.error('Failed to refresh escrow details');
-      }
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
-    }
-  }, [escrowId, contractAddress]);
-  
+    },
+    [escrowId, contractAddress]
+  );
+
   // Initial fetch and polling setup
   useEffect(() => {
     // Reset state when escrowId changes
     setLoading(true);
     setError(null);
     setEscrowDetails(null);
-    
+
     if (!escrowId) {
       setLoading(false);
       return;
     }
-    
+
     // Initial fetch
     fetchEscrowDetails();
-    
+
     // Set up polling - every 5 seconds
     const interval = setInterval(() => fetchEscrowDetails(), 60000);
-    
+
     // Cleanup
     return () => clearInterval(interval);
   }, [escrowId, fetchEscrowDetails]);
-  
+
   // Manual refresh function
   const refresh = useCallback(async () => {
     await fetchEscrowDetails(true);
   }, [fetchEscrowDetails]);
-  
-  return { 
-    escrowDetails, 
-    loading, 
-    error, 
-    balance, 
+
+  return {
+    escrowDetails,
+    loading,
+    error,
+    balance,
     lastUpdated,
     isRefreshing,
-    refresh 
+    refresh,
   };
 }
 
@@ -153,7 +146,7 @@ export function getEscrowStateName(state: number): string {
     'RELEASED',
     'CANCELLED',
     'DISPUTED',
-    'RESOLVED'
+    'RESOLVED',
   ];
   return states[state] || `UNKNOWN (${state})`;
 }

@@ -6,17 +6,19 @@ test recording of all events
 
 test update of escrow, trade tables for events
 
-funded and fiat paid not getting recorded in transactions table
+- when recording the escrow it is saving its state as the trade state, not the escrow state.
 
-TradePage not updating to show fiat paid... might be because listener failed
-
-escrow details balance still wrong
-
-if the escrow is funded and mark paid fails to meet deadline, gotta refund the USDC
+## events table
 
 contract events table needs more data and to have the trade_id field in there
 
-- when recording the escrow it is saving its state as the trade state, not the escrow state.
+## record all txs
+
+Need a route to record follow on transactions
+
+## refunds
+
+if the escrow is funded and mark paid fails to meet deadline, gotta refund the USDC
 
 ## escrow
 
