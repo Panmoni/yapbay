@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 interface TradeTimerProps {
   deadline: string | null;
@@ -19,7 +19,12 @@ const TradeTimer: React.FC<TradeTimerProps> = ({ deadline, onExpire, label }) =>
     expired: false,
   });
 
+  // Ref to ensure onExpire is only invoked once
+  const expiredNotifiedRef = useRef(false);
+
   useEffect(() => {
+    // reset notification flag when deadline or onExpire changes
+    expiredNotifiedRef.current = false;
     if (!deadline) {
       setTimeRemaining({
         hours: 0,
@@ -43,8 +48,10 @@ const TradeTimer: React.FC<TradeTimerProps> = ({ deadline, onExpire, label }) =>
           expired: true,
         });
 
-        if (onExpire) {
-          onExpire();
+        // schedule a single delayed manual poll callback
+        if (onExpire && !expiredNotifiedRef.current) {
+          expiredNotifiedRef.current = true;
+          setTimeout(() => onExpire(), 1000);
         }
 
         return;
