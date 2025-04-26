@@ -24,45 +24,49 @@ function ParticipantsSection({
         <CardDescription>People involved in this trade</CardDescription>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Show buyer */}
-        <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
-          {/* {(() => {
-            console.log("[DEBUG] Rendering buyer card:", {
-              buyerAccount,
-              currentAccountId: currentAccount?.id,
-              userRole,
-              isCreatorBuyer: creator?.id === trade.leg1_buyer_account_id
-            });
-            return null;
-          })()} */}
-          <ParticipantCard
-            user={buyerAccount}
-            role="Buyer"
-            isCurrentUser={currentAccount?.id === buyerAccount?.id}
-            isOfferCreator={creator?.id === buyerAccount?.id}
-            isBuyer={true}
-          />
-        </div>
-
-        {/* Show seller */}
-        <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
-          {/* {(() => {
-            console.log("[DEBUG] Rendering seller card:", {
-              sellerAccount,
-              currentAccountId: currentAccount?.id,
-              userRole,
-              isCreatorSeller: creator?.id === trade.leg1_seller_account_id
-            });
-            return null;
-          })()} */}
-          <ParticipantCard
-            user={sellerAccount}
-            role="Seller"
-            isCurrentUser={currentAccount?.id === sellerAccount?.id}
-            isOfferCreator={creator?.id === sellerAccount?.id}
-            isSeller={true}
-          />
-        </div>
+        {currentAccount?.id === sellerAccount?.id ? (
+          <>
+            <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
+              <ParticipantCard
+                user={sellerAccount}
+                role="Seller"
+                isCurrentUser={currentAccount?.id === sellerAccount?.id}
+                isOfferCreator={creator?.id === sellerAccount?.id}
+                isSeller={true}
+              />
+            </div>
+            <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
+              <ParticipantCard
+                user={buyerAccount}
+                role="Buyer"
+                isCurrentUser={currentAccount?.id === buyerAccount?.id}
+                isOfferCreator={creator?.id === buyerAccount?.id}
+                isBuyer={true}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
+              <ParticipantCard
+                user={buyerAccount}
+                role="Buyer"
+                isCurrentUser={currentAccount?.id === buyerAccount?.id}
+                isOfferCreator={creator?.id === buyerAccount?.id}
+                isBuyer={true}
+              />
+            </div>
+            <div className="p-3 border border-neutral-200 rounded-md hover:bg-neutral-100">
+              <ParticipantCard
+                user={sellerAccount}
+                role="Seller"
+                isCurrentUser={currentAccount?.id === sellerAccount?.id}
+                isOfferCreator={creator?.id === sellerAccount?.id}
+                isSeller={true}
+              />
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
