@@ -1,14 +1,22 @@
 # YapBay Frontend Development Plan
 
-creating and funding escrow are still separate steps, and when we fund the escrow, the database is not getting updated.
+test immediate prompt to fund after escrow creation
 
-This might be a listener failure or maybe the listener does not run often off.
+test recording of all events
 
-- re-test flow up to mark fiat paid and ensure API works and state updates on the frontend
-- When funding escrow, is the transaction getting recorded to the API?
+test update of escrow, trade tables for events
+
+funded and fiat paid not getting recorded in transactions table
+
+TradePage not updating to show fiat paid... might be because listener failed
+
+escrow details balance still wrong
+
+if the escrow is funded and mark paid fails to meet deadline, gotta refund the USDC
+
+contract events table needs more data and to have the trade_id field in there
+
 - when recording the escrow it is saving its state as the trade state, not the escrow state.
-- ensure listener is working properly.
-- check events table and log
 
 ## escrow
 

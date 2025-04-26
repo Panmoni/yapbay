@@ -12,7 +12,7 @@ import {
 import { formatNumber } from '../lib/utils';
 import { handleApiError } from '../utils/errorHandling';
 import { toast } from 'sonner';
-import { createEscrowTransaction, markFiatPaidTransaction } from './chainService';
+import { createEscrowTransaction, markFiatPaidTransaction, checkAndFundEscrow } from './chainService';
 import { config } from '../config';
 
 interface StartTradeParams {
@@ -141,6 +141,51 @@ export const createTradeEscrow = async ({
   } catch (err) {
     console.error('Error creating escrow:', err);
     const errorMessage = handleApiError(err, 'Failed to create escrow: Unknown error');
+    toast.error(errorMessage);
+    throw err;
+  }
+};
+
+/**
+ * Creates an escrow for a trade and immediately prompts to fund it
+ * This combines the escrow creation and funding steps into one flow
+ */
+export const createAndFundTradeEscrow = async ({
+  trade,
+  primaryWallet,
+  buyerAddress,
+  sellerAddress,
+}: CreateEscrowParams) => {
+  try {
+    // First create the escrow
+    const txResult = await createTradeEscrow({
+      trade,
+      primaryWallet,
+      buyerAddress,
+      sellerAddress,
+    });
+
+    // Immediately prompt to fund the escrow
+    toast('Please fund the escrow now...', {
+      description: 'You need to fund the escrow to continue with the trade.',
+    });
+
+    // Trigger the funding process
+    try {
+      await checkAndFundEscrow(primaryWallet, txResult.escrowId);
+      toast.success('Escrow funded successfully!');
+    } catch (fundErr) {
+      console.error('Error funding escrow:', fundErr);
+      const fundErrorMessage = handleApiError(fundErr, 'Failed to fund escrow: Please try again manually');
+      toast.error(fundErrorMessage);
+      // We don't rethrow here since the escrow was created successfully
+      // The user can manually fund it later
+    }
+
+    return txResult;
+  } catch (err) {
+    console.error('Error in create and fund escrow flow:', err);
+    const errorMessage = handleApiError(err, 'Failed to create and fund escrow');
     toast.error(errorMessage);
     throw err;
   }

@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Trade, Account } from '../api';
 import {
-  createTradeEscrow,
   markTradeFiatPaid,
   releaseTradeCrypto,
   disputeTrade,
   cancelTrade,
+  createAndFundTradeEscrow,
 } from '../services/tradeService';
 
 interface UseTradeActionsProps {
@@ -94,7 +94,8 @@ export function useTradeActions({
           }
         };
         
-        await createTradeEscrow({
+        // Use the combined create and fund function instead of just creating the escrow
+        await createAndFundTradeEscrow({
           trade,
           primaryWallet: walletForEscrow,
           buyerAddress,
