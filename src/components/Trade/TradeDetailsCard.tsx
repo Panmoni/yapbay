@@ -38,7 +38,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
   return (
     <Card className="border border-neutral-200 shadow-sm p-4">
       <CardHeader>
-        <h1 className="text-2xl font-bold text-primary-800">Trade #{formatNumber(trade.id)}</h1>
+        <h1 className="text-2xl font-bold text-primary-800">{`${action === 'buying' ? 'Buying' : 'Selling'} ${formatNumber(parseFloat(trade.leg1_crypto_amount || '0'))} ${token} for ${trade.leg1_fiat_amount ? formatNumber(parseFloat(trade.leg1_fiat_amount)) : 'N/A'} ${trade.from_fiat_currency} (Trade #${formatNumber(trade.id)})`}</h1>
         <p className="text-neutral-500">
           Created{' '}
           {new Date(trade.created_at).toLocaleString('en-US', {
