@@ -78,24 +78,27 @@ function MyOffersPage({ account }: MyOffersPageProps) {
       try {
         // Get all offers and filter by the current user's account ID
         const response = await getOffers();
-        let userOffers = response.data
-          .filter((offer: Offer) => offer.creator_account_id === account.id);
-          
+        let userOffers = response.data.filter(
+          (offer: Offer) => offer.creator_account_id === account.id
+        );
+
         // Apply offer type filter if not ALL
         if (filter !== 'ALL') {
           userOffers = userOffers.filter((offer: Offer) => offer.offer_type === filter);
         }
-        
+
         // Sort by creation date
-        userOffers = userOffers.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        
+        userOffers = userOffers.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
         // Set total count for pagination
         setTotalCount(userOffers.length);
-        
+
         // Apply pagination to the sorted offers
         const paginatedOffers = userOffers.slice((page - 1) * limit, page * limit);
         setMyOffers(paginatedOffers);
-        
+
         setError(null);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -189,8 +192,10 @@ function MyOffersPage({ account }: MyOffersPageProps) {
                     <SelectItem value="SELL">Sell Offers</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button asChild>
-                  <Link to="/create-offer">Create Offer</Link>
+                <Button className="bg-primary-800 hover:bg-primary-300 w-full sm:w-auto" asChild>
+                  <Link to="/create-offer">
+                    <span className="text-neutral-100">Create Offer</span>
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -209,7 +214,7 @@ function MyOffersPage({ account }: MyOffersPageProps) {
                 <AlertDescription className="text-green-700">{deleteSuccess}</AlertDescription>
               </Alert>
             ) : myOffers.length === 0 ? (
-              <Alert className="bg-neutral-50 border-neutral-200">
+              <Alert className="">
                 <AlertDescription>
                   You don't have any offers yet.{' '}
                   <Link to="/create-offer" className="text-primary-700 hover:text-primary-800">

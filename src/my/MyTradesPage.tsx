@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Link } from 'react-router-dom';
-import { getMyTrades, Trade, Account } from '@/api'; 
+import { getMyTrades, Trade, Account } from '@/api';
 import {
   Table,
   TableBody,
@@ -43,7 +43,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [filter, setFilter] = useState<string>('ALL');
-  const limit = 10; 
+  const limit = 10;
 
   useEffect(() => {
     const fetchMyTrades = async () => {
@@ -56,22 +56,22 @@ function MyTradesPage({ account }: MyTradesPageProps) {
       try {
         const response = await getMyTrades();
         let sortedTrades = response.data;
-        
+
         // Apply status filter if not ALL
         if (filter !== 'ALL') {
           sortedTrades = sortedTrades.filter((trade: Trade) => trade.leg1_state === filter);
         }
-        
+
         // Sort by creation date
         sortedTrades = sortedTrades.sort(
           (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
-        
+
         setTotalCount(sortedTrades.length);
-        
+
         const paginatedTrades = sortedTrades.slice((page - 1) * limit, page * limit);
         setMyTrades(paginatedTrades);
-        
+
         setError(null);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -196,8 +196,10 @@ function MyTradesPage({ account }: MyTradesPageProps) {
           ) : myTrades.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-neutral-500 mb-4">You don't have any trades yet.</p>
-              <Button asChild>
-                <Link to="/offers">Find Offers</Link>
+              <Button className="bg-primary-800 hover:bg-primary-300 w-full sm:w-auto" asChild>
+                <Link to="/">
+                  <span className="text-neutral-100">Find Offers</span>
+                </Link>
               </Button>
             </div>
           ) : (
@@ -314,10 +316,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                     {Array.from({ length: Math.ceil(totalCount / limit) })
                       .map((_, i) => (
                         <PaginationItem key={i}>
-                          <PaginationLink
-                            isActive={page === i + 1}
-                            onClick={() => setPage(i + 1)}
-                          >
+                          <PaginationLink isActive={page === i + 1} onClick={() => setPage(i + 1)}>
                             {i + 1}
                           </PaginationLink>
                         </PaginationItem>

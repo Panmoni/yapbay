@@ -67,12 +67,12 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
             ? `${escrow.onchain_escrow_id}-${escrow.escrow_address}`
             : escrow.escrow_address,
         }));
-        
+
         // Apply state filter if not ALL
         if (filter !== 'ALL') {
           escrows = escrows.filter(escrow => escrow.state === filter);
         }
-        
+
         const sortedEscrows = escrows.sort((a, b) => {
           // Handle null cases by putting them at the end
           if (a.onchain_escrow_id === null) return 1;
@@ -82,14 +82,14 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
           const bId = Number(b.onchain_escrow_id);
           return bId - aId; // Sort descending
         });
-        
+
         // Set total count for pagination
         setTotalCount(sortedEscrows.length);
-        
+
         // Apply pagination to the sorted escrows
         const paginatedEscrows = sortedEscrows.slice((page - 1) * limit, page * limit);
         setMyEscrows(paginatedEscrows);
-        
+
         setError(null);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -223,8 +223,10 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
           ) : myEscrows.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-neutral-500 mb-4">You don't have any escrows yet.</p>
-              <Button asChild>
-                <Link to="/offers">Find Offers</Link>
+              <Button className="bg-primary-800 hover:bg-primary-300 w-full sm:w-auto" asChild>
+                <Link to="/">
+                  <span className="text-neutral-100">Find Offers</span>
+                </Link>
               </Button>
             </div>
           ) : (
@@ -381,10 +383,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                     {Array.from({ length: Math.ceil(totalCount / limit) })
                       .map((_, i) => (
                         <PaginationItem key={i}>
-                          <PaginationLink
-                            isActive={page === i + 1}
-                            onClick={() => setPage(i + 1)}
-                          >
+                          <PaginationLink isActive={page === i + 1} onClick={() => setPage(i + 1)}>
                             {i + 1}
                           </PaginationLink>
                         </PaginationItem>
