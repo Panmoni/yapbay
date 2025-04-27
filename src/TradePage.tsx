@@ -15,7 +15,7 @@ import { TradeNavigation } from './components/Trade/TradeNavigation';
 import { LoadingIndicator } from './components/Trade/LoadingIndicator';
 import { TradeNotFoundAlert } from './components/Trade/TradeNotFoundAlert';
 import { refreshTrade } from './services/tradeService';
-import TransactionHistory from './components/TransactionHistory';
+import TransactionHistory from './components/Trade/TransactionHistory';
 
 function TradePage() {
   const { id } = useParams<{ id: string }>();

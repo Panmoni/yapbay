@@ -1,6 +1,6 @@
 # YapBay Frontend Development Plan
 
-re-org trade ui of transaction log, need more details mv into Trade
+re-org trade ui of transaction log, need more details
 
 countryflag utils to utils
 test immediate prompt to fund after escrow creation

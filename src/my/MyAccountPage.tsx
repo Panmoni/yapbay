@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { abbreviateWallet } from '@/utils/stringUtils';
-import { countryCodeToFlag } from './countryFlagUtil';
+import { countryCodeToFlag } from '../utils/countryFlagUtil';
 
 interface AccountPageProps {
   account: Account | null;

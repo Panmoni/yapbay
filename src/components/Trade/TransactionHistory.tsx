@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { getTradeTransactions, TransactionRecord } from '../api';
+import { getTradeTransactions, TransactionRecord } from '../../api';
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
-import { config } from '../config';
+import { config } from '../../config';
 
 interface TransactionHistoryProps {
   tradeId: number;
@@ -11,16 +11,16 @@ interface TransactionHistoryProps {
 
 const getTransactionTypeLabel = (type: string): string => {
   const labels: Record<string, string> = {
-    'CREATE_ESCROW': 'Create Escrow',
-    'FUND_ESCROW': 'Fund Escrow',
-    'MARK_FIAT_PAID': 'Mark Fiat Paid',
-    'RELEASE_ESCROW': 'Release Escrow',
-    'CANCEL_ESCROW': 'Cancel Escrow',
-    'DISPUTE_ESCROW': 'Open Dispute',
-    'OPEN_DISPUTE': 'Open Dispute',
-    'RESPOND_DISPUTE': 'Respond to Dispute',
-    'RESOLVE_DISPUTE': 'Resolve Dispute',
-    'OTHER': 'Other Transaction'
+    CREATE_ESCROW: 'Create Escrow',
+    FUND_ESCROW: 'Fund Escrow',
+    MARK_FIAT_PAID: 'Mark Fiat Paid',
+    RELEASE_ESCROW: 'Release Escrow',
+    CANCEL_ESCROW: 'Cancel Escrow',
+    DISPUTE_ESCROW: 'Open Dispute',
+    OPEN_DISPUTE: 'Open Dispute',
+    RESPOND_DISPUTE: 'Respond to Dispute',
+    RESOLVE_DISPUTE: 'Resolve Dispute',
+    OTHER: 'Other Transaction',
   };
   return labels[type] || type;
 };
@@ -151,25 +151,40 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Type
                 </th>
-                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   From
                 </th>
-                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Status
                 </th>
-                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Time
                 </th>
-                <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  scope="col"
+                  className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
                   Hash
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {transactions.map((tx) => (
+              {transactions.map(tx => (
                 <tr key={tx.id} className="hover:bg-gray-50">
                   <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                     {getTransactionTypeLabel(tx.transaction_type)}
@@ -178,7 +193,11 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
                     {formatAddress(tx.from_address)}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(tx.status)}`}>
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(
+                        tx.status
+                      )}`}
+                    >
                       {tx.status}
                     </span>
                   </td>
@@ -186,9 +205,9 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
                     {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                    <a 
-                      href={getExplorerUrl(tx.transaction_hash)} 
-                      target="_blank" 
+                    <a
+                      href={getExplorerUrl(tx.transaction_hash)}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center text-blue-600 hover:text-blue-800"
                     >
