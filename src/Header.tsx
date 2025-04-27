@@ -6,6 +6,7 @@ import { Account, setAuthToken, getPrices } from './api';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { User } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -144,14 +145,8 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                   <DropdownMenuTrigger className="focus:outline-none">
                     <Avatar className="cursor-pointer hover:ring-2 hover:ring-primary-700 transition">
                       <AvatarImage src={account?.profile_photo_url} />
-                      <AvatarFallback>
-                        <svg
-                          viewBox="-8 0 512 512"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="w-6 h-6 text-primary-800"
-                        >
-                          <path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 448c-110.3 0-200-89.7-200-200S137.7 56 248 56s200 89.7 200 200-89.7 200-200 200zm-80-216c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm160 0c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm4 72.6c-20.8 25-51.5 39.4-84 39.4s-63.2-14.3-84-39.4c-8.5-10.2-23.7-11.5-33.8-3.1-10.2 8.5-11.5 23.6-3.1 33.8 30 36 74.1 56.6 120.9 56.6s90.9-20.6 120.9-56.6c8.5-10.2 7.1-25.3-3.1-33.8-10.1-8.4-25.3-7.1-33.8 3.1z" />
-                        </svg>
+                      <AvatarFallback className="bg-primary-100">
+                        <User className="h-6 w-6 text-primary-400" />
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
