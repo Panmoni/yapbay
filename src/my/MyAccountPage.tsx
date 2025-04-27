@@ -184,7 +184,19 @@ function ProfileDisplay({ account }: { account: Account }) {
               </span>
             </div>
             {/* Reputation Score & Trade Completion Rate placeholders */}
-            <div className="flex flex-col items-center mt-4 space-y-1">
+            <div className="flex flex-col items-center mt-4 space-y-2">
+              <span className="text-sm text-neutral-700 font-medium">
+                Trusted Accounts: <span className="text-neutral-400">(soon)</span>
+              </span>
+              <span className="text-sm text-neutral-700 font-medium">
+                Trusted By Accounts: <span className="text-neutral-400">(soon)</span>
+              </span>
+              <span className="text-sm text-neutral-700 font-medium">
+                Blocked Accounts: <span className="text-neutral-400">(soon)</span>
+              </span>
+              <span className="text-sm text-neutral-700 font-medium">
+                Blocked By Accounts: <span className="text-neutral-400">(soon)</span>
+              </span>
               <span className="text-sm text-neutral-700 font-medium">
                 Reputation Score: <span className="text-neutral-400">(soon)</span>
               </span>
