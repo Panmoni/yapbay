@@ -120,7 +120,7 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
                       : `Updated ${formatDistanceToNow(lastUpdated)} ago`}
                   </span>
                 </TooltipTrigger>
-                <TooltipContent>
+                <TooltipContent className="bg-neutral-50">
                   <p>Auto-refreshes every minute</p>
                 </TooltipContent>
               </Tooltip>

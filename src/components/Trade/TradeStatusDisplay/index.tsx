@@ -19,6 +19,7 @@ import {
   Check, // Added
 } from 'lucide-react'; // Added
 import { cn } from '@/lib/utils'; // Added
+import TransactionHistory from './TransactionHistory'; // Added
 
 // Import utility functions and components
 import { getAvailableActions } from '@/components/Trade/TradeStatusDisplay/getAvailableActions';
@@ -276,6 +277,7 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
           userRole={userRole}
         />
       )}
+      <TransactionHistory tradeId={trade.id} />
     </div>
   );
 };
