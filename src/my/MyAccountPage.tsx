@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { abbreviateWallet } from '@/utils/stringUtils';
+import { countryCodeToFlag } from './countryFlagUtil';
 
 interface AccountPageProps {
   account: Account | null;
@@ -139,9 +140,12 @@ function ProfileDisplay({ account }: { account: Account }) {
               <div className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-green-400 border-2 border-white"></div>
             </div>
 
-            {/* Username */}
-            <h2 className="text-xl font-semibold text-neutral-800 mb-1">
+            {/* Username with flag */}
+            <h2 className="text-xl font-semibold text-neutral-800 mb-1 flex items-center gap-2">
               {account.username || 'Anonymous User'}
+              {account.phone_country_code && countryCodeToFlag(account.phone_country_code) && (
+                <span>{countryCodeToFlag(account.phone_country_code)}</span>
+              )}
             </h2>
 
             {/* Wallet Address with copy button */}
@@ -177,6 +181,15 @@ function ProfileDisplay({ account }: { account: Account }) {
                   month: 'short',
                   day: 'numeric',
                 })}
+              </span>
+            </div>
+            {/* Reputation Score & Trade Completion Rate placeholders */}
+            <div className="flex flex-col items-center mt-4 space-y-1">
+              <span className="text-sm text-neutral-700 font-medium">
+                Reputation Score: <span className="text-neutral-400">(soon)</span>
+              </span>
+              <span className="text-sm text-neutral-700 font-medium">
+                Trade Completion Rate: <span className="text-neutral-400">(soon)</span>
               </span>
             </div>
           </div>
