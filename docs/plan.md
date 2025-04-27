@@ -1,5 +1,7 @@
 # YapBay Frontend Development Plan
 
+needs pagination: my trades. escrows
+
 re-org trade ui of transaction log, need more details
 
 test immediate prompt to fund after escrow creation
@@ -7,12 +9,6 @@ test immediate prompt to fund after escrow creation
 test recording of all events and transactions
 
 test update of escrow, trade tables for events
-
-## transactions
-
-add MyTransactionPage in header
-
-link to related trade
 
 ## escrow
 

@@ -16,7 +16,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface MyTransactionsPageProps {
   account: Account | null;
@@ -24,16 +39,16 @@ interface MyTransactionsPageProps {
 
 const getTransactionTypeLabel = (type: string): string => {
   const labels: Record<string, string> = {
-    'CREATE_ESCROW': 'Create Escrow',
-    'FUND_ESCROW': 'Fund Escrow',
-    'MARK_FIAT_PAID': 'Mark Fiat Paid',
-    'RELEASE_ESCROW': 'Release Escrow',
-    'CANCEL_ESCROW': 'Cancel Escrow',
-    'DISPUTE_ESCROW': 'Open Dispute',
-    'OPEN_DISPUTE': 'Open Dispute',
-    'RESPOND_DISPUTE': 'Respond to Dispute',
-    'RESOLVE_DISPUTE': 'Resolve Dispute',
-    'OTHER': 'Other Transaction'
+    CREATE_ESCROW: 'Create Escrow',
+    FUND_ESCROW: 'Fund Escrow',
+    MARK_FIAT_PAID: 'Mark Fiat Paid',
+    RELEASE_ESCROW: 'Release Escrow',
+    CANCEL_ESCROW: 'Cancel Escrow',
+    DISPUTE_ESCROW: 'Open Dispute',
+    OPEN_DISPUTE: 'Open Dispute',
+    RESPOND_DISPUTE: 'Respond to Dispute',
+    RESOLVE_DISPUTE: 'Resolve Dispute',
+    OTHER: 'Other Transaction',
   };
   return labels[type] || type;
 };
@@ -56,14 +71,20 @@ const formatAddress = (address: string): string => {
   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 };
 
+const getExplorerUrl = (txHash: string) => {
+  // Use the blockExplorerUrl from config which defaults to Alfajores testnet
+  return `${config.blockExplorerUrl}/tx/${txHash}`;
+};
+
 function MyTransactionsPage({ account }: MyTransactionsPageProps) {
   const { primaryWallet } = useDynamicContext();
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<string>('');
+  const [filter, setFilter] = useState<string>('ALL');
   const [page, setPage] = useState(1);
-  const limit = 20;
+  const [totalCount, setTotalCount] = useState(0);
+  const limit = 10; // Reduced from 20 to 10 to match MyOffersPage spacing
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -71,16 +92,22 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
         setLoading(false);
         return;
       }
-      
+
       try {
         setLoading(true);
         setError(null);
         const response = await getUserTransactions({
-          type: filter || undefined,
+          type: filter === 'ALL' ? undefined : filter,
           limit,
-          offset: (page - 1) * limit
+          offset: (page - 1) * limit,
         });
+
+        // Handle the response data
         setTransactions(response.data);
+
+        // Set total count - the API might return total in response.data.length
+        // or in a custom header or property. For now, use the array length
+        setTotalCount(response.data.length);
       } catch (error) {
         console.error('Error fetching transactions:', error);
         setError('Failed to load transaction history');
@@ -92,29 +119,15 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
     fetchTransactions();
   }, [filter, page, account]);
 
-  const getExplorerUrl = (txHash: string) => {
-    // Use a default explorer URL if not defined in config
-    // Cast config to a more specific type to avoid TypeScript errors
-    interface ExtendedConfig {
-      apiUrl: string;
-      dynamicSdkId: string;
-      celoRpcUrl: string;
-      contractAddress: string;
-      usdcAddressAlfajores: string;
-      arbitratorAddress: string;
-      blockExplorerUrl?: string;
-    }
-    const explorerUrl = (config as ExtendedConfig).blockExplorerUrl || 'https://explorer.celo.org';
-    return `${explorerUrl}/tx/${txHash}`;
-  };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilter(e.target.value);
+  const handleFilterChange = (value: string) => {
+    setFilter(value);
     setPage(1); // Reset to first page when filter changes
   };
 
   const handleNextPage = () => {
-    setPage(prev => prev + 1);
+    if (page * limit < totalCount) {
+      setPage(prev => prev + 1);
+    }
   };
 
   const handlePrevPage = () => {
@@ -128,11 +141,13 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
           <Card>
             <CardHeader className="border-b border-neutral-100">
               <CardTitle className="text-primary-800 font-semibold">My Transactions</CardTitle>
-              <CardDescription>View your blockchain transaction history</CardDescription>
+              <CardDescription>View your transaction history</CardDescription>
             </CardHeader>
             <CardContent className="p-6">
               <Alert className="bg-neutral-50 border-neutral-200">
-                <AlertDescription>Please connect your wallet to view your transactions.</AlertDescription>
+                <AlertDescription>
+                  Please connect your wallet to view your transactions.
+                </AlertDescription>
               </Alert>
             </CardContent>
           </Card>
@@ -148,7 +163,7 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
           <Card>
             <CardHeader>
               <CardTitle className="text-primary-800 font-semibold">My Transactions</CardTitle>
-              <CardDescription>View your blockchain transaction history</CardDescription>
+              <CardDescription>View your transaction history</CardDescription>
             </CardHeader>
             <CardContent className="p-6">
               <Alert className="bg-amber-50 border-amber-200">
@@ -168,110 +183,109 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
       <Container>
         <Card>
           <CardHeader>
-            <CardTitle className="text-primary-800 font-semibold">My Transactions</CardTitle>
-            <CardDescription>View your blockchain transaction history</CardDescription>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <CardTitle className="text-primary-800 font-semibold">My Transactions</CardTitle>
+                <CardDescription>View your transaction history</CardDescription>
+              </div>
+              <div className="w-full sm:w-auto">
+                <Select value={filter} onValueChange={handleFilterChange}>
+                  <SelectTrigger className="w-full sm:w-[250px] border-neutral-300 focus:ring-primary-500">
+                    <SelectValue placeholder="Filter by type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-neutral-100">
+                    <SelectItem value="ALL">All Transaction Types</SelectItem>
+                    <SelectItem value="CREATE_ESCROW">Create Escrow</SelectItem>
+                    <SelectItem value="FUND_ESCROW">Fund Escrow</SelectItem>
+                    <SelectItem value="MARK_FIAT_PAID">Mark Fiat Paid</SelectItem>
+                    <SelectItem value="RELEASE_ESCROW">Release Escrow</SelectItem>
+                    <SelectItem value="CANCEL_ESCROW">Cancel Escrow</SelectItem>
+                    <SelectItem value="DISPUTE_ESCROW">Open Dispute</SelectItem>
+                    <SelectItem value="OPEN_DISPUTE">Open Dispute</SelectItem>
+                    <SelectItem value="RESPOND_DISPUTE">Respond to Dispute</SelectItem>
+                    <SelectItem value="RESOLVE_DISPUTE">Resolve Dispute</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="px-6">
             {error && (
               <Alert className="bg-red-50 border-red-200 mb-4">
                 <AlertDescription className="text-red-700">{error}</AlertDescription>
               </Alert>
             )}
 
-            <div className="mb-4 flex justify-between items-center">
-              <div>
-                <label htmlFor="filter" className="mr-2 text-sm font-medium text-gray-700">
-                  Filter by type:
-                </label>
-                <select
-                  id="filter"
-                  value={filter}
-                  onChange={handleFilterChange}
-                  className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                >
-                  <option value="">All Transactions</option>
-                  <option value="CREATE_ESCROW">Create Escrow</option>
-                  <option value="FUND_ESCROW">Fund Escrow</option>
-                  <option value="MARK_FIAT_PAID">Mark Fiat Paid</option>
-                  <option value="RELEASE_ESCROW">Release Escrow</option>
-                  <option value="CANCEL_ESCROW">Cancel Escrow</option>
-                  <option value="DISPUTE_ESCROW">Dispute Escrow</option>
-                </select>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Button
-                  onClick={handlePrevPage}
-                  disabled={page === 1}
-                  variant="outline"
-                  size="sm"
-                >
-                  Previous
-                </Button>
-                <span className="text-sm text-gray-600">Page {page}</span>
-                <Button
-                  onClick={handleNextPage}
-                  disabled={transactions.length < limit}
-                  variant="outline"
-                  size="sm"
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-            
             {loading ? (
-              <div className="p-8 text-center text-gray-500">Loading transactions...</div>
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div>
+              </div>
             ) : transactions.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">No transactions found.</div>
+              <Alert className="bg-neutral-50 border-neutral-200">
+                <AlertDescription>No transactions found.</AlertDescription>
+              </Alert>
             ) : (
               <>
                 {/* Mobile view */}
-                <div className="md:hidden space-y-4">
-                  {transactions.map((tx) => (
-                    <div key={tx.id} className="border rounded-lg p-4 hover:bg-gray-50">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium text-gray-900">
-                          {getTransactionTypeLabel(tx.transaction_type)}
-                        </span>
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(tx.status)}`}>
+                <div className="md:hidden space-y-6">
+                  {transactions.map(tx => (
+                    <div key={tx.id} className="border rounded-lg p-5 hover:bg-neutral-50">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <span className="font-medium text-neutral-800">
+                            {getTransactionTypeLabel(tx.transaction_type)}
+                          </span>
+                          <div className="text-sm text-neutral-500 mt-1">
+                            {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
+                          </div>
+                        </div>
+                        <span
+                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(
+                            tx.status
+                          )}`}
+                        >
                           {tx.status}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <span className="text-gray-500">Trade ID:</span>
-                        <a 
-                          href={`/trades/${tx.trade_id}`} 
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          {tx.trade_id}
-                        </a>
-                        <span className="text-gray-500">From:</span>
-                        <span>{formatAddress(tx.from_address)}</span>
-                        {tx.to_address && (
-                          <>
-                            <span className="text-gray-500">To:</span>
-                            <span>{formatAddress(tx.to_address)}</span>
-                          </>
-                        )}
-                        {tx.amount && (
-                          <>
-                            <span className="text-gray-500">Amount:</span>
-                            <span>{tx.amount} {tx.token_type || 'USDC'}</span>
-                          </>
-                        )}
-                        <span className="text-gray-500">Time:</span>
-                        <span>{formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}</span>
-                        <span className="text-gray-500">Transaction:</span>
-                        <a 
-                          href={getExplorerUrl(tx.transaction_hash)} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:text-blue-800"
-                        >
-                          {formatAddress(tx.transaction_hash)}
-                          <ExternalLink size={14} className="ml-1" />
-                        </a>
+
+                      <div className="grid grid-cols-2 gap-3 text-sm mt-4">
+                        <div>
+                          <span className="text-neutral-500 block mb-1">ID:</span>
+                          <span className="font-medium">{tx.id}</span>
+                        </div>
+                        <div>
+                          <span className="text-neutral-500 block mb-1">Trade:</span>
+                          <Link
+                            to={`/trade/${tx.trade_id}`}
+                            className="text-blue-600 hover:text-blue-800 font-medium"
+                          >
+                            {tx.trade_id}
+                          </Link>
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-neutral-500 block mb-1">From:</span>
+                          <span>{formatAddress(tx.from_address)}</span>
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-neutral-500 block mb-1">To:</span>
+                          <span>{tx.to_address ? formatAddress(tx.to_address) : '-'}</span>
+                        </div>
+                        <div className="col-span-2 mt-2">
+                          <span className="text-neutral-500 block mb-1">Amount:</span>
+                          <span>{tx.amount ? `${tx.amount} ${tx.token_type || 'USDC'}` : '-'}</span>
+                        </div>
+                        <div className="col-span-2 mt-2">
+                          <span className="text-neutral-500 block mb-1">Transaction:</span>
+                          <a
+                            href={getExplorerUrl(tx.transaction_hash)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-600 hover:text-blue-800"
+                          >
+                            {formatAddress(tx.transaction_hash)}
+                            <ExternalLink size={14} className="ml-1" />
+                          </a>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -282,6 +296,7 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                   <Table>
                     <TableHeader>
                       <TableRow>
+                        <TableHead className="text-primary-700 font-medium">ID</TableHead>
                         <TableHead className="text-primary-700 font-medium">Type</TableHead>
                         <TableHead className="text-primary-700 font-medium">Trade ID</TableHead>
                         <TableHead className="text-primary-700 font-medium">From</TableHead>
@@ -293,32 +308,41 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {transactions.map((tx) => (
-                        <TableRow key={tx.id} className="hover:bg-gray-50">
-                          <TableCell className="font-medium">{getTransactionTypeLabel(tx.transaction_type)}</TableCell>
+                      {transactions.map(tx => (
+                        <TableRow key={tx.id} className="hover:bg-neutral-50">
+                          <TableCell className="font-medium">{tx.id}</TableCell>
+                          <TableCell>{getTransactionTypeLabel(tx.transaction_type)}</TableCell>
                           <TableCell>
-                            <a 
-                              href={`/trades/${tx.trade_id}`} 
+                            <Link
+                              to={`/trade/${tx.trade_id}`}
                               className="text-blue-600 hover:text-blue-800"
                             >
                               {tx.trade_id}
-                            </a>
+                            </Link>
                           </TableCell>
                           <TableCell>{formatAddress(tx.from_address)}</TableCell>
-                          <TableCell>{tx.to_address ? formatAddress(tx.to_address) : '-'}</TableCell>
-                          <TableCell>{tx.amount ? `${tx.amount} ${tx.token_type || 'USDC'}` : '-'}</TableCell>
                           <TableCell>
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(tx.status)}`}>
+                            {tx.to_address ? formatAddress(tx.to_address) : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {tx.amount ? `${tx.amount} ${tx.token_type || 'USDC'}` : '-'}
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(
+                                tx.status
+                              )}`}
+                            >
                               {tx.status}
                             </span>
                           </TableCell>
-                          <TableCell className="text-gray-500 text-sm">
+                          <TableCell className="text-neutral-500 text-sm">
                             {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
                           </TableCell>
                           <TableCell>
-                            <a 
-                              href={getExplorerUrl(tx.transaction_hash)} 
-                              target="_blank" 
+                            <a
+                              href={getExplorerUrl(tx.transaction_hash)}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center text-blue-600 hover:text-blue-800"
                             >
@@ -330,6 +354,45 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                       ))}
                     </TableBody>
                   </Table>
+                </div>
+
+                {/* Pagination */}
+                <div className="mt-8">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={handlePrevPage}
+                          className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                        />
+                      </PaginationItem>
+
+                      {Array.from({ length: Math.ceil(totalCount / limit) })
+                        .map((_, i) => (
+                          <PaginationItem key={i}>
+                            <PaginationLink
+                              isActive={page === i + 1}
+                              onClick={() => setPage(i + 1)}
+                            >
+                              {i + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))
+                        .slice(
+                          Math.max(0, page - 3),
+                          Math.min(Math.ceil(totalCount / limit), page + 2)
+                        )}
+
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={handleNextPage}
+                          className={
+                            page * limit >= totalCount ? 'pointer-events-none opacity-50' : ''
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
                 </div>
               </>
             )}
