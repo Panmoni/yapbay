@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getTradeTransactions, TransactionRecord } from '../../../api';
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
@@ -6,6 +6,8 @@ import { config } from '../../../config';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 interface TransactionHistoryProps {
   tradeId: number;
@@ -19,13 +21,19 @@ const getTransactionTypeLabel = (type: string): string => {
     MARK_FIAT_PAID: 'Mark Fiat Paid',
     RELEASE_ESCROW: 'Release Escrow',
     CANCEL_ESCROW: 'Cancel Escrow',
-    DISPUTE_ESCROW: 'Open Dispute',
+    DISPUTE_ESCROW: 'Dispute Escrow',
     OPEN_DISPUTE: 'Open Dispute',
     RESPOND_DISPUTE: 'Respond to Dispute',
     RESOLVE_DISPUTE: 'Resolve Dispute',
+    BUYER_CONFIRMED: 'Buyer Confirmed',
+    SELLER_CONFIRMED: 'Seller Confirmed',
+    ESCROW_FUNDED: 'Escrow Funded',
+    ESCROW_RELEASED: 'Escrow Released',
+    ESCROW_CANCELLED: 'Escrow Cancelled',
+    FIAT_PAID: 'Fiat Paid',
     OTHER: 'Other Transaction',
   };
-  return labels[type] || type;
+  return labels[type] || type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 };
 
 const getStatusBadgeClass = (status: string): string => {
@@ -51,26 +59,34 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await getTradeTransactions(tradeId);
-        setTransactions(response.data);
-      } catch (error) {
-        console.error('Error fetching transactions:', error);
-        setError('Failed to load transaction history');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (tradeId) {
-      fetchTransactions();
+  const fetchTransactions = useCallback(async () => {
+    try {
+      setIsRefreshing(true);
+      setError(null);
+      const response = await getTradeTransactions(tradeId);
+      console.log('Fetched transaction records:', response.data);
+      setTransactions(response.data);
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      setError('Failed to load transaction history');
+    } finally {
+      setIsRefreshing(false);
+      setLoading(false);
     }
   }, [tradeId]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchTransactions();
+    const interval = setInterval(() => {
+      fetchTransactions();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [fetchTransactions]);
 
   const getExplorerUrl = (txHash: string) => {
     interface ExtendedConfig {
@@ -95,11 +111,30 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
       >
         <div className="flex items-center justify-between">
           <CollapsibleTrigger asChild>
-            <button className="flex items-center gap-2 font-medium">
+            <Button variant="ghost" className="flex items-center gap-2 font-medium">
               <span>Transaction History</span>
               {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </button>
+            </Button>
           </CollapsibleTrigger>
+          <div className="flex items-center gap-2">
+            {lastUpdated && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-xs text-neutral-500">
+                    {isRefreshing
+                      ? 'Refreshing...'
+                      : `Updated ${formatDistanceToNow(lastUpdated)} ago`}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent className="bg-neutral-50">
+                  <p>Auto-refreshes every minute</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+            <Button variant="outline" size="sm" onClick={fetchTransactions} disabled={isRefreshing}>
+              <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+            </Button>
+          </div>
         </div>
         <CollapsibleContent>
           {loading ? (
@@ -139,29 +174,37 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
                         {getTransactionTypeLabel(tx.transaction_type)}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span>{formatAddress(tx.from_address)}</span>
-                          </TooltipTrigger>
-                          <TooltipContent>{tx.from_address}</TooltipContent>
-                        </Tooltip>
+                        {tx.from_address ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span>{formatAddress(tx.from_address)}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>{tx.from_address}</TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          <span className="text-gray-400 italic">Unknown</span>
+                        )}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap">
                         <Badge className={getStatusBadgeClass(tx.status)}>{tx.status}</Badge>
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                        {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
+                        {tx.created_at ? formatDistanceToNow(new Date(tx.created_at), { addSuffix: true }) : <span className="text-gray-400 italic">Unknown</span>}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                        <a
-                          href={getExplorerUrl(tx.transaction_hash)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:text-blue-800"
-                        >
-                          <span>{formatAddress(tx.transaction_hash)}</span>
-                          <ExternalLink size={12} className="ml-1" />
-                        </a>
+                        {tx.transaction_hash ? (
+                          <a
+                            href={getExplorerUrl(tx.transaction_hash)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center text-blue-600 hover:text-blue-800"
+                          >
+                            <span>{formatAddress(tx.transaction_hash)}</span>
+                            <ExternalLink size={12} className="ml-1" />
+                          </a>
+                        ) : (
+                          <span className="text-gray-400 italic">Unknown</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -169,6 +212,9 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
               </table>
             </div>
           )}
+          <div className="mt-4 text-xs text-neutral-600 text-center">
+            Transaction history automatically updates every minute.
+          </div>
         </CollapsibleContent>
       </Collapsible>
     </TooltipProvider>

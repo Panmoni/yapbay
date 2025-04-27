@@ -423,12 +423,15 @@ export const recordTransaction = (data: {
   block_number?: number;
   status?: 'PENDING' | 'SUCCESS' | 'FAILED';
   metadata?: Record<string, string>;
-}) => api.post<{
-  success: boolean;
-  transactionId: number;
-  txHash: string;
-  blockNumber?: number;
-}>('/transactions/record', data);
+}) => {
+  console.log('[recordTransaction] Sending data to API:', data);
+  return api.post<{
+    success: boolean;
+    transactionId: number;
+    txHash: string;
+    blockNumber?: number;
+  }>('/transactions/record', data);
+};
 
 /**
  * Get transactions for a specific trade

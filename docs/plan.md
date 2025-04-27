@@ -1,7 +1,5 @@
 # YapBay Frontend Development Plan
 
-re-org trade ui of transaction log, need more details
-
 test immediate prompt to fund after escrow creation
 
 test recording of all events and transactions
