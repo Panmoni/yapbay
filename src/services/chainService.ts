@@ -445,3 +445,27 @@ export const markFiatPaidTransaction = async (
     throw error;
   }
 };
+
+/**
+ * Fetches the USDC balance for a given wallet address using VITE_CELO_RPC_URL.
+ * @param address Wallet address (string)
+ * @returns Promise<BigInt> USDC balance (in smallest unit, e.g. 6 decimals)
+ */
+export async function getUsdcBalance(address: string): Promise<bigint> {
+  // Use ethers.js for direct RPC call
+  const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_CELO_RPC_URL);
+  const usdcAddress = config.usdcAddressAlfajores;
+  // Minimal ERC20 ABI for balanceOf
+  const erc20BalanceOfAbi = [
+    {
+      constant: true,
+      inputs: [{ name: '_owner', type: 'address' }],
+      name: 'balanceOf',
+      outputs: [{ name: 'balance', type: 'uint256' }],
+      type: 'function',
+    },
+  ];
+  const contract = new ethers.Contract(usdcAddress, erc20BalanceOfAbi, provider);
+  const balance: bigint = await contract.balanceOf(address);
+  return balance;
+}

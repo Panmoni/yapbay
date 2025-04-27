@@ -18,6 +18,7 @@ import { ExternalLink } from 'lucide-react';
 // Import our custom hooks and components
 import { useTradeConfirmation } from './useTradeConfirmation';
 import { TradeCalculatedValues } from './TradeCalculatedValues';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
 interface TradeConfirmationDialogProps {
   isOpen: boolean;
@@ -46,6 +47,27 @@ const TradeConfirmationDialog = ({
     handleAmountChange,
     handleConfirm,
   } = useTradeConfirmation(isOpen, offer, onConfirm);
+
+  const { primaryWallet } = useDynamicContext();
+
+  // Determine if the current user will be the seller in this trade
+  // If offer_type is 'BUY', the counterparty (taker) is the seller
+  // If offer_type is 'SELL', the counterparty (taker) is the buyer
+  const isSeller = offer.offer_type === 'BUY' && primaryWallet?.address;
+  const {
+    balance: usdcBalance,
+    loading: usdcLoading,
+    error: usdcError,
+  } = useSellerUsdcBalance(isSeller ? primaryWallet?.address : undefined, isOpen, amount);
+  const amountToEscrow = parseFloat(amount);
+  const usdcBalanceNum = usdcBalance !== null ? Number(usdcBalance) / 1e6 : null;
+  const insufficient =
+    isSeller &&
+    usdcBalanceNum !== null &&
+    !usdcLoading &&
+    !usdcError &&
+    amountToEscrow > 0 &&
+    usdcBalanceNum < amountToEscrow;
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -152,13 +174,31 @@ const TradeConfirmationDialog = ({
                 max={offer.max_amount}
                 step="0.01" // Allow increments of 0.01
               />
-              <span className="text-sm text-neutral-500">{offer.token}</span>
+              <span className="text-neutral-600 text-sm">{offer.token}</span>
             </div>
-            <div className="text-xs text-neutral-500">
-              Available: {formatNumber(offer.total_available_amount)} {offer.token} | Min:{' '}
-              {formatNumber(offer.min_amount)} | Max: {formatNumber(offer.max_amount)}
+            <div className="flex flex-col gap-1">
+              {/* Seller's USDC Balance, styled as requested */}
+              {isSeller && (
+                <span className="text-neutral-500 text-xs">
+                  Your current balance:{' '}
+                  {usdcLoading
+                    ? 'Loading...'
+                    : usdcError
+                    ? `Error`
+                    : usdcBalanceNum?.toLocaleString(undefined, { maximumFractionDigits: 6 }) ??
+                      '—'}{' '}
+                  {offer.token}
+                </span>
+              )}
+              {amountError && <div className="text-xs text-red-600 mt-1">{amountError}</div>}
+              {/* Insufficient warning */}
+              {isSeller && insufficient && (
+                <div className="mt-1 text-xs text-red-700 bg-red-100 border border-red-200 rounded p-2">
+                  <b>Warning:</b> Your USDC balance is insufficient to fund this escrow. Please
+                  deposit more USDC to your wallet before proceeding.
+                </div>
+              )}
             </div>
-            {amountError && <div className="text-xs text-red-600 mt-1">{amountError}</div>}
           </div>
 
           {/* Use our TradeCalculatedValues component */}
@@ -214,7 +254,12 @@ const TradeConfirmationDialog = ({
                     <ExternalLink className="ml-1 h-3 w-3" />
                   </a>{' '}
                   and{' '}
-                  <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
+                  <a
+                    href="https://faucet.circle.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center"
+                  >
                     USDC
                     <ExternalLink className="ml-1 h-3 w-3" />
                   </a>
@@ -232,13 +277,13 @@ const TradeConfirmationDialog = ({
         </div>
 
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="mr-2">
             Cancel
           </Button>
           <Button
-            className="bg-secondary-500 hover:bg-secondary-600 text-white"
             onClick={handleConfirm}
-            disabled={loading || !!error || !!amountError || fiatAmount <= 0}
+            disabled={Boolean(loading || amountError || insufficient)}
+            className="bg-secondary-500 hover:bg-secondary-600 text-white w-full"
           >
             Initiate Trade
           </Button>
@@ -247,5 +292,38 @@ const TradeConfirmationDialog = ({
     </Dialog>
   );
 };
+
+function useSellerUsdcBalance(address: string | undefined, open: boolean, amount: string) {
+  const [balance, setBalance] = React.useState<bigint | null>(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!address || !open) {
+      setBalance(null);
+      setError(null);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    getUsdcBalance(address)
+      .then(bal => {
+        if (!cancelled) setBalance(bal);
+      })
+      .catch(e => {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [address, open, amount]);
+  return { balance, loading, error };
+}
+
+import { getUsdcBalance } from '@/services/chainService';
 
 export default TradeConfirmationDialog;
