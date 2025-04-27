@@ -1,14 +1,6 @@
 # YapBay Frontend Development Plan
 
-clear linting problems
-
-npm run lint 3 problems
-
-3 build errors
-
-update UserTransactionsPage to use same format as Offes, Trades, escrows etc.
-
-rename UserTransactionsPage, update App.tsx routing, add to header menu
+MyTransactionPage in header
 
 re-org trade ui of transaction log, need more details
 
