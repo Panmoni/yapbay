@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { config } from '../config';
 
 // Use the API URL from the config file
@@ -11,7 +11,7 @@ const api = axios.create({
 
 // Optional: Add interceptors for logging or error handling if needed
 api.interceptors.request.use(
-  config => {
+  (config: InternalAxiosRequestConfig) => {
     // console.log("API Request:", config.method?.toUpperCase(), config.url);
     // Automatically add token from localStorage if available
     const token = localStorage.getItem('jwt_token');
@@ -20,19 +20,21 @@ api.interceptors.request.use(
     }
     return config;
   },
-  error => {
+  (error: unknown) => {
     console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
 
 api.interceptors.response.use(
-  response => {
+  (response: AxiosResponse) => {
     // console.log("API Response:", response.status, response.data);
     return response;
   },
-  error => {
-    console.error('API Error:', error.response?.status, error.message, error.config?.url);
+  (error: unknown) => {
+    console.error('API Error:', (error as {response?: {status?: number}}).response?.status, 
+      (error as Error).message, 
+      (error as {config?: {url?: string}}).config?.url);
     // Handle specific errors like 401 Unauthorized if needed
     return Promise.reject(error);
   }
@@ -195,6 +197,24 @@ export interface Dispute {
   responded_at: string | null;
   resolved_at: string | null;
   winner_address: string | null;
+}
+
+export interface TransactionRecord {
+  id: number;
+  trade_id: number;
+  escrow_id?: number;
+  transaction_hash: string;
+  transaction_type: 'CREATE_ESCROW' | 'FUND_ESCROW' | 'MARK_FIAT_PAID' | 'RELEASE_ESCROW' | 'CANCEL_ESCROW' | 'DISPUTE_ESCROW' | 'OPEN_DISPUTE' | 'RESPOND_DISPUTE' | 'RESOLVE_DISPUTE' | 'OTHER';
+  from_address: string;
+  to_address?: string;
+  amount?: string;
+  token_type?: string;
+  status: 'PENDING' | 'SUCCESS' | 'FAILED';
+  block_number?: number;
+  gas_used?: string;
+  error_message?: string;
+  created_at: string;
+  metadata?: Record<string, string>;
 }
 
 // --- API Functions ---
@@ -384,6 +404,58 @@ export const markTradeFiatPaid = (tradeId: number | string) => {
   return api.post<{ message: string }>(`/escrows/mark-fiat-paid`, {
     trade_id: tradeId,
   });
+};
+
+/**
+ * Records a blockchain transaction
+ * @param data Transaction data to record
+ * @returns Promise with transaction recording response
+ */
+export const recordTransaction = (data: {
+  trade_id: number;
+  escrow_id?: number;
+  transaction_hash: string;
+  transaction_type: 'CREATE_ESCROW' | 'FUND_ESCROW' | 'MARK_FIAT_PAID' | 'RELEASE_ESCROW' | 'CANCEL_ESCROW' | 'DISPUTE_ESCROW' | 'OPEN_DISPUTE' | 'RESPOND_DISPUTE' | 'RESOLVE_DISPUTE' | 'OTHER';
+  from_address: string;
+  to_address?: string;
+  amount?: string;
+  token_type?: string;
+  block_number?: number;
+  status?: 'PENDING' | 'SUCCESS' | 'FAILED';
+  metadata?: Record<string, string>;
+}) => api.post<{
+  success: boolean;
+  transactionId: number;
+  txHash: string;
+  blockNumber?: number;
+}>('/transactions/record', data);
+
+/**
+ * Get transactions for a specific trade
+ * @param tradeId The ID of the trade
+ * @param type Optional transaction type filter
+ * @returns Promise with array of transaction records
+ */
+export const getTradeTransactions = (tradeId: number, type?: string) => 
+  api.get<TransactionRecord[]>(`/transactions/trade/${tradeId}${type ? `?type=${type}` : ''}`);
+
+/**
+ * Get all transactions for the authenticated user
+ * @param params Optional parameters for filtering and pagination
+ * @returns Promise with array of transaction records
+ */
+export const getUserTransactions = (params?: { 
+  type?: string; 
+  limit?: number; 
+  offset?: number; 
+}) => {
+  const queryParams = new URLSearchParams();
+  if (params?.type) queryParams.append('type', params.type);
+  if (params?.limit) queryParams.append('limit', params.limit.toString());
+  if (params?.offset) queryParams.append('offset', params.offset.toString());
+  
+  const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+  return api.get<TransactionRecord[]>(`/transactions/user${queryString}`);
 };
 
 // Prices API

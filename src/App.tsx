@@ -14,6 +14,8 @@ import MyOffersPage from './my/MyOffersPage';
 import MyTradesPage from './my/MyTradesPage';
 import MyEscrowsPage from './my/MyEscrowsPage';
 import OfferDetailPage from '@/offer/OfferDetailPage';
+import UserTransactionsPage from './pages/UserTransactionsPage';
+
 import EditOfferPage from '@/offer/EditOfferPage';
 import TradePage from './TradePage';
 import NotFoundPage from '@/pages/NotFoundPage'; // Import the 404 page
@@ -61,6 +63,7 @@ function App() {
               <Route path="/offers" element={<MyOffersPage account={account} />} />
               <Route path="/trades" element={<MyTradesPage account={account} />} />
               <Route path="/escrows" element={<MyEscrowsPage account={account} />} />
+              <Route path="/transactions" element={<UserTransactionsPage />} />
               <Route path="/offer/:id" element={<OfferDetailPage />} />
               <Route path="/edit-offer/:id" element={<EditOfferPage />} />
               <Route path="/trade/:id" element={<TradePage />} />

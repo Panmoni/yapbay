@@ -15,6 +15,7 @@ import { TradeNavigation } from './components/Trade/TradeNavigation';
 import { LoadingIndicator } from './components/Trade/LoadingIndicator';
 import { TradeNotFoundAlert } from './components/Trade/TradeNotFoundAlert';
 import { refreshTrade } from './services/tradeService';
+import TransactionHistory from './components/TransactionHistory';
 
 function TradePage() {
   const { id } = useParams<{ id: string }>();
@@ -103,6 +104,9 @@ function TradePage() {
         balance={balance}
         refreshEscrow={refreshEscrow}
       />
+
+      {/* Transaction History Section */}
+      <TransactionHistory tradeId={tradeId} className="mt-4" />
 
       <ChatSection counterparty={counterparty} />
 

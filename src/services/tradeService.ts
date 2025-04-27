@@ -8,6 +8,7 @@ import {
   disputeEscrow,
   cancelEscrow,
   getTradeById,
+  recordTransaction,
 } from '../api';
 import { formatNumber } from '../lib/utils';
 import { handleApiError } from '../utils/errorHandling';
@@ -23,6 +24,21 @@ interface StartTradeParams {
   primaryWallet: { address?: string } | null;
   onSuccess: (tradeId: number) => void;
   onError: (error: Error) => void;
+}
+
+interface TransactionResult {
+  txHash: string;
+  blockNumber?: number;
+  escrowId?: string;
+  escrowAddress?: string;
+}
+
+interface EscrowResponseWithTx {
+  txHash: string;
+  blockNumber?: number;
+  success?: boolean;
+  message?: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -121,7 +137,24 @@ export const createTradeEscrow = async ({
 
     console.log('[DEBUG] Transaction result:', txResult);
 
-    // Now notify the backend about the successful transaction
+    // Record the transaction in our transaction system
+    await recordTransaction({
+      trade_id: trade.id,
+      transaction_hash: txResult.txHash,
+      transaction_type: 'CREATE_ESCROW',
+      from_address: sellerAddress,
+      to_address: buyerAddress,
+      amount: trade.leg1_crypto_amount,
+      token_type: trade.leg1_crypto_token,
+      status: 'SUCCESS',
+      block_number: txResult.blockNumber,
+      metadata: {
+        escrow_id: txResult.escrowId,
+        arbitrator: config.arbitratorAddress
+      }
+    });
+
+    // Now notify the backend about the successful transaction (legacy system)
     const recordData = {
       trade_id: trade.id,
       transaction_hash: txResult.txHash,
@@ -158,31 +191,44 @@ export const createAndFundTradeEscrow = async ({
 }: CreateEscrowParams) => {
   try {
     // First create the escrow
-    const txResult = await createTradeEscrow({
+    const escrowResult = await createTradeEscrow({
       trade,
       primaryWallet,
       buyerAddress,
       sellerAddress,
     });
 
-    // Immediately prompt to fund the escrow
-    toast('Please fund the escrow now...', {
-      description: 'You need to fund the escrow to continue with the trade.',
-    });
+    // Then check and fund it - note: only pass 2 arguments if that's what the function expects
+    const fundResult = await checkAndFundEscrow(
+      primaryWallet,
+      escrowResult.escrowId
+    );
 
-    // Trigger the funding process
-    try {
-      await checkAndFundEscrow(primaryWallet, txResult.escrowId);
-      toast.success('Escrow funded successfully!');
-    } catch (fundErr) {
-      console.error('Error funding escrow:', fundErr);
-      const fundErrorMessage = handleApiError(fundErr, 'Failed to fund escrow: Please try again manually');
-      toast.error(fundErrorMessage);
-      // We don't rethrow here since the escrow was created successfully
-      // The user can manually fund it later
+    // Convert result to expected format
+    const txResult: TransactionResult = typeof fundResult === 'string' 
+      ? { txHash: fundResult } 
+      : fundResult as TransactionResult;
+
+    // Record the funding transaction
+    if (txResult && 'txHash' in txResult) {
+      await recordTransaction({
+        trade_id: trade.id,
+        escrow_id: parseInt(escrowResult.escrowId),
+        transaction_hash: txResult.txHash,
+        transaction_type: 'FUND_ESCROW',
+        from_address: sellerAddress,
+        to_address: txResult.escrowAddress || '',
+        amount: trade.leg1_crypto_amount,
+        token_type: trade.leg1_crypto_token,
+        status: 'SUCCESS',
+        block_number: txResult.blockNumber,
+        metadata: {
+          escrow_id: escrowResult.escrowId
+        }
+      });
     }
 
-    return txResult;
+    return { escrow: escrowResult, fund: txResult };
   } catch (err) {
     console.error('Error in create and fund escrow flow:', err);
     const errorMessage = handleApiError(err, 'Failed to create and fund escrow');
@@ -218,14 +264,35 @@ export const markTradeFiatPaid = async ({ trade, primaryWallet }: MarkFiatPaidPa
     });
 
     // Call blockchain service to mark fiat as paid
-    const txHash = await markFiatPaidTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
+    const result = await markFiatPaidTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
+    
+    // Convert result to expected format
+    const txResult: TransactionResult = typeof result === 'string' 
+      ? { txHash: result } 
+      : result as TransactionResult;
+
+    // Record the transaction
+    if (txResult && 'txHash' in txResult) {
+      await recordTransaction({
+        trade_id: trade.id,
+        escrow_id: parseInt(trade.leg1_escrow_onchain_id),
+        transaction_hash: txResult.txHash,
+        transaction_type: 'MARK_FIAT_PAID',
+        from_address: primaryWallet.address || '',
+        status: 'SUCCESS',
+        block_number: txResult.blockNumber,
+        metadata: {
+          escrow_id: trade.leg1_escrow_onchain_id
+        }
+      });
+    }
 
     // Call API to update backend state
     await markFiatPaid(trade.id);
 
     toast.success('Fiat payment marked as paid successfully!');
 
-    return txHash;
+    return txResult;
   } catch (err) {
     console.error('Error marking fiat as paid:', err);
     const errorMessage = handleApiError(err, 'Failed to mark fiat as paid');
@@ -251,13 +318,31 @@ export const releaseTradeCrypto = async ({
 }: ReleaseCryptoParams): Promise<void> => {
   try {
     // Call API to release escrow
-    await releaseEscrow({
+    const response = await releaseEscrow({
       escrow_id: trade.id,
       trade_id: trade.id,
       authority: primaryWallet.address || '',
       buyer_token_account: 'placeholder', // This would come from the wallet
       arbitrator_token_account: 'placeholder', // This would be a system account
     });
+
+    // Record the transaction if we have a transaction hash
+    if (response?.data && typeof response.data === 'object' && 'txHash' in response.data) {
+      // Cast to unknown first, then to our type to avoid TypeScript errors
+      const txData = response.data as unknown as EscrowResponseWithTx;
+      await recordTransaction({
+        trade_id: trade.id,
+        escrow_id: trade.id,
+        transaction_hash: txData.txHash,
+        transaction_type: 'RELEASE_ESCROW',
+        from_address: primaryWallet.address || '',
+        to_address: trade.leg1_buyer_account_id?.toString() || '',
+        amount: trade.leg1_crypto_amount,
+        token_type: trade.leg1_crypto_token,
+        status: 'SUCCESS',
+        block_number: txData.blockNumber,
+      });
+    }
 
     toast.success('Crypto released successfully!');
   } catch (err) {
@@ -282,12 +367,30 @@ interface DisputeTradeParams {
 export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams): Promise<void> => {
   try {
     // Call API to dispute escrow
-    await disputeEscrow({
+    const response = await disputeEscrow({
       escrow_id: trade.id,
       trade_id: trade.id,
       disputing_party: primaryWallet.address || '',
       disputing_party_token_account: 'placeholder', // This would come from the wallet
     });
+
+    // Record the transaction if we have a transaction hash
+    if (response?.data && typeof response.data === 'object' && 'txHash' in response.data) {
+      // Cast to unknown first, then to our type to avoid TypeScript errors
+      const txData = response.data as unknown as EscrowResponseWithTx;
+      await recordTransaction({
+        trade_id: trade.id,
+        escrow_id: trade.id,
+        transaction_hash: txData.txHash,
+        transaction_type: 'DISPUTE_ESCROW',
+        from_address: primaryWallet.address || '',
+        status: 'SUCCESS',
+        block_number: txData.blockNumber,
+        metadata: {
+          disputing_party: primaryWallet.address || ''
+        }
+      });
+    }
 
     toast.success('Trade disputed successfully');
   } catch (err) {
@@ -319,12 +422,32 @@ export const cancelTrade = async ({
 }: CancelTradeParams): Promise<void> => {
   try {
     // Call API to cancel escrow
-    await cancelEscrow({
+    const response = await cancelEscrow({
       escrow_id: trade.id,
       trade_id: trade.id,
       seller: userRole === 'seller' ? primaryWallet.address || '' : counterpartyAddress || '',
       authority: primaryWallet.address || '',
     });
+
+    // Record the transaction if we have a transaction hash
+    if (response?.data && typeof response.data === 'object' && 'txHash' in response.data) {
+      // Cast to unknown first, then to our type to avoid TypeScript errors
+      const txData = response.data as unknown as EscrowResponseWithTx;
+      await recordTransaction({
+        trade_id: trade.id,
+        escrow_id: trade.id,
+        transaction_hash: txData.txHash,
+        transaction_type: 'CANCEL_ESCROW',
+        from_address: primaryWallet.address || '',
+        to_address: userRole === 'seller' ? (primaryWallet.address || '') : (counterpartyAddress || ''),
+        status: 'SUCCESS',
+        block_number: txData.blockNumber,
+        metadata: {
+          cancelled_by: userRole,
+          authority: primaryWallet.address || ''
+        }
+      });
+    }
 
     toast.success('Trade cancelled successfully');
   } catch (err) {
