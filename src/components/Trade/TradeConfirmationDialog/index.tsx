@@ -179,7 +179,7 @@ const TradeConfirmationDialog = ({
             <div className="flex flex-col gap-1">
               {/* Seller's USDC Balance, styled as requested */}
               {isSeller && (
-                <span className="text-neutral-500 text-xs">
+                <span className="text-neutral-600 text-xs">
                   Your current balance:{' '}
                   {usdcLoading
                     ? 'Loading...'
@@ -276,14 +276,14 @@ const TradeConfirmationDialog = ({
           )}
         </div>
 
-        <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)} className="mr-2">
+        <DialogFooter className="mt-4 flex gap-2 justify-end">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="w-36">
             Cancel
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={Boolean(loading || amountError || insufficient)}
-            className="bg-secondary-500 hover:bg-secondary-600 text-white w-full"
+            className="bg-secondary-500 hover:bg-secondary-600 text-white w-36"
           >
             Initiate Trade
           </Button>
