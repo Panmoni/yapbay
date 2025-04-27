@@ -182,6 +182,14 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                         My Escrows
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        to="/transactions"
+                        className="w-full text-neutral-800 hover:text-primary-700"
+                      >
+                        My Transactions
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem>
                       <button
                         onClick={handleLogOut}
@@ -245,6 +253,15 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     My Escrows
+                  </Link>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <Link
+                    to="/transactions"
+                    className="block w-full py-2 text-neutral-800 hover:text-primary-700"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    My Transactions
                   </Link>
                 </div>
                 <div className="flex items-center justify-between py-2">
