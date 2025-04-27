@@ -21,6 +21,14 @@ import { formatDistanceToNow } from 'date-fns';
 import Container from '@/components/Shared/Container';
 import OfferTypeTooltip from '@/components/Offer/OfferTypeTooltip';
 import OfferActionButtons from '@/components/Offer/OfferActionButtons';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 interface MyOffersPageProps {
   account: Account | null;
@@ -32,6 +40,9 @@ function MyOffersPage({ account }: MyOffersPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const limit = 10; // Number of offers per page
 
   // Setup offer deletion hook
   const { handleDeleteOffer: performDelete, isDeleting: isDeletingOffer } = useOfferDeletion({
@@ -62,7 +73,14 @@ function MyOffersPage({ account }: MyOffersPageProps) {
         const userOffers = response.data
           .filter((offer: Offer) => offer.creator_account_id === account.id)
           .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        setMyOffers(userOffers);
+        
+        // Set total count for pagination
+        setTotalCount(userOffers.length);
+        
+        // Apply pagination to the sorted offers
+        const paginatedOffers = userOffers.slice((page - 1) * limit, page * limit);
+        setMyOffers(paginatedOffers);
+        
         setError(null);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -74,7 +92,17 @@ function MyOffersPage({ account }: MyOffersPageProps) {
     };
 
     fetchMyOffers();
-  }, [account]);
+  }, [account, page, limit]);
+
+  const handleNextPage = () => {
+    if (page * limit < totalCount) {
+      setPage(prev => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    setPage(prev => Math.max(1, prev - 1));
+  };
 
   // Removed old handleDeleteOffer function
 
@@ -119,67 +147,61 @@ function MyOffersPage({ account }: MyOffersPageProps) {
       </TooltipProvider>
     );
   }
+
   return (
     <TooltipProvider>
       <Container>
         <Card>
-          <CardHeader>
+          <CardHeader className="border-b border-neutral-100">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <CardTitle className="text-primary-800 font-semibold">My Offers</CardTitle>
                 <CardDescription>Manage your active offers</CardDescription>
               </div>
-              <Button className="bg-primary-700 hover:bg-primary-800 text-white w-full sm:w-auto">
-                <Link to="/create-offer" className="text-white hover:text-white w-full">
+              <Button className="bg-primary-800 hover:bg-primary-300 w-full sm:w-auto">
+                <Link to="/create-offer" className="w-full">
                   <span className="text-neutral-100">Create New Offer</span>
                 </Link>
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
-            {error && (
-              <div className="p-5">
-                <Alert variant="destructive" className="mb-0 border-none bg-red-50">
-                  <AlertDescription className="text-red-700">{error}</AlertDescription>
-                </Alert>
-              </div>
-            )}
-
-            {deleteSuccess && (
-              <div className="p-5">
-                <Alert className="mb-0 bg-secondary-200 border-secondary-300">
-                  <AlertDescription className="text-secondary-900">
-                    {deleteSuccess}
-                  </AlertDescription>
-                </Alert>
-              </div>
-            )}
-
-            {loading && (
+          <CardContent className="p-6">
+            {loading ? (
               <div className="flex justify-center items-center py-16">
                 <p className="text-neutral-500">Loading your offers...</p>
               </div>
-            )}
-
-            {!loading && myOffers.length === 0 ? (
-              <div className="p-10 text-center">
-                <p className="text-neutral-500">You haven't created any offers yet.</p>
-                <p className="text-neutral-400 text-sm mt-2">
-                  Create your first offer to start trading on YapBay.
-                </p>
-              </div>
+            ) : error ? (
+              <Alert className="bg-red-50 border-red-200 mb-4">
+                <AlertDescription className="text-red-700">{error}</AlertDescription>
+              </Alert>
+            ) : deleteSuccess ? (
+              <Alert className="bg-green-50 border-green-200 mb-4">
+                <AlertDescription className="text-green-700">{deleteSuccess}</AlertDescription>
+              </Alert>
+            ) : myOffers.length === 0 ? (
+              <Alert className="bg-neutral-50 border-neutral-200">
+                <AlertDescription>
+                  You don't have any offers yet.{' '}
+                  <Link to="/create-offer" className="text-primary-700 hover:text-primary-800">
+                    Create your first offer
+                  </Link>
+                </AlertDescription>
+              </Alert>
             ) : (
-              !loading && (
-                <>
-                  {/* Mobile card view */}
-                  <div className="md:hidden p-4 space-y-4">
-                    {myOffers.map(offer => (
-                      <div key={offer.id} className="mobile-card-view">
-                        <div className="mobile-card-view-header">
-                          <span>{formatNumber(offer.id)}</span>
-                          <OfferTypeTooltip offerType={offer.offer_type} />
-                        </div>
+              <>
+                {/* Mobile card view */}
+                <div className="md:hidden space-y-4">
+                  {myOffers.map(offer => (
+                    <div
+                      key={offer.id}
+                      className="border border-neutral-200 rounded-lg p-4 hover:bg-neutral-50"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="font-medium">#{formatNumber(offer.id)}</div>
+                        <OfferTypeTooltip offerType={offer.offer_type} />
+                      </div>
 
+                      <div className="space-y-2">
                         <div className="mobile-card-view-row">
                           <span className="mobile-card-view-label">Token</span>
                           <span>{offer.token}</span>
@@ -190,11 +212,6 @@ function MyOffersPage({ account }: MyOffersPageProps) {
                           <span>
                             {formatNumber(offer.min_amount)} - {formatNumber(offer.max_amount)}
                           </span>
-                        </div>
-
-                        <div className="mobile-card-view-row">
-                          <span className="mobile-card-view-label">Available</span>
-                          <span>{formatNumber(offer.total_available_amount)}</span>
                         </div>
 
                         <div className="mobile-card-view-row">
@@ -231,70 +248,109 @@ function MyOffersPage({ account }: MyOffersPageProps) {
                           isMobile={true}
                         />
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
+                </div>
 
-                  {/* Desktop table view */}
-                  <div className="hidden md:block overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="text-primary-700 font-medium">ID</TableHead>
-                          <TableHead className="text-primary-700 font-medium">Type</TableHead>
-                          <TableHead className="text-primary-700 font-medium">Token</TableHead>
-                          <TableHead className="text-primary-700 font-medium">Min Amount</TableHead>
-                          <TableHead className="text-primary-700 font-medium">Max Amount</TableHead>
-                          <TableHead className="text-primary-700 font-medium">
-                            Total Available
-                          </TableHead>
-                          <TableHead className="text-primary-700 font-medium">Rate</TableHead>
-                          <TableHead className="text-primary-700 font-medium">Currency</TableHead>
-                          <TableHead className="text-primary-700 font-medium">Created</TableHead>
-                          <TableHead className="text-primary-700 font-medium">Actions</TableHead>
+                {/* Desktop table view */}
+                <div className="hidden md:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-primary-700 font-medium">ID</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Type</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Token</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Min Amount</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Max Amount</TableHead>
+                        <TableHead className="text-primary-700 font-medium">
+                          Total Available
+                        </TableHead>
+                        <TableHead className="text-primary-700 font-medium">Rate</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Currency</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Created</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {myOffers.map(offer => (
+                        <TableRow key={offer.id} className="hover:bg-neutral-50">
+                          <TableCell>{formatNumber(offer.id)}</TableCell>
+                          <TableCell>
+                            <OfferTypeTooltip offerType={offer.offer_type} />
+                          </TableCell>
+                          <TableCell>{offer.token}</TableCell>
+                          <TableCell>{formatNumber(offer.min_amount)}</TableCell>
+                          <TableCell>{formatNumber(offer.max_amount)}</TableCell>
+                          <TableCell>{formatNumber(offer.total_available_amount)}</TableCell>
+                          <TableCell>
+                            <span
+                              className={
+                                offer.rate_adjustment > 1
+                                  ? 'text-success-600'
+                                  : offer.rate_adjustment < 1
+                                  ? 'text-red-600'
+                                  : 'text-neutral-600'
+                              }
+                            >
+                              {formatRate(offer.rate_adjustment)}
+                            </span>
+                          </TableCell>
+                          <TableCell>{offer.fiat_currency}</TableCell>
+                          <TableCell className="text-neutral-500 text-sm">
+                            {formatDistanceToNow(new Date(offer.created_at))} ago
+                          </TableCell>
+                          <TableCell>
+                            <OfferActionButtons
+                              offerId={offer.id}
+                              onDelete={performDelete} // Use hook's delete function
+                              isDeleting={isDeletingOffer} // Pass deleting state
+                            />
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {myOffers.map(offer => (
-                          <TableRow key={offer.id} className="hover:bg-neutral-50">
-                            <TableCell>{formatNumber(offer.id)}</TableCell>
-                            <TableCell>
-                              <OfferTypeTooltip offerType={offer.offer_type} />
-                            </TableCell>
-                            <TableCell>{offer.token}</TableCell>
-                            <TableCell>{formatNumber(offer.min_amount)}</TableCell>
-                            <TableCell>{formatNumber(offer.max_amount)}</TableCell>
-                            <TableCell>{formatNumber(offer.total_available_amount)}</TableCell>
-                            <TableCell>
-                              <span
-                                className={
-                                  offer.rate_adjustment > 1
-                                    ? 'text-success-600'
-                                    : offer.rate_adjustment < 1
-                                    ? 'text-red-600'
-                                    : 'text-neutral-600'
-                                }
-                              >
-                                {formatRate(offer.rate_adjustment)}
-                              </span>
-                            </TableCell>
-                            <TableCell>{offer.fiat_currency}</TableCell>
-                            <TableCell className="text-neutral-500 text-sm">
-                              {formatDistanceToNow(new Date(offer.created_at))} ago
-                            </TableCell>
-                            <TableCell>
-                              <OfferActionButtons
-                                offerId={offer.id}
-                                onDelete={performDelete} // Use hook's delete function
-                                isDeleting={isDeletingOffer} // Pass deleting state
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </>
-              )
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Pagination */}
+                <div className="mt-8">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={handlePrevPage}
+                          className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                        />
+                      </PaginationItem>
+
+                      {Array.from({ length: Math.ceil(totalCount / limit) })
+                        .map((_, i) => (
+                          <PaginationItem key={i}>
+                            <PaginationLink
+                              isActive={page === i + 1}
+                              onClick={() => setPage(i + 1)}
+                            >
+                              {i + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))
+                        .slice(
+                          Math.max(0, page - 3),
+                          Math.min(Math.ceil(totalCount / limit), page + 2)
+                        )}
+
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={handleNextPage}
+                          className={
+                            page * limit >= totalCount ? 'pointer-events-none opacity-50' : ''
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>

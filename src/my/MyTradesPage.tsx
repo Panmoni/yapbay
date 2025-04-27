@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { Link } from 'react-router-dom';
-import { getMyTrades, Trade, Account } from '@/api'; // Removed markTradeFiatPaid
+import { getMyTrades, Trade, Account } from '@/api'; 
 import {
   Table,
   TableBody,
@@ -14,8 +14,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { formatDistanceToNow } from 'date-fns';
-// Removed unused Badge import
 import Container from '@/components/Shared/Container';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 interface MyTradesPageProps {
   account: Account | null;
@@ -26,7 +33,9 @@ function MyTradesPage({ account }: MyTradesPageProps) {
   const [myTrades, setMyTrades] = useState<Trade[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  // Removed actionSuccess state
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const limit = 10; 
 
   useEffect(() => {
     const fetchMyTrades = async () => {
@@ -38,11 +47,15 @@ function MyTradesPage({ account }: MyTradesPageProps) {
       setLoading(true);
       try {
         const response = await getMyTrades();
-        setMyTrades(
-          response.data.sort(
-            (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          )
+        const sortedTrades = response.data.sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
+        
+        setTotalCount(sortedTrades.length);
+        
+        const paginatedTrades = sortedTrades.slice((page - 1) * limit, page * limit);
+        setMyTrades(paginatedTrades);
+        
         setError(null);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -54,11 +67,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
     };
 
     fetchMyTrades();
-  }, [account, primaryWallet]);
-
-  // Removed handleMarkPaid function
-
-  // Removed handleReleaseEscrow function
+  }, [account, primaryWallet, page, limit]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -79,9 +88,15 @@ function MyTradesPage({ account }: MyTradesPageProps) {
     }
   };
 
-  // Removed isUserBuyer function
+  const handleNextPage = () => {
+    if (page * limit < totalCount) {
+      setPage(prev => prev + 1);
+    }
+  };
 
-  // Removed isUserSeller function
+  const handlePrevPage = () => {
+    setPage(prev => Math.max(1, prev - 1));
+  };
 
   if (!primaryWallet) {
     return (
@@ -130,46 +145,40 @@ function MyTradesPage({ account }: MyTradesPageProps) {
             <CardDescription>View and manage your active trades</CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
-          {error && (
-            <div className="p-5">
-              <Alert variant="destructive" className="mb-0 border-none bg-red-50">
-                <AlertDescription className="text-red-700">{error}</AlertDescription>
-              </Alert>
-            </div>
-          )}
-
-          {/* Removed actionSuccess alert */}
-
-          {loading && (
+        <CardContent className="p-6">
+          {loading ? (
             <div className="flex justify-center items-center py-16">
               <p className="text-neutral-500">Loading your trades...</p>
             </div>
-          )}
-
-          {!loading && myTrades.length === 0 ? (
-            <div className="p-10 text-center">
-              <p className="text-neutral-500">You don't have any trades yet.</p>
-              <p className="text-neutral-400 text-sm mt-2">
-                Visit the{' '}
-                <Link to="/" className="text-primary-700 hover:text-primary-800">
-                  home page
-                </Link>{' '}
-                to start trading.
-              </p>
-            </div>
+          ) : error ? (
+            <Alert className="bg-red-50 border-red-200 mb-4">
+              <AlertDescription className="text-red-700">{error}</AlertDescription>
+            </Alert>
+          ) : myTrades.length === 0 ? (
+            <Alert className="bg-neutral-50 border-neutral-200">
+              <AlertDescription>You don't have any trades yet.</AlertDescription>
+            </Alert>
           ) : (
-            !loading && (
-              <>
-                {/* Mobile card view */}
-                <div className="md:hidden p-4 space-y-4">
-                  {myTrades.map(trade => (
-                    <div key={trade.id} className="mobile-card-view">
-                      <div className="mobile-card-view-header">
-                        <span>#{trade.id}</span>
-                        {/* Removed Buyer/Seller badge */}
-                      </div>
+            <>
+              {/* Mobile card view */}
+              <div className="md:hidden space-y-4">
+                {myTrades.map(trade => (
+                  <div
+                    key={trade.id}
+                    className="border border-neutral-200 rounded-lg p-4 hover:bg-neutral-50"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="font-medium">#{trade.id}</div>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                          trade.leg1_state || 'UNKNOWN'
+                        )}`}
+                      >
+                        {trade.leg1_state?.replace(/_/g, ' ') || 'Unknown State'}
+                      </span>
+                    </div>
 
+                    <div className="space-y-2">
                       <div className="mobile-card-view-row">
                         <span className="mobile-card-view-label">Token</span>
                         <span>{trade.leg1_crypto_token}</span>
@@ -181,17 +190,6 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                       </div>
 
                       <div className="mobile-card-view-row">
-                        <span className="mobile-card-view-label">Status</span>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                            trade.leg1_state || 'UNKNOWN'
-                          )}`}
-                        >
-                          {trade.leg1_state?.replace(/_/g, ' ') || 'Unknown State'}
-                        </span>
-                      </div>
-
-                      <div className="mobile-card-view-row">
                         <span className="mobile-card-view-label">Created</span>
                         <span className="text-neutral-500 text-sm">
                           {formatDistanceToNow(new Date(trade.created_at))} ago
@@ -199,10 +197,6 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                       </div>
 
                       <div className="mt-4 space-y-2">
-                        {/* Removed Mark Paid button */}
-
-                        {/* Removed Release button */}
-
                         <Button
                           variant="outline"
                           className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 w-full"
@@ -213,63 +207,96 @@ function MyTradesPage({ account }: MyTradesPageProps) {
                         </Button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+              </div>
 
-                {/* Desktop table view */}
-                <div className="hidden md:block overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-primary-700 font-medium">Trade ID</TableHead>
-                        {/* Removed Role column header */}
-                        <TableHead className="text-primary-700 font-medium">Token</TableHead>
-                        <TableHead className="text-primary-700 font-medium">Amount</TableHead>
-                        <TableHead className="text-primary-700 font-medium">Status</TableHead>
-                        <TableHead className="text-primary-700 font-medium">Created</TableHead>
-                        <TableHead className="text-primary-700 font-medium">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {myTrades.map(trade => (
-                        <TableRow key={trade.id} className="hover:bg-neutral-50">
-                          <TableCell className="font-medium">#{trade.id}</TableCell>
-                          {/* Removed Role cell */}
-                          <TableCell>{trade.leg1_crypto_token}</TableCell>
-                          <TableCell>{trade.leg1_crypto_amount}</TableCell>
-                          <TableCell>
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                                trade.leg1_state || 'UNKNOWN'
-                              )}`}
+              {/* Desktop table view */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-primary-700 font-medium">Trade ID</TableHead>
+                      <TableHead className="text-primary-700 font-medium">Token</TableHead>
+                      <TableHead className="text-primary-700 font-medium">Amount</TableHead>
+                      <TableHead className="text-primary-700 font-medium">Status</TableHead>
+                      <TableHead className="text-primary-700 font-medium">Created</TableHead>
+                      <TableHead className="text-primary-700 font-medium">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {myTrades.map(trade => (
+                      <TableRow key={trade.id} className="hover:bg-neutral-50">
+                        <TableCell className="font-medium">#{trade.id}</TableCell>
+                        <TableCell>{trade.leg1_crypto_token}</TableCell>
+                        <TableCell>{trade.leg1_crypto_amount}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                              trade.leg1_state || 'UNKNOWN'
+                            )}`}
+                          >
+                            {trade.leg1_state?.replace(/_/g, ' ') || 'Unknown State'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-neutral-500 text-sm">
+                          {formatDistanceToNow(new Date(trade.created_at))} ago
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 text-sm px-3 py-1 h-8"
                             >
-                              {trade.leg1_state?.replace(/_/g, ' ') || 'Unknown State'}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-neutral-500 text-sm">
-                            {formatDistanceToNow(new Date(trade.created_at))} ago
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              {/* Removed Mark Paid button */}
+                              <Link to={`/trade/${trade.id}`}>Details</Link>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
-                              {/* Removed Release button */}
+              {/* Pagination */}
+              <div className="mt-8">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={handlePrevPage}
+                        className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+                      />
+                    </PaginationItem>
 
-                              <Button
-                                variant="outline"
-                                className="border-primary-700 text-primary-700 hover:text-primary-800 hover:border-primary-800 text-sm px-3 py-1 h-8"
-                              >
-                                <Link to={`/trade/${trade.id}`}>Details</Link>
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </>
-            )
+                    {Array.from({ length: Math.ceil(totalCount / limit) })
+                      .map((_, i) => (
+                        <PaginationItem key={i}>
+                          <PaginationLink
+                            isActive={page === i + 1}
+                            onClick={() => setPage(i + 1)}
+                          >
+                            {i + 1}
+                          </PaginationLink>
+                        </PaginationItem>
+                      ))
+                      .slice(
+                        Math.max(0, page - 3),
+                        Math.min(Math.ceil(totalCount / limit), page + 2)
+                      )}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={handleNextPage}
+                        className={
+                          page * limit >= totalCount ? 'pointer-events-none opacity-50' : ''
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
