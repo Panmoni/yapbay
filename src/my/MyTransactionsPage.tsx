@@ -44,7 +44,6 @@ const getTransactionTypeLabel = (type: string): string => {
     MARK_FIAT_PAID: 'Mark Fiat Paid',
     RELEASE_ESCROW: 'Release Escrow',
     CANCEL_ESCROW: 'Cancel Escrow',
-    DISPUTE_ESCROW: 'Open Dispute',
     OPEN_DISPUTE: 'Open Dispute',
     RESPOND_DISPUTE: 'Respond to Dispute',
     RESOLVE_DISPUTE: 'Resolve Dispute',
@@ -200,7 +199,6 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                     <SelectItem value="MARK_FIAT_PAID">Mark Fiat Paid</SelectItem>
                     <SelectItem value="RELEASE_ESCROW">Release Escrow</SelectItem>
                     <SelectItem value="CANCEL_ESCROW">Cancel Escrow</SelectItem>
-                    <SelectItem value="DISPUTE_ESCROW">Open Dispute</SelectItem>
                     <SelectItem value="OPEN_DISPUTE">Open Dispute</SelectItem>
                     <SelectItem value="RESPOND_DISPUTE">Respond to Dispute</SelectItem>
                     <SelectItem value="RESOLVE_DISPUTE">Resolve Dispute</SelectItem>
