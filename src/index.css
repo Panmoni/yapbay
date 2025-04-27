@@ -1,16 +1,16 @@
 /* Import Tailwind first */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Import Fonts */
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/inter/700.css";
-@import "@fontsource/inter/900.css";
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/inter/900.css';
 
 @theme {
   /* --color-*: initial; */
-  
+
   /* Primary Colors */
   --color-primary-900: #1a365d;
   --color-primary-800: #1e4976;
@@ -21,7 +21,7 @@
   --color-primary-300: #63b3ed;
   --color-primary-200: #90cdf4;
   --color-primary-100: #bee3f8;
-  
+
   /* Secondary Colors */
   --color-secondary-900: #1e4e48;
   --color-secondary-800: #234e52;
@@ -32,7 +32,7 @@
   --color-secondary-300: #81e6d9;
   --color-secondary-200: #9feeea;
   --color-secondary-100: #c4f5f2;
-  
+
   /* Neutral Tones */
   --color-neutral-900: #1a202c;
   --color-neutral-800: #2d3748;
@@ -43,7 +43,7 @@
   --color-neutral-300: #e2e8f0;
   --color-neutral-200: #edf2f7;
   --color-neutral-100: #f7fafc;
-  
+
   /* Accent Colors */
   --color-success: #48bb78;
   --color-warning: #ed8936;
@@ -88,7 +88,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color: var(--color-primary-900);
@@ -474,7 +474,7 @@ img {
 .footer-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-xs);
 }
 
 .footer-title {
@@ -486,7 +486,7 @@ img {
 .footer-nav {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
 }
 
 .footer-nav a {
