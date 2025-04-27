@@ -6,6 +6,10 @@ test recording of all events and transactions
 
 test update of escrow, trade tables for events
 
+test correct recording of transaction types
+
+ensure escrow details and transactions remain visible for past trades
+
 ## escrow
 
 - release escrow

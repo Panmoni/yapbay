@@ -18,20 +18,26 @@ export const getAvailableActions = ({
   lastLogTime,
   setLastLogTime,
 }: GetAvailableActionsProps): TradeAction[] => {
+  // Early exit for terminal states
+  const terminalStates = ['COMPLETED', 'CANCELLED'];
+  if (terminalStates.includes(trade.leg1_state ?? '')) {
+    return [];
+  }
+
   const currentTime = Date.now();
   if (currentTime - lastLogTime >= 30000) {
     console.log('Evaluating available actions for:', {
       state: trade.leg1_state,
       userRole,
-      escrowDeadlineExpired: isDeadlineExpired(trade.leg1_escrow_deposit_deadline ?? null),
-      fiatPaymentDeadlineExpired: isDeadlineExpired(trade.leg1_fiat_payment_deadline ?? null),
+      escrowDeadlineExpired: isDeadlineExpired(trade.leg1_escrow_deposit_deadline ?? ''),
+      fiatPaymentDeadlineExpired: isDeadlineExpired(trade.leg1_fiat_payment_deadline ?? ''),
     });
     setLastLogTime(currentTime);
   }
 
   // Determine if deadlines have expired
-  const escrowDeadlineExpired = isDeadlineExpired(trade.leg1_escrow_deposit_deadline ?? null);
-  const fiatPaymentDeadlineExpired = isDeadlineExpired(trade.leg1_fiat_payment_deadline ?? null);
+  const escrowDeadlineExpired = isDeadlineExpired(trade.leg1_escrow_deposit_deadline ?? '');
+  const fiatPaymentDeadlineExpired = isDeadlineExpired(trade.leg1_fiat_payment_deadline ?? '');
 
   switch (trade.leg1_state) {
     case 'CREATED':
