@@ -23,6 +23,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface MyTradesPageProps {
   account: Account | null;
@@ -35,6 +42,7 @@ function MyTradesPage({ account }: MyTradesPageProps) {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [filter, setFilter] = useState<string>('ALL');
   const limit = 10; 
 
   useEffect(() => {
@@ -47,7 +55,15 @@ function MyTradesPage({ account }: MyTradesPageProps) {
       setLoading(true);
       try {
         const response = await getMyTrades();
-        const sortedTrades = response.data.sort(
+        let sortedTrades = response.data;
+        
+        // Apply status filter if not ALL
+        if (filter !== 'ALL') {
+          sortedTrades = sortedTrades.filter((trade: Trade) => trade.leg1_state === filter);
+        }
+        
+        // Sort by creation date
+        sortedTrades = sortedTrades.sort(
           (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
         
@@ -67,7 +83,12 @@ function MyTradesPage({ account }: MyTradesPageProps) {
     };
 
     fetchMyTrades();
-  }, [account, primaryWallet, page, limit]);
+  }, [account, primaryWallet, page, limit, filter]);
+
+  const handleFilterChange = (value: string) => {
+    setFilter(value);
+    setPage(1); // Reset to first page when filter changes
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -140,24 +161,45 @@ function MyTradesPage({ account }: MyTradesPageProps) {
     <Container>
       <Card>
         <CardHeader>
-          <div>
-            <CardTitle className="text-primary-800 font-semibold">My Trades</CardTitle>
-            <CardDescription>View and manage your active trades</CardDescription>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <CardTitle className="text-primary-800 font-semibold">My Trades</CardTitle>
+              <CardDescription>View and manage your active trades</CardDescription>
+            </div>
+            <div className="w-full sm:w-auto">
+              <Select value={filter} onValueChange={handleFilterChange}>
+                <SelectTrigger className="w-full sm:w-[250px] border-neutral-300 focus:ring-primary-500">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-100">
+                  <SelectItem value="ALL">All Statuses</SelectItem>
+                  <SelectItem value="CREATED">Created</SelectItem>
+                  <SelectItem value="AWAITING_FIAT_PAYMENT">Awaiting Payment</SelectItem>
+                  <SelectItem value="PENDING_CRYPTO_RELEASE">Pending Release</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  <SelectItem value="DISPUTED">Disputed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="p-6">
           {loading ? (
-            <div className="flex justify-center items-center py-16">
-              <p className="text-neutral-500">Loading your trades...</p>
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-700"></div>
             </div>
           ) : error ? (
             <Alert className="bg-red-50 border-red-200 mb-4">
               <AlertDescription className="text-red-700">{error}</AlertDescription>
             </Alert>
           ) : myTrades.length === 0 ? (
-            <Alert className="bg-neutral-50 border-neutral-200">
-              <AlertDescription>You don't have any trades yet.</AlertDescription>
-            </Alert>
+            <div className="text-center py-8">
+              <p className="text-neutral-500 mb-4">You don't have any trades yet.</p>
+              <Button asChild>
+                <Link to="/offers">Find Offers</Link>
+              </Button>
+            </div>
           ) : (
             <>
               {/* Mobile card view */}

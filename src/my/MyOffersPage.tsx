@@ -29,6 +29,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface MyOffersPageProps {
   account: Account | null;
@@ -42,6 +49,7 @@ function MyOffersPage({ account }: MyOffersPageProps) {
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [filter, setFilter] = useState<string>('ALL');
   const limit = 10; // Number of offers per page
 
   // Setup offer deletion hook
@@ -70,9 +78,16 @@ function MyOffersPage({ account }: MyOffersPageProps) {
       try {
         // Get all offers and filter by the current user's account ID
         const response = await getOffers();
-        const userOffers = response.data
-          .filter((offer: Offer) => offer.creator_account_id === account.id)
-          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        let userOffers = response.data
+          .filter((offer: Offer) => offer.creator_account_id === account.id);
+          
+        // Apply offer type filter if not ALL
+        if (filter !== 'ALL') {
+          userOffers = userOffers.filter((offer: Offer) => offer.offer_type === filter);
+        }
+        
+        // Sort by creation date
+        userOffers = userOffers.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         
         // Set total count for pagination
         setTotalCount(userOffers.length);
@@ -92,7 +107,12 @@ function MyOffersPage({ account }: MyOffersPageProps) {
     };
 
     fetchMyOffers();
-  }, [account, page, limit]);
+  }, [account, page, limit, filter]);
+
+  const handleFilterChange = (value: string) => {
+    setFilter(value);
+    setPage(1); // Reset to first page when filter changes
+  };
 
   const handleNextPage = () => {
     if (page * limit < totalCount) {
@@ -158,11 +178,21 @@ function MyOffersPage({ account }: MyOffersPageProps) {
                 <CardTitle className="text-primary-800 font-semibold">My Offers</CardTitle>
                 <CardDescription>Manage your active offers</CardDescription>
               </div>
-              <Button className="bg-primary-800 hover:bg-primary-300 w-full sm:w-auto">
-                <Link to="/create-offer" className="w-full">
-                  <span className="text-neutral-100">Create New Offer</span>
-                </Link>
-              </Button>
+              <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+                <Select value={filter} onValueChange={handleFilterChange}>
+                  <SelectTrigger className="w-full sm:w-[180px] border-neutral-300 focus:ring-primary-500">
+                    <SelectValue placeholder="Filter by type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-neutral-100">
+                    <SelectItem value="ALL">All Offers</SelectItem>
+                    <SelectItem value="BUY">Buy Offers</SelectItem>
+                    <SelectItem value="SELL">Sell Offers</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button asChild>
+                  <Link to="/create-offer">Create Offer</Link>
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-6">

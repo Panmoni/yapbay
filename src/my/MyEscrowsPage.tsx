@@ -24,6 +24,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ExtendedEscrow extends Escrow {
   uniqueKey: string;
@@ -40,6 +47,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [filter, setFilter] = useState<string>('ALL');
   const limit = 10; // Number of escrows per page
 
   useEffect(() => {
@@ -52,13 +60,18 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       setLoading(true);
       try {
         const response = await getMyEscrows();
-        const escrows = response.data.map(escrow => ({
+        let escrows = response.data.map(escrow => ({
           ...escrow,
           // Generate a unique key combining onchain_escrow_id and escrow_address
           uniqueKey: escrow.onchain_escrow_id
             ? `${escrow.onchain_escrow_id}-${escrow.escrow_address}`
             : escrow.escrow_address,
         }));
+        
+        // Apply state filter if not ALL
+        if (filter !== 'ALL') {
+          escrows = escrows.filter(escrow => escrow.state === filter);
+        }
         
         const sortedEscrows = escrows.sort((a, b) => {
           // Handle null cases by putting them at the end
@@ -88,7 +101,12 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
     };
 
     fetchMyEscrows();
-  }, [account, primaryWallet, page, limit]);
+  }, [account, primaryWallet, page, limit, filter]);
+
+  const handleFilterChange = (value: string) => {
+    setFilter(value);
+    setPage(1); // Reset to first page when filter changes
+  };
 
   const handleNextPage = () => {
     if (page * limit < totalCount) {
@@ -171,22 +189,44 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
     <Container>
       <Card>
         <CardHeader>
-          <CardTitle className="text-primary-800 font-semibold">My Escrows</CardTitle>
-          <CardDescription>View your escrow contracts</CardDescription>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <CardTitle className="text-primary-800 font-semibold">My Escrows</CardTitle>
+              <CardDescription>View and manage your escrows</CardDescription>
+            </div>
+            <div className="w-full sm:w-auto">
+              <Select value={filter} onValueChange={handleFilterChange}>
+                <SelectTrigger className="w-full sm:w-[250px] border-neutral-300 focus:ring-primary-500">
+                  <SelectValue placeholder="Filter by state" />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-100">
+                  <SelectItem value="ALL">All States</SelectItem>
+                  <SelectItem value="CREATED">Created</SelectItem>
+                  <SelectItem value="FUNDED">Funded</SelectItem>
+                  <SelectItem value="RELEASED">Released</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                  <SelectItem value="DISPUTED">Disputed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-6">
           {loading ? (
-            <div className="flex justify-center items-center py-16">
-              <p className="text-neutral-500">Loading your escrows...</p>
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-700"></div>
             </div>
           ) : error ? (
             <Alert className="bg-red-50 border-red-200 mb-4">
               <AlertDescription className="text-red-700">{error}</AlertDescription>
             </Alert>
           ) : myEscrows.length === 0 ? (
-            <Alert className="bg-neutral-50 border-neutral-200">
-              <AlertDescription>You don't have any escrows yet.</AlertDescription>
-            </Alert>
+            <div className="text-center py-8">
+              <p className="text-neutral-500 mb-4">You don't have any escrows yet.</p>
+              <Button asChild>
+                <Link to="/offers">Find Offers</Link>
+              </Button>
+            </div>
           ) : (
             <>
               {/* Mobile card view */}
