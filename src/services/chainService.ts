@@ -123,7 +123,8 @@ export const createEscrowTransaction = async (
 
       const escrowCreatedLog = receipt.logs.find(
         (log: any) =>
-          log.address.toLowerCase() === contract.address.toLowerCase() && log.topics[0] === eventTopic
+          log.address.toLowerCase() === contract.address.toLowerCase() &&
+          log.topics[0] === eventTopic
       );
 
       // 2. Check if the log was found
@@ -169,21 +170,25 @@ export const createEscrowTransaction = async (
     } catch (receiptError: any) {
       // Check for specific block out of range error
       if (
-        (receiptError.message && receiptError.message.includes("block is out of range")) || 
-        (receiptError.details && typeof receiptError.details === 'string' && 
-         receiptError.details.includes("block is out of range"))
+        (receiptError.message && receiptError.message.includes('block is out of range')) ||
+        (receiptError.details &&
+          typeof receiptError.details === 'string' &&
+          receiptError.details.includes('block is out of range'))
       ) {
-        console.warn('[WARNING] Block out of range error. Transaction may still be processing:', hash);
-        
+        console.warn(
+          '[WARNING] Block out of range error. Transaction may still be processing:',
+          hash
+        );
+
         // Return partial result with txHash but mark as pending
         return {
           txHash: hash,
           blockNumber: BigInt(0), // Use 0 to indicate pending
           escrowId: '0', // Will be updated later
-          status: 'PENDING'
+          status: 'PENDING',
         };
       }
-      
+
       // Re-throw other errors
       console.error('[ERROR] Failed to get transaction receipt:', receiptError);
       throw receiptError;
@@ -395,7 +400,7 @@ export const checkAndFundEscrow = async (
   }
 
   // Fund the escrow
-  return fundEscrowTransaction(wallet, escrowId).then((result) => result.txHash);
+  return fundEscrowTransaction(wallet, escrowId).then(result => result.txHash);
 };
 
 /**
@@ -494,29 +499,86 @@ export const releaseEscrowTransaction = async (
     abi: YapBayEscrowABI.abi,
   };
 
-  const escrowIdBigInt = BigInt(escrowId);
-
-  console.log(`[DEBUG] Releasing escrow with ID: ${escrowIdBigInt.toString()}`);
-
   try {
-    // Call the releaseEscrow function on the smart contract
+    console.log(`[DEBUG] Releasing escrow with ID: ${escrowId}`);
+
+    // First check the escrow state to make sure it can be released
+    const escrowState = await checkEscrowState(wallet, escrowId);
+
+    // Check if the escrow is in a releasable state
+    // Based on the contract:
+    // State 0 = Created, State 1 = Funded, State 2 = Released, etc.
+    // The contract requires state to be Funded (1) and fiatPaid to be true
+    if (escrowState.state !== 1) {
+      throw new Error(
+        `Cannot release escrow in state ${escrowState.state}. Escrow must be in FUNDED state (1).`
+      );
+    }
+
+    if (!escrowState.fiatPaid) {
+      throw new Error(
+        `Cannot release escrow with fiatPaid=false. The fiat payment must be confirmed first.`
+      );
+    }
+
+    // Check if the escrow has funds
+    if (!escrowState.hasFunds) {
+      throw new Error('Cannot release escrow with no funds.');
+    }
+
+    // Send the transaction
     const hash = await walletClient.writeContract({
-      address: contract.address,
-      abi: contract.abi,
+      ...contract,
       functionName: 'releaseEscrow',
-      args: [escrowIdBigInt],
+      args: [BigInt(escrowId)],
     });
 
-    console.log('[DEBUG] Release escrow transaction sent:', hash);
+    console.log(`[DEBUG] Release escrow transaction sent: ${hash}`);
 
     // Wait for the transaction to be mined
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    console.log(
-      '[DEBUG] Release escrow transaction confirmed:',
-      JSON.stringify(receipt, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
-    );
+    console.log('[DEBUG] Release escrow transaction confirmed:', receipt);
 
+    // Check the transaction status
     if (receipt.status !== 'success') {
+      console.error('[ERROR] Release escrow transaction failed:', receipt);
+
+      // Try to get more detailed error information
+      try {
+        // Simulate the transaction to get the revert reason
+        const simulationResult = await publicClient.simulateContract({
+          address: contract.address,
+          abi: contract.abi,
+          functionName: 'releaseEscrow',
+          args: [BigInt(escrowId)],
+          account: walletClient.account,
+        });
+
+        console.error('[ERROR] Simulation result:', simulationResult);
+      } catch (simulationError: any) {
+        console.error(
+          '[ERROR] Transaction simulation error details:',
+          simulationError.message,
+          simulationError.cause,
+          simulationError.details,
+          JSON.stringify(simulationError, (_, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+          )
+        );
+
+        // Extract the revert reason if available
+        let revertReason = 'Unknown reason';
+        if (simulationError.message) {
+          if (simulationError.message.includes('execution reverted:')) {
+            revertReason = simulationError.message.split('execution reverted:')[1].trim();
+          } else if (simulationError.message.includes('revert')) {
+            revertReason = simulationError.message;
+          }
+        }
+
+        throw new Error(`Release escrow transaction reverted: ${revertReason}`);
+      }
+
       throw new Error(`Release escrow transaction failed with status: ${receipt.status}`);
     }
 
@@ -633,7 +695,7 @@ export async function getUsdcBalance(address: string): Promise<bigint> {
 export const checkEscrowState = async (
   wallet: any,
   escrowId: string | number
-): Promise<{ state: number; amount: bigint; hasFunds: boolean }> => {
+): Promise<{ state: number; amount: bigint; hasFunds: boolean; fiatPaid: boolean }> => {
   if (!wallet.getPublicClient) {
     throw new Error('Wallet must implement getPublicClient');
   }
@@ -656,17 +718,19 @@ export const checkEscrowState = async (
     });
 
     // The escrow data structure depends on the contract implementation
-    // Assuming the state is at index 9 and amount at index 5 of the returned array
-    // This might need adjustment based on the actual contract structure
-    const state = Number(escrowData[9]); // EscrowState enum value
+    // State is at index 8 based on queryEscrowBalances.ts
+    const state = Number(escrowData[8]); // EscrowState enum value
     const amount = escrowData[5] as bigint; // Amount in the escrow
-    
-    console.log(`[DEBUG] Escrow ${escrowId} state: ${state}, amount: ${amount.toString()}`);
-    
+    const fiatPaid = Boolean(escrowData[11]); // fiat_paid flag at index 11
+
+    console.log(
+      `[DEBUG] Escrow ${escrowId} state: ${state}, amount: ${amount.toString()}, fiatPaid: ${fiatPaid}`
+    );
+
     // If amount is greater than 0, the escrow has funds
     const hasFunds = amount > BigInt(0);
-    
-    return { state, amount, hasFunds };
+
+    return { state, amount, hasFunds, fiatPaid };
   } catch (error) {
     console.error(
       `[ERROR] Failed to check escrow state for ${escrowId}:`,
@@ -696,7 +760,9 @@ export const cancelEscrowTransaction = async (
   // First check if the escrow has funds
   const { hasFunds } = await checkEscrowState(wallet, escrowId);
   if (hasFunds) {
-    throw new Error('Cannot cancel an escrow that still has funds. The funds must be released first.');
+    throw new Error(
+      'Cannot cancel an escrow that still has funds. The funds must be released first.'
+    );
   }
 
   const walletClient = await wallet.getWalletClient();

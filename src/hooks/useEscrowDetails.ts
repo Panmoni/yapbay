@@ -8,11 +8,10 @@ import { toast } from 'sonner';
 export enum EscrowState {
   CREATED = 0,
   FUNDED = 1,
-  FIAT_PAID = 2,
-  RELEASED = 3,
-  CANCELLED = 4,
-  DISPUTED = 5,
-  RESOLVED = 6,
+  RELEASED = 2,
+  CANCELLED = 3,
+  DISPUTED = 4,
+  RESOLVED = 5,
 }
 
 // Define the escrow details type
@@ -142,7 +141,6 @@ export function getEscrowStateName(state: number): string {
   const states = [
     'CREATED',
     'FUNDED',
-    'FIAT_PAID',
     'RELEASED',
     'CANCELLED',
     'DISPUTED',

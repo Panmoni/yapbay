@@ -25,15 +25,14 @@ if (!RPC_URL || !CONTRACT_ADDRESS) {
   process.exit(1);
 }
 
-// Define the EscrowState as a const object
+// Define the EscrowState as a const object to match the contract
 const EscrowState = {
   CREATED: 0,
   FUNDED: 1,
-  FIAT_PAID: 2,
-  RELEASED: 3,
-  CANCELLED: 4,
-  DISPUTED: 5,
-  RESOLVED: 6,
+  RELEASED: 2,
+  CANCELLED: 3,
+  DISPUTED: 4,
+  RESOLVED: 5,
 } as const; // Use 'as const' for stricter typing if desired
 type EscrowState = (typeof EscrowState)[keyof typeof EscrowState]; // Type alias for state numbers
 

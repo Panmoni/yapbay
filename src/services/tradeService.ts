@@ -4,9 +4,6 @@ import {
   Trade,
   recordEscrow,
   markFiatPaid,
-  releaseEscrow,
-  disputeEscrow,
-  cancelEscrow,
   getTradeById,
   recordTransaction,
 } from '../api';
@@ -589,15 +586,7 @@ export const releaseTradeCrypto = async ({
         trade.leg1_escrow_onchain_id
       );
 
-      // Record the transaction in the backend
-      await releaseEscrow({
-        escrow_id: Number(trade.leg1_escrow_onchain_id),
-        trade_id: trade.id,
-        tx_hash: txResult.txHash,
-        block_number: Number(txResult.blockNumber),
-      });
-
-      // Record the transaction details
+      // Record the transaction details via the recordTransaction API
       await recordTransaction({
         trade_id: trade.id,
         escrow_id: Number(trade.leg1_escrow_onchain_id),
@@ -615,11 +604,32 @@ export const releaseTradeCrypto = async ({
     }
 
     toast.success('Crypto released successfully!');
-  } catch (err) {
-    console.error('Error releasing crypto:', err);
-    const errorMessage = handleApiError(err, 'Failed to release crypto');
+  } catch (error: unknown) {
+    console.error('Error releasing crypto:', error);
+    
+    // Extract a more user-friendly error message
+    let errorMessage = 'Failed to release crypto. Please try again.';
+    
+    if (error instanceof Error && error.message) {
+      if (error.message.includes('User rejected the request')) {
+        errorMessage = 'Transaction was rejected in your wallet.';
+      } else if (error.message.includes('reverted')) {
+        // Extract the specific revert reason if available
+        if (error.message.includes('Release escrow transaction reverted:')) {
+          const revertReason = error.message.split('Release escrow transaction reverted:')[1].trim();
+          errorMessage = `Transaction failed: ${revertReason}`;
+        } else {
+          errorMessage = 'Transaction failed on the blockchain. This could be due to contract restrictions or network issues.';
+        }
+      } else if (error.message.includes('Cannot release escrow in state')) {
+        errorMessage = 'Cannot release funds in the current escrow state. The trade may need to be in a different state.';
+      } else if (error.message.includes('no funds')) {
+        errorMessage = 'This escrow has no funds to release.';
+      }
+    }
+    
     toast.error(errorMessage);
-    throw err;
+    throw error;
   }
 };
 
@@ -671,47 +681,62 @@ export const disputeTrade = async ({
         }
       };
 
-      // Execute the blockchain transaction
-      const txResult = await disputeEscrowTransaction(
-        walletForDispute,
-        trade.leg1_escrow_onchain_id,
-        evidenceHash
-      );
+      try {
+        // Execute the blockchain transaction
+        const txResult = await disputeEscrowTransaction(
+          walletForDispute,
+          trade.leg1_escrow_onchain_id,
+          evidenceHash
+        );
 
-      // Record the dispute in the backend
-      await disputeEscrow({
-        escrow_id: Number(trade.leg1_escrow_onchain_id),
-        trade_id: trade.id,
-        disputing_party: primaryWallet.address,
-        disputing_party_token_account: 'placeholder',
-        evidence_hash: evidenceHash,
-        tx_hash: txResult.txHash,
-        block_number: Number(txResult.blockNumber),
-      });
+        // Record the transaction details via the recordTransaction API
+        await recordTransaction({
+          trade_id: trade.id,
+          escrow_id: Number(trade.leg1_escrow_onchain_id),
+          transaction_hash: txResult.txHash,
+          transaction_type: 'DISPUTE_ESCROW',
+          from_address: primaryWallet.address,
+          status: 'SUCCESS',
+          block_number: Number(txResult.blockNumber),
+          metadata: {
+            disputing_party: primaryWallet.address,
+            evidence_hash: evidenceHash
+          }
+        });
 
-      // Record the transaction details
-      await recordTransaction({
-        trade_id: trade.id,
-        escrow_id: Number(trade.leg1_escrow_onchain_id),
-        transaction_hash: txResult.txHash,
-        transaction_type: 'DISPUTE_ESCROW',
-        from_address: primaryWallet.address,
-        status: 'SUCCESS',
-        block_number: Number(txResult.blockNumber),
-        metadata: {
-          disputing_party: primaryWallet.address,
-          evidence_hash: evidenceHash
+        toast.success('Trade disputed successfully');
+      } catch (error: unknown) {
+        const err = error as Error;
+        // Handle specific blockchain errors with user-friendly messages
+        if (err.message.includes('User rejected the request')) {
+          toast.error('Transaction cancelled', {
+            description: 'You cancelled the transaction in your wallet.',
+          });
+        } else if (err.message.includes('reverted')) {
+          toast.error('Transaction failed', {
+            description: 'The blockchain rejected this transaction. The escrow may be in an invalid state for disputes or you may not have permission.',
+          });
+        } else if (err.message.includes('insufficient funds')) {
+          toast.error('Insufficient funds', {
+            description: 'You do not have enough funds to open a dispute. Disputes may require a bond payment.',
+          });
+        } else {
+          // Generic error handling
+          toast.error('Failed to open dispute', {
+            description: err.message || 'An unexpected error occurred',
+          });
         }
-      });
+        throw error;
+      }
     } else {
+      toast.error('Wallet configuration error', {
+        description: 'Your wallet is not properly configured for this operation.',
+      });
       throw new Error('Wallet does not have required methods');
     }
-
-    toast.success('Trade disputed successfully');
   } catch (err) {
     console.error('Error disputing trade:', err);
-    const errorMessage = handleApiError(err, 'Failed to dispute trade');
-    toast.error(errorMessage);
+    // Don't show another toast here since we've already shown specific ones above
     throw err;
   }
 };
@@ -745,80 +770,113 @@ export const cancelTrade = async ({
     // First, check if the escrow has funds
     // Make sure the wallet has the required methods
     if (!primaryWallet.getPublicClient) {
+      toast.error('Wallet configuration error', {
+        description: 'Your wallet is not properly configured for this operation.',
+      });
       throw new Error('Wallet must implement getPublicClient');
     }
 
-    const escrowState = await checkEscrowState(
-      primaryWallet,
-      trade.leg1_escrow_onchain_id
-    );
-    
-    // If the escrow has funds, we cannot cancel it
-    if (escrowState.hasFunds) {
-      toast.error('Cannot cancel trade', {
-        description: 'The escrow still has funds. The funds must be released or refunded before cancellation.',
-      });
-      throw new Error('Escrow has funds. Cannot cancel.');
-    }
-
-    toast('Cancelling trade on blockchain...', {
-      description: 'Please approve the transaction in your wallet.',
-    });
-
-    // Make sure the wallet has the required methods
-    if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
-      // Create a properly structured wallet object with bound methods
-      const walletForCancel = {
-        address: primaryWallet.address,
-        getWalletClient: async () => {
-          if (primaryWallet.getWalletClient) {
-            return await primaryWallet.getWalletClient();
-          }
-          throw new Error('getWalletClient is not available');
-        },
-        getPublicClient: async () => {
-          if (primaryWallet.getPublicClient) {
-            return await primaryWallet.getPublicClient();
-          }
-          throw new Error('getPublicClient is not available');
-        }
-      };
-
-      // Execute the blockchain transaction
-      const txResult = await cancelEscrowTransaction(
-        walletForCancel,
+    try {
+      const escrowState = await checkEscrowState(
+        primaryWallet,
         trade.leg1_escrow_onchain_id
       );
+      
+      // If the escrow has funds, we cannot cancel it
+      if (escrowState.hasFunds) {
+        toast.error('Cannot cancel trade', {
+          description: 'The escrow still has funds. The funds must be released or refunded before cancellation.',
+        });
+        throw new Error('Escrow has funds. Cannot cancel.');
+      }
 
-      // Record the cancellation in the backend
-      await cancelEscrow({
-        escrow_id: Number(trade.leg1_escrow_onchain_id),
-        trade_id: trade.id,
-        seller: trade.leg1_seller_account_id ? trade.leg1_seller_account_id.toString() : '',
-        authority: primaryWallet.address || '',
-        tx_hash: txResult.txHash,
-        block_number: Number(txResult.blockNumber),
+      toast('Cancelling trade on blockchain...', {
+        description: 'Please approve the transaction in your wallet.',
       });
 
-      // Record the transaction details
-      await recordTransaction({
-        trade_id: trade.id,
-        escrow_id: Number(trade.leg1_escrow_onchain_id),
-        transaction_hash: txResult.txHash,
-        transaction_type: 'CANCEL_ESCROW',
-        from_address: primaryWallet.address || '',
-        status: 'SUCCESS',
-        block_number: Number(txResult.blockNumber),
-      });
-    } else {
-      throw new Error('Wallet does not have required methods');
+      // Make sure the wallet has the required methods
+      if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
+        // Create a properly structured wallet object with bound methods
+        const walletForCancel = {
+          address: primaryWallet.address,
+          getWalletClient: async () => {
+            if (primaryWallet.getWalletClient) {
+              return await primaryWallet.getWalletClient();
+            }
+            throw new Error('getWalletClient is not available');
+          },
+          getPublicClient: async () => {
+            if (primaryWallet.getPublicClient) {
+              return await primaryWallet.getPublicClient();
+            }
+            throw new Error('getPublicClient is not available');
+          }
+        };
+
+        try {
+          // Execute the blockchain transaction
+          const txResult = await cancelEscrowTransaction(
+            walletForCancel,
+            trade.leg1_escrow_onchain_id
+          );
+
+          // Record the transaction details via the recordTransaction API
+          await recordTransaction({
+            trade_id: trade.id,
+            escrow_id: Number(trade.leg1_escrow_onchain_id),
+            transaction_hash: txResult.txHash,
+            transaction_type: 'CANCEL_ESCROW',
+            from_address: primaryWallet.address,
+            status: 'SUCCESS',
+            block_number: Number(txResult.blockNumber),
+            metadata: {
+              seller: trade.leg1_seller_account_id ? trade.leg1_seller_account_id.toString() : '',
+              authority: primaryWallet.address
+            }
+          });
+
+          toast.success('Trade cancelled successfully');
+        } catch (error: unknown) {
+          const err = error as Error;
+          // Handle specific blockchain errors with user-friendly messages
+          if (err.message.includes('User rejected the request')) {
+            toast.error('Transaction cancelled', {
+              description: 'You cancelled the transaction in your wallet.',
+            });
+          } else if (err.message.includes('reverted')) {
+            toast.error('Transaction failed', {
+              description: 'The blockchain rejected this transaction. The escrow may be in an invalid state or you may not have permission to cancel it.',
+            });
+          } else if (err.message.includes('Escrow has funds')) {
+            toast.error('Cannot cancel trade', {
+              description: 'The escrow still has funds. The funds must be released or refunded before cancellation.',
+            });
+          } else {
+            // Generic error handling
+            toast.error('Failed to cancel trade', {
+              description: err.message || 'An unexpected error occurred',
+            });
+          }
+          throw error;
+        }
+      } else {
+        toast.error('Wallet configuration error', {
+          description: 'Your wallet is not properly configured for this operation.',
+        });
+        throw new Error('Wallet does not have required methods');
+      }
+    } catch (error) {
+      // This catch block handles errors from checkEscrowState
+      if (error instanceof Error && error.message.includes('Escrow not found')) {
+        toast.error('Escrow not found', {
+          description: 'The escrow could not be found on the blockchain.',
+        });
+      }
+      throw error;
     }
-
-    toast.success('Trade cancelled successfully');
   } catch (err) {
     console.error('Error cancelling trade:', err);
-    const errorMessage = handleApiError(err, 'Failed to cancel trade');
-    toast.error(errorMessage);
+    // Don't show another toast here since we've already shown specific ones above
     throw err;
   }
 };
