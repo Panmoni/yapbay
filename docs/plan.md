@@ -6,10 +6,6 @@ test update of escrow, trade tables for events
 
 ## fix
 
-when statis is fiat_paid I getCurrent Status:Trade status unavailable.
-
-and no release escrow button appears
-
 test correct recording of transaction types... still not working
 
 ## escrow

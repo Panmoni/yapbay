@@ -76,6 +76,14 @@ export const getAvailableActions = ({
       }
       return [];
 
+    case 'FIAT_PAID':
+      if (userRole === 'seller') {
+        return ['release', 'dispute'];
+      } else if (userRole === 'buyer') {
+        return ['dispute'];
+      }
+      return [];
+
     case 'DISPUTED':
       return [];
 

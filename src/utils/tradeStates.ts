@@ -92,6 +92,10 @@ export const tradeStateMessages: Record<
     buyer: 'Waiting for seller to release crypto',
     seller: 'Buyer has marked payment as sent. You need to release crypto.',
   },
+  [TradeLegState.FIAT_PAID]: {
+    buyer: 'Waiting for seller to release crypto',
+    seller: 'Buyer has marked payment as sent. You need to release crypto.',
+  },
   [TradeLegState.DISPUTED]: {
     buyer: 'Trade is under dispute. Awaiting resolution.',
     seller: 'Trade is under dispute. Awaiting resolution.',
