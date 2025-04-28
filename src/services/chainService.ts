@@ -582,6 +582,66 @@ export const releaseEscrowTransaction = async (
       throw new Error(`Release escrow transaction failed with status: ${receipt.status}`);
     }
 
+    // Check for the EscrowReleased event in the logs
+    // The event signature is: EscrowReleased(uint256 indexed escrowId, uint256 indexed tradeId, address buyer, uint256 amount, uint256 counter, uint256 timestamp, string destination)
+    
+    // Parse the transaction logs to find the EscrowReleased event
+    const contractLogs = receipt.logs.filter(
+      (log: any) => log.address.toLowerCase() === contract.address.toLowerCase()
+    );
+    
+    console.log(`[DEBUG] Found ${contractLogs.length} logs from the contract in this transaction`);
+    
+    if (contractLogs.length === 0) {
+      console.warn('[WARNING] No logs found from the escrow contract in this transaction');
+    }
+    
+    // Verify the escrow state after release
+    const postReleaseState = await checkEscrowState(wallet, escrowId);
+    console.log(`[DEBUG] Post-release escrow state: ${postReleaseState.state}, amount: ${postReleaseState.amount.toString()}`);
+    
+    if (postReleaseState.state !== 2) { // Should be RELEASED (2)
+      console.error(`[ERROR] Escrow state after release is ${postReleaseState.state}, expected 2 (RELEASED)`);
+      throw new Error(`Escrow state transition failed. Current state: ${postReleaseState.state}, expected: 2 (RELEASED)`);
+    }
+    
+    // Verify the USDC balance of the escrow after release
+    try {
+      // Get the USDC contract
+      const usdcContract = {
+        address: config.usdcAddressAlfajores as Address,
+        abi: [
+          {
+            constant: true,
+            inputs: [{ name: '_owner', type: 'address' }],
+            name: 'balanceOf',
+            outputs: [{ name: 'balance', type: 'uint256' }],
+            type: 'function',
+          },
+        ],
+      };
+      
+      // Check the USDC balance of the escrow contract for this escrow ID
+      const escrowBalance = await publicClient.readContract({
+        address: usdcContract.address,
+        abi: usdcContract.abi,
+        functionName: 'balanceOf',
+        args: [contract.address],
+      });
+      
+      console.log(`[DEBUG] USDC balance of escrow contract: ${escrowBalance.toString()}`);
+      
+      // If the escrow still has the same amount as before, the transfer likely failed
+      if (postReleaseState.amount > BigInt(0)) {
+        console.error('[ERROR] Escrow still has funds after release. Transfer may have failed.');
+        throw new Error('Escrow still has funds after release. The funds may not have been transferred properly.');
+      } else {
+        console.log('[DEBUG] Escrow funds have been successfully transferred');
+      }
+    } catch (balanceError) {
+      console.error('[ERROR] Failed to check USDC balance:', balanceError);
+    }
+    
     return {
       txHash: hash,
       blockNumber: receipt.blockNumber,

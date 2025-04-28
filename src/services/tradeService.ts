@@ -21,6 +21,7 @@ import {
 } from './chainService';
 import { config } from '../config';
 import { ethers } from 'ethers';
+import YapBayEscrowABI from '../utils/YapBayEscrow.json';
 
 interface StartTradeParams {
   offerId: number;
@@ -249,10 +250,34 @@ export const createAndFundTradeEscrow = async ({
       sellerAddress,
     });
 
-    // Then check and fund it - note: only pass 2 arguments if that's what the function expects
+    // Check if the escrow creation transaction is still pending
+    if (escrowResult.txHash && (escrowResult.status === 'PENDING' || escrowResult.escrowId === '0')) {
+      // Show notification that we're waiting for confirmation
+      toast('Waiting for escrow creation to be confirmed...', {
+        description: 'This may take a few moments. Please wait before funding.',
+      });
+      
+      // Wait for the transaction to be confirmed and get the actual escrow ID
+      const confirmedEscrowId = await waitForEscrowConfirmation(escrowResult.txHash, trade.id, primaryWallet);
+      
+      if (confirmedEscrowId) {
+        // Update the escrow result with the confirmed escrow ID
+        escrowResult.escrowId = confirmedEscrowId;
+        console.log(`[DEBUG] Escrow creation confirmed. Using escrow ID: ${confirmedEscrowId}`);
+      } else {
+        throw new Error('Failed to get confirmed escrow ID after waiting');
+      }
+    }
+
+    // Verify we have a valid escrow ID before proceeding
+    if (!escrowResult.escrowId || escrowResult.escrowId === '0') {
+      throw new Error('Invalid escrow ID. Cannot proceed with funding.');
+    }
+
+    // Then check and fund it with the confirmed escrow ID
     fundResult = await checkAndFundEscrow(
       primaryWallet,
-      escrowResult.escrowId || '0'
+      escrowResult.escrowId
     );
 
     // Convert result to expected format
@@ -320,6 +345,227 @@ export const createAndFundTradeEscrow = async ({
     const errorMessage = handleApiError(err, 'Failed to create and fund escrow');
     toast.error(errorMessage);
     throw err;
+  }
+};
+
+/**
+ * Helper function to wait for an escrow creation transaction to be confirmed
+ * and return the actual escrow ID
+ * @param txHash The transaction hash to monitor
+ * @param tradeId The trade ID associated with this escrow
+ * @param wallet The wallet to use for blockchain queries
+ * @returns The confirmed escrow ID or null if not found
+ */
+const waitForEscrowConfirmation = async (
+  txHash: string,
+  tradeId: number,
+  wallet: {
+    getPublicClient?: () => Promise<any>;
+    getWalletClient?: () => Promise<any>;
+    address?: string;
+  }
+): Promise<string | null> => {
+  // Maximum number of attempts to check transaction status
+  const maxAttempts = 20;
+  // Delay between checks in milliseconds (3 seconds)
+  const checkDelay = 3000;
+  
+  // Define transaction status interface
+  interface TransactionStatus {
+    confirmed: boolean;
+    blockNumber?: string | number;
+  }
+  
+  // Function to check transaction status
+  const checkTransactionStatus = async (
+    hash: string, 
+    walletObj: {
+      getPublicClient?: () => Promise<any>;
+    }
+  ): Promise<TransactionStatus> => {
+    try {
+      if (!walletObj.getPublicClient) {
+        throw new Error('Wallet must implement getPublicClient');
+      }
+      
+      const publicClient = await walletObj.getPublicClient();
+      const receipt = await publicClient.getTransactionReceipt({ hash: hash as `0x${string}` });
+      
+      if (receipt) {
+        return {
+          confirmed: true,
+          blockNumber: receipt.blockNumber.toString()
+        };
+      }
+      
+      return { confirmed: false };
+    } catch (error) {
+      console.error('[ERROR] Failed to check transaction status:', error);
+      return { confirmed: false };
+    }
+  };
+  
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      console.log(`[DEBUG] Checking escrow creation transaction status (attempt ${attempt + 1}/${maxAttempts}): ${txHash}`);
+      
+      // Check if the transaction has been confirmed
+      const status = await checkTransactionStatus(txHash, wallet);
+      
+      if (status.confirmed) {
+        console.log(`[DEBUG] Transaction confirmed in block ${status.blockNumber}`);
+        
+        // Get the escrow ID from the transaction receipt
+        const escrowId = await extractEscrowIdFromTransaction(txHash, wallet);
+        
+        if (escrowId) {
+          console.log(`[DEBUG] Extracted escrow ID: ${escrowId} from transaction ${txHash}`);
+          return escrowId;
+        }
+        
+        // If we couldn't extract the escrow ID directly, try querying recent escrows
+        const recentEscrowId = await findRecentEscrowByTradeId(tradeId, wallet);
+        if (recentEscrowId) {
+          console.log(`[DEBUG] Found recent escrow ID: ${recentEscrowId} for trade ${tradeId}`);
+          return recentEscrowId;
+        }
+      }
+      
+      // Wait before checking again
+      await new Promise(resolve => setTimeout(resolve, checkDelay));
+    } catch (error) {
+      console.error(`[ERROR] Error checking transaction status (attempt ${attempt + 1}/${maxAttempts}):`, error);
+      // Continue to next attempt
+    }
+  }
+  
+  console.error(`[ERROR] Failed to confirm escrow creation after ${maxAttempts} attempts`);
+  return null;
+};
+
+/**
+ * Extract the escrow ID from a transaction receipt
+ * @param txHash The transaction hash
+ * @param wallet The wallet to use for blockchain queries
+ * @returns The escrow ID or null if not found
+ */
+const extractEscrowIdFromTransaction = async (
+  txHash: string,
+  wallet: {
+    getPublicClient?: () => Promise<any>;
+  }
+): Promise<string | null> => {
+  try {
+    if (!wallet.getPublicClient) {
+      throw new Error('Wallet must implement getPublicClient');
+    }
+    
+    const publicClient = await wallet.getPublicClient();
+    const receipt = await publicClient.getTransactionReceipt({ hash: txHash as `0x${string}` });
+    
+    if (!receipt) {
+      return null;
+    }
+    
+    // Create an interface to parse the logs
+    const contract = {
+      address: config.contractAddress as `0x${string}`,
+      abi: YapBayEscrowABI.abi,
+    };
+    
+    // Find the EscrowCreated event
+    const eventSignature = 'EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)';
+    const eventTopic = ethers.id(eventSignature);
+    
+    const escrowCreatedLog = receipt.logs.find(
+      (log) =>
+        log.address.toLowerCase() === contract.address.toLowerCase() &&
+        log.topics[0] === eventTopic
+    );
+    
+    if (!escrowCreatedLog) {
+      return null;
+    }
+    
+    // Decode the log to extract the escrow ID
+    const iface = new ethers.Interface(contract.abi);
+    const decodedLog = iface.parseLog({
+      topics: [...escrowCreatedLog.topics],
+      data: escrowCreatedLog.data,
+    });
+    
+    if (decodedLog && decodedLog.name === 'EscrowCreated') {
+      return decodedLog.args.escrowId.toString();
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('[ERROR] Failed to extract escrow ID from transaction:', error);
+    return null;
+  }
+};
+
+/**
+ * Find the most recent escrow for a trade ID
+ * @param tradeId The trade ID to look for
+ * @param wallet The wallet to use for blockchain queries
+ * @returns The escrow ID or null if not found
+ */
+const findRecentEscrowByTradeId = async (
+  tradeId: number,
+  wallet: {
+    getPublicClient?: () => Promise<any>;
+  }
+): Promise<string | null> => {
+  try {
+    if (!wallet.getPublicClient) {
+      throw new Error('Wallet must implement getPublicClient');
+    }
+    
+    const publicClient = await wallet.getPublicClient();
+    const contract = {
+      address: config.contractAddress as `0x${string}`,
+      abi: YapBayEscrowABI.abi,
+    };
+    
+    // Query EscrowCreated events for this trade ID
+    const filter = {
+      address: contract.address,
+      event: 'EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)',
+      args: {
+        tradeId: BigInt(tradeId),
+      },
+    };
+    
+    const logs = await publicClient.getLogs({
+      address: contract.address,
+      event: filter.event,
+      fromBlock: BigInt(0),
+      toBlock: 'latest',
+    });
+    
+    if (logs && logs.length > 0) {
+      // Sort logs by block number (descending) to get the most recent
+      logs.sort((a: { blockNumber: bigint }, b: { blockNumber: bigint }) => 
+        Number(b.blockNumber) - Number(a.blockNumber)
+      );
+      
+      // Parse the most recent log to get the escrow ID
+      const iface = new ethers.Interface(contract.abi);
+      const decodedLog = iface.parseLog({
+        topics: [...logs[0].topics],
+        data: logs[0].data,
+      });
+      
+      if (decodedLog && decodedLog.name === 'EscrowCreated') {
+        return decodedLog.args.escrowId.toString();
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('[ERROR] Failed to find recent escrow by trade ID:', error);
+    return null;
   }
 };
 
@@ -621,8 +867,6 @@ export const releaseTradeCrypto = async ({
         } else {
           errorMessage = 'Transaction failed on the blockchain. This could be due to contract restrictions or network issues.';
         }
-      } else if (error.message.includes('Cannot release escrow in state')) {
-        errorMessage = 'Cannot release funds in the current escrow state. The trade may need to be in a different state.';
       } else if (error.message.includes('no funds')) {
         errorMessage = 'This escrow has no funds to release.';
       }

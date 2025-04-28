@@ -1,10 +1,10 @@
 # YapBay Frontend Development Plan
 
+7.22
+
 test update of escrow, trade tables for events
 
 ## fix
-
-There is no fucking FIAT_PAID state on the fucking escrow you mug.
 
 test correct recording of transaction types... still not working
 
@@ -12,7 +12,6 @@ my escrows page is not showing correctly escrow state
 
 ## escrow
 
-- release escrow
 - cancel escrow
 
 ## Roadmap
