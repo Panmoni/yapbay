@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import StatusBadge from '@/components/Shared/StatusBadge';
 import Container from '@/components/Shared/Container';
+import { getUsdcBalance } from './services/chainService';
 
 interface HeaderProps {
   isLoggedIn: boolean;
@@ -22,13 +23,14 @@ interface HeaderProps {
 }
 
 function Header({ isLoggedIn, account }: HeaderProps) {
-  const { setShowAuthFlow, handleLogOut } = useDynamicContext();
+  const { setShowAuthFlow, handleLogOut, primaryWallet } = useDynamicContext();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [prices, setPrices] = useState<Record<string, { price: string; timestamp: number }> | null>(
     null
   );
   const [priceError, setPriceError] = useState<string | null>(null);
+  const [usdcBalance, setUsdcBalance] = useState<string>('Loading...');
 
   const fetchPrices = useCallback(async () => {
     try {
@@ -39,6 +41,30 @@ function Header({ isLoggedIn, account }: HeaderProps) {
       setPriceError(err instanceof Error ? err.message : 'Unknown error');
     }
   }, []);
+
+  // Fetch USDC balance when wallet is connected
+  useEffect(() => {
+    const fetchUsdcBalance = async () => {
+      if (primaryWallet?.address) {
+        try {
+          const balance = await getUsdcBalance(primaryWallet.address);
+          // USDC has 6 decimals
+          const formattedBalance = (Number(balance) / 1_000_000).toFixed(2);
+          setUsdcBalance(formattedBalance);
+        } catch (error) {
+          console.error('Error fetching USDC balance:', error);
+          setUsdcBalance('Error');
+        }
+      } else {
+        setUsdcBalance('Connect wallet');
+      }
+    };
+
+    fetchUsdcBalance();
+    // Refresh balance every 30 seconds
+    const interval = setInterval(fetchUsdcBalance, 30000);
+    return () => clearInterval(interval);
+  }, [primaryWallet]);
 
   useEffect(() => {
     fetchPrices();
@@ -185,6 +211,14 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                         My Transactions
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem className="flex flex-col items-start">
+                      <div className="w-full py-1 border-t border-neutral-200 mt-1">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-neutral-600">USDC Balance:</span>
+                          <span className="text-sm font-medium text-primary-700">{usdcBalance}</span>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
                     <DropdownMenuItem>
                       <button
                         onClick={handleLogOut}
@@ -258,6 +292,14 @@ function Header({ isLoggedIn, account }: HeaderProps) {
                   >
                     My Transactions
                   </Link>
+                </div>
+                <div className="flex items-center justify-between py-2 border-t border-neutral-100">
+                  <div className="w-full py-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-neutral-600">USDC Balance:</span>
+                      <span className="text-sm font-medium text-primary-700">{usdcBalance}</span>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <button
