@@ -102,8 +102,13 @@ async function processConfirmedTransaction(
       transaction_hash: receipt.hash,
       transaction_type: tx.type,
       status: 'SUCCESS',
-      block_number: Number(receipt.blockNumber)
-      // Note: timestamp is handled by the backend
+      block_number: Number(receipt.blockNumber),
+      // Add required from_address property
+      from_address: receipt.from || '0x0000000000000000000000000000000000000000',
+      // Add empty metadata to satisfy type requirements
+      metadata: {
+        verified_by: 'transaction_verification_service'
+      }
     });
     
     console.log(`[TransactionVerification] Recorded transaction ${receipt.hash} for trade ${tx.tradeId}`);

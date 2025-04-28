@@ -1,5 +1,7 @@
 # YapBay Frontend Development Plan
 
+finish trade 23
+
 test update of escrow, trade tables for events
 
 ## fix

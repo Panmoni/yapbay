@@ -165,40 +165,62 @@ export const createTradeEscrow = async ({
       };
     }
 
-    // Record the transaction in our transaction system
-    await recordTransaction({
+    // Record the escrow in our backend
+    await recordEscrow({
       trade_id: trade.id,
       transaction_hash: txResult.txHash,
-      transaction_type: 'CREATE_ESCROW',
-      from_address: sellerAddress,
-      to_address: buyerAddress,
-      amount: trade.leg1_crypto_amount,
-      token_type: trade.leg1_crypto_token,
-      status: 'SUCCESS',
-      block_number: Number(txResult.blockNumber),
-      metadata: {
-        escrow_id: txResult.escrowId,
-        arbitrator: config.arbitratorAddress
-      }
-    });
-
-    // Now notify the backend about the successful transaction (legacy system)
-    const recordData = {
-      trade_id: trade.id,
-      transaction_hash: txResult.txHash,
-      escrow_id: txResult.escrowId,
+      escrow_id: txResult.status === 'PENDING' ? '0' : txResult.escrowId,
       seller: sellerAddress,
       buyer: buyerAddress,
       amount: parseFloat(trade.leg1_crypto_amount || '0'),
       sequential: false,
-      arbitrator: config.arbitratorAddress || '0x0000000000000000000000000000000000000000',
+      sequential_escrow_address: '0x0000000000000000000000000000000000000000'
+    });
+
+    // Add null checks and default values for all potentially undefined string values
+    const leg1CryptoAmount = trade.leg1_crypto_amount || '0';
+    const leg1CryptoToken = trade.leg1_crypto_token || 'USDC';
+    
+    // Record the transaction
+    await recordTransaction({
+      trade_id: trade.id,
+      escrow_id: txResult.status === 'PENDING' ? 0 : parseInt(txResult.escrowId),
+      transaction_hash: txResult.txHash,
+      transaction_type: 'CREATE_ESCROW',
+      from_address: sellerAddress,
+      to_address: buyerAddress,
+      amount: leg1CryptoAmount,
+      token_type: leg1CryptoToken,
+      status: txResult.status === 'PENDING' ? 'PENDING' : 'SUCCESS',
+      block_number: txResult.status === 'PENDING' ? 0 : Number(txResult.blockNumber),
+      metadata: {
+        escrow_id: txResult.status === 'PENDING' ? '0' : txResult.escrowId,
+        seller: sellerAddress,
+        buyer: buyerAddress,
+      },
+    });
+
+    // Show success message
+    toast.success(
+      txResult.status === 'PENDING' 
+        ? 'Transaction submitted! Waiting for confirmation...'
+        : 'Escrow created successfully!',
+      {
+        description: txResult.status === 'PENDING'
+          ? 'Your transaction is being processed. We will notify you when it is confirmed.'
+          : `Escrow ID: ${txResult.status === 'PENDING' ? '0' : txResult.escrowId}`,
+      }
+    );
+
+    return {
+      txHash: txResult.txHash,
+      blockNumber: txResult.blockNumber,
+      success: true,
+      message: txResult.status === 'PENDING' 
+        ? 'Transaction submitted and being processed'
+        : `Escrow created with ID: ${txResult.status === 'PENDING' ? '0' : txResult.escrowId}`,
+      escrowId: txResult.status === 'PENDING' ? '0' : txResult.escrowId,
     };
-
-    await recordEscrow(recordData);
-
-    toast.success('Escrow created successfully!');
-
-    return txResult;
   } catch (err) {
     console.error('Error creating escrow:', err);
     const errorMessage = handleApiError(err, 'Failed to create escrow: Unknown error');
@@ -232,7 +254,7 @@ export const createAndFundTradeEscrow = async ({
     // Then check and fund it - note: only pass 2 arguments if that's what the function expects
     fundResult = await checkAndFundEscrow(
       primaryWallet,
-      escrowResult.escrowId
+      escrowResult.escrowId || '0'
     );
 
     // Convert result to expected format
@@ -245,17 +267,19 @@ export const createAndFundTradeEscrow = async ({
       try {
         await recordTransaction({
           trade_id: trade.id,
-          escrow_id: parseInt(escrowResult.escrowId),
+          escrow_id: escrowResult.escrowId ? parseInt(escrowResult.escrowId) : 0,
           transaction_hash: txResult.txHash,
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
-          to_address: config.contractAddress, // Use the escrow contract address instead of empty string
-          amount: trade.leg1_crypto_amount,
-          token_type: trade.leg1_crypto_token,
+          to_address: config.contractAddress || '',
+          amount: trade.leg1_crypto_amount || '0',
+          token_type: trade.leg1_crypto_token || 'USDC',
           status: 'SUCCESS',
           block_number: txResult.blockNumber ? Number(txResult.blockNumber) : undefined,
           metadata: {
-            escrow_id: escrowResult.escrowId
+            escrow_id: escrowResult.escrowId || '0',
+            seller: sellerAddress,
+            buyer: buyerAddress
           }
         });
       } catch (recordError) {
@@ -265,13 +289,13 @@ export const createAndFundTradeEscrow = async ({
         // Store transaction in localStorage as fallback
         storeTransactionLocally({
           trade_id: trade.id,
-          escrow_id: parseInt(escrowResult.escrowId),
+          escrow_id: escrowResult.escrowId ? parseInt(escrowResult.escrowId) : 0,
           transaction_hash: txResult.txHash,
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
-          to_address: config.contractAddress, // Also update the fallback storage
-          amount: trade.leg1_crypto_amount,
-          token_type: trade.leg1_crypto_token,
+          to_address: config.contractAddress || '',
+          amount: trade.leg1_crypto_amount || '0',
+          token_type: trade.leg1_crypto_token || 'USDC',
           block_number: txResult.blockNumber ? Number(txResult.blockNumber) : undefined,
           timestamp: new Date().toISOString()
         });
@@ -289,7 +313,7 @@ export const createAndFundTradeEscrow = async ({
     if (escrowResult && !fundResult) {
       storeIncompleteEscrowLocally({
         trade_id: trade.id,
-        escrow_id: escrowResult.escrowId,
+        escrow_id: escrowResult.escrowId || '0',
         status: 'CREATED_NOT_FUNDED',
         timestamp: new Date().toISOString()
       });
