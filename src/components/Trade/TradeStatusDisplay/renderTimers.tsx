@@ -61,7 +61,9 @@ export const renderTimers = ({ trade, userRole }: RenderTimersProps) => {
           </p>
         ) : (
           <p className="text-amber-800 text-sm mt-2">
-            Deadline warning: Mark fiat as paid before the deadline to proceed.
+            {userRole === 'buyer' 
+              ? "Deadline warning: Mark fiat as paid before the deadline to proceed."
+              : "Deadline warning: The buyer must mark fiat as paid before the deadline to proceed. Do not release escrow until you have personally verified receipt of the fiat funds via your payment method. Do not trust receipt images, promises or even the buyer having marked fiat as paid on-chain."}
           </p>
         )}
       </div>

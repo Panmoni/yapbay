@@ -6,8 +6,6 @@ test update of escrow, trade tables for events
 
 ## fix
 
-Deadline warning: Mark fiat as paid before the deadline to proceed. customize for role
-
 when statis is fiat_paid I getCurrent Status:Trade status unavailable.
 
 and no release escrow button appears
