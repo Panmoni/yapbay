@@ -156,7 +156,7 @@ export interface Escrow {
   arbitrator_address: string;
   token_type: string;
   amount: string;
-  state: 'CREATED' | 'FUNDED' | 'RELEASED' | 'REFUNDED' | 'DISPUTED';
+  state: 'CREATED' | 'FUNDED' | 'RELEASED' | 'CANCELLED' | 'DISPUTED' | 'RESOLVED';
   sequential: boolean;
   sequential_escrow_address: string | null;
   onchain_escrow_id: string | null;

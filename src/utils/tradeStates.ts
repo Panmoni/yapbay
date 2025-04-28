@@ -54,6 +54,7 @@ export enum EscrowDbState {
   RELEASED = 'RELEASED',
   CANCELLED = 'CANCELLED',
   DISPUTED = 'DISPUTED',
+  RESOLVED = 'RESOLVED',
 }
 
 /**
