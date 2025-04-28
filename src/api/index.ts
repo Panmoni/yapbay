@@ -344,23 +344,27 @@ export const getEscrow = (tradeId: number) => api.get<Escrow>(`/escrows/${tradeI
 export const getMyEscrows = () => api.get<Escrow[]>('/my/escrows');
 
 /**
- * Releases funds from an escrow to the buyer
+ * Releases an escrow and transfers funds to the buyer
  * @param data Object containing escrow release parameters
  * @param data.escrow_id Escrow ID (must be an integer)
  * @param data.trade_id Trade ID (must be an integer)
- * @param data.authority Authority's wallet address
- * @param data.buyer_token_account Buyer's token account
- * @param data.arbitrator_token_account Arbitrator's token account
+ * @param data.authority Optional: Authority's wallet address
+ * @param data.buyer_token_account Optional: Buyer's token account
+ * @param data.arbitrator_token_account Optional: Arbitrator's token account
  * @param data.sequential_escrow_token_account Optional: Sequential escrow token account
+ * @param data.tx_hash Optional: Transaction hash if released on-chain
+ * @param data.block_number Optional: Block number if released on-chain
  * @returns Promise with escrow release response
  */
 export const releaseEscrow = (data: {
   escrow_id: number;
   trade_id: number;
-  authority: string;
-  buyer_token_account: string;
-  arbitrator_token_account: string;
+  authority?: string;
+  buyer_token_account?: string;
+  arbitrator_token_account?: string;
   sequential_escrow_token_account?: string;
+  tx_hash?: string;
+  block_number?: number;
 }) => api.post<EscrowResponse>('/escrows/release', data);
 
 /**
@@ -371,6 +375,8 @@ export const releaseEscrow = (data: {
  * @param data.seller Seller's wallet address
  * @param data.authority Authority's wallet address
  * @param data.seller_token_account Optional: Seller's token account
+ * @param data.tx_hash Optional: Transaction hash if cancelled on-chain
+ * @param data.block_number Optional: Block number if cancelled on-chain
  * @returns Promise with escrow cancellation response
  */
 export const cancelEscrow = (data: {
@@ -379,6 +385,8 @@ export const cancelEscrow = (data: {
   seller: string;
   authority: string;
   seller_token_account?: string;
+  tx_hash?: string;
+  block_number?: number;
 }) => api.post<EscrowResponse>('/escrows/cancel', data);
 
 /**
@@ -389,6 +397,8 @@ export const cancelEscrow = (data: {
  * @param data.disputing_party Disputing party's wallet address
  * @param data.disputing_party_token_account Disputing party's token account
  * @param data.evidence_hash Optional: Hash of evidence
+ * @param data.tx_hash Optional: Transaction hash if disputed on-chain
+ * @param data.block_number Optional: Block number if disputed on-chain
  * @returns Promise with escrow dispute response
  */
 export const disputeEscrow = (data: {
@@ -397,6 +407,8 @@ export const disputeEscrow = (data: {
   disputing_party: string;
   disputing_party_token_account: string;
   evidence_hash?: string;
+  tx_hash?: string;
+  block_number?: number;
 }) => api.post<EscrowResponse>('/escrows/dispute', data);
 
 // Add this function to handle marking trades as paid

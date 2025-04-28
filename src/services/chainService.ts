@@ -473,6 +473,134 @@ export const markFiatPaidTransaction = async (
 };
 
 /**
+ * Releases an escrow on the blockchain.
+ * @param wallet The Dynamic.xyz wallet object
+ * @param escrowId The ID of the escrow to release
+ * @returns The transaction hash and block number
+ */
+export const releaseEscrowTransaction = async (
+  wallet: any,
+  escrowId: string | number
+): Promise<{ txHash: string; blockNumber: bigint }> => {
+  if (!wallet.getWalletClient || !wallet.getPublicClient) {
+    throw new Error('Wallet must implement getWalletClient and getPublicClient');
+  }
+
+  const walletClient = await wallet.getWalletClient();
+  const publicClient = await wallet.getPublicClient();
+
+  const contract = {
+    address: config.contractAddress as Address,
+    abi: YapBayEscrowABI.abi,
+  };
+
+  const escrowIdBigInt = BigInt(escrowId);
+
+  console.log(`[DEBUG] Releasing escrow with ID: ${escrowIdBigInt.toString()}`);
+
+  try {
+    // Call the releaseEscrow function on the smart contract
+    const hash = await walletClient.writeContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: 'releaseEscrow',
+      args: [escrowIdBigInt],
+    });
+
+    console.log('[DEBUG] Release escrow transaction sent:', hash);
+
+    // Wait for the transaction to be mined
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    console.log(
+      '[DEBUG] Release escrow transaction confirmed:',
+      JSON.stringify(receipt, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
+
+    if (receipt.status !== 'success') {
+      throw new Error(`Release escrow transaction failed with status: ${receipt.status}`);
+    }
+
+    return {
+      txHash: hash,
+      blockNumber: receipt.blockNumber,
+    };
+  } catch (error) {
+    console.error(
+      `[ERROR] Failed to release escrow ${escrowId}:`,
+      error,
+      ' - Error details: ',
+      JSON.stringify(error, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
+    throw error;
+  }
+};
+
+/**
+ * Opens a dispute for an escrow on the blockchain.
+ * @param wallet The Dynamic.xyz wallet object
+ * @param escrowId The ID of the escrow to dispute
+ * @param evidenceHash The hash of the evidence for the dispute (bytes32)
+ * @returns The transaction hash and block number
+ */
+export const disputeEscrowTransaction = async (
+  wallet: any,
+  escrowId: string | number,
+  evidenceHash: string
+): Promise<{ txHash: string; blockNumber: bigint }> => {
+  if (!wallet.getWalletClient || !wallet.getPublicClient) {
+    throw new Error('Wallet must implement getWalletClient and getPublicClient');
+  }
+
+  const walletClient = await wallet.getWalletClient();
+  const publicClient = await wallet.getPublicClient();
+
+  const contract = {
+    address: config.contractAddress as Address,
+    abi: YapBayEscrowABI.abi,
+  };
+
+  const escrowIdBigInt = BigInt(escrowId);
+
+  console.log(`[DEBUG] Opening dispute for escrow with ID: ${escrowIdBigInt.toString()}`);
+
+  try {
+    // Call the openDisputeWithBond function on the smart contract
+    const hash = await walletClient.writeContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: 'openDisputeWithBond',
+      args: [escrowIdBigInt, evidenceHash],
+    });
+
+    console.log('[DEBUG] Dispute escrow transaction sent:', hash);
+
+    // Wait for the transaction to be mined
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    console.log(
+      '[DEBUG] Dispute escrow transaction confirmed:',
+      JSON.stringify(receipt, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
+
+    if (receipt.status !== 'success') {
+      throw new Error(`Dispute escrow transaction failed with status: ${receipt.status}`);
+    }
+
+    return {
+      txHash: hash,
+      blockNumber: receipt.blockNumber,
+    };
+  } catch (error) {
+    console.error(
+      `[ERROR] Failed to dispute escrow ${escrowId}:`,
+      error,
+      ' - Error details: ',
+      JSON.stringify(error, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
+    throw error;
+  }
+};
+
+/**
  * Fetches the USDC balance for a given wallet address using VITE_CELO_RPC_URL.
  * @param address Wallet address (string)
  * @returns Promise<BigInt> USDC balance (in smallest unit, e.g. 6 decimals)
@@ -495,3 +623,127 @@ export async function getUsdcBalance(address: string): Promise<bigint> {
   const balance: bigint = await contract.balanceOf(address);
   return balance;
 }
+
+/**
+ * Checks the state and funds of an escrow.
+ * @param wallet The Dynamic.xyz wallet object
+ * @param escrowId The ID of the escrow to check
+ * @returns Object containing state and amount information
+ */
+export const checkEscrowState = async (
+  wallet: any,
+  escrowId: string | number
+): Promise<{ state: number; amount: bigint; hasFunds: boolean }> => {
+  if (!wallet.getPublicClient) {
+    throw new Error('Wallet must implement getPublicClient');
+  }
+
+  const publicClient = await wallet.getPublicClient();
+  const contract = {
+    address: config.contractAddress as Address,
+    abi: YapBayEscrowABI.abi,
+  };
+
+  const escrowIdBigInt = BigInt(escrowId);
+
+  try {
+    // Get the escrow data from the escrows mapping
+    const escrowData = await publicClient.readContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: 'escrows',
+      args: [escrowIdBigInt],
+    });
+
+    // The escrow data structure depends on the contract implementation
+    // Assuming the state is at index 9 and amount at index 5 of the returned array
+    // This might need adjustment based on the actual contract structure
+    const state = Number(escrowData[9]); // EscrowState enum value
+    const amount = escrowData[5] as bigint; // Amount in the escrow
+    
+    console.log(`[DEBUG] Escrow ${escrowId} state: ${state}, amount: ${amount.toString()}`);
+    
+    // If amount is greater than 0, the escrow has funds
+    const hasFunds = amount > BigInt(0);
+    
+    return { state, amount, hasFunds };
+  } catch (error) {
+    console.error(
+      `[ERROR] Failed to check escrow state for ${escrowId}:`,
+      error,
+      ' - Error details: ',
+      JSON.stringify(error, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
+    throw error;
+  }
+};
+
+/**
+ * Cancels an escrow on the blockchain.
+ * First checks if the escrow has funds and prevents cancellation if it does.
+ * @param wallet The Dynamic.xyz wallet object
+ * @param escrowId The ID of the escrow to cancel
+ * @returns The transaction hash and block number
+ */
+export const cancelEscrowTransaction = async (
+  wallet: any,
+  escrowId: string | number
+): Promise<{ txHash: string; blockNumber: bigint }> => {
+  if (!wallet.getWalletClient || !wallet.getPublicClient) {
+    throw new Error('Wallet must implement getWalletClient and getPublicClient');
+  }
+
+  // First check if the escrow has funds
+  const { hasFunds } = await checkEscrowState(wallet, escrowId);
+  if (hasFunds) {
+    throw new Error('Cannot cancel an escrow that still has funds. The funds must be released first.');
+  }
+
+  const walletClient = await wallet.getWalletClient();
+  const publicClient = await wallet.getPublicClient();
+
+  const contract = {
+    address: config.contractAddress as Address,
+    abi: YapBayEscrowABI.abi,
+  };
+
+  const escrowIdBigInt = BigInt(escrowId);
+
+  console.log(`[DEBUG] Cancelling escrow with ID: ${escrowIdBigInt.toString()}`);
+
+  try {
+    // Call the cancelEscrow function on the smart contract
+    const hash = await walletClient.writeContract({
+      address: contract.address,
+      abi: contract.abi,
+      functionName: 'cancelEscrow',
+      args: [escrowIdBigInt],
+    });
+
+    console.log('[DEBUG] Cancel escrow transaction sent:', hash);
+
+    // Wait for the transaction to be mined
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+    console.log(
+      '[DEBUG] Cancel escrow transaction confirmed:',
+      JSON.stringify(receipt, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
+
+    if (receipt.status !== 'success') {
+      throw new Error(`Cancel escrow transaction failed with status: ${receipt.status}`);
+    }
+
+    return {
+      txHash: hash,
+      blockNumber: receipt.blockNumber,
+    };
+  } catch (error) {
+    console.error(
+      `[ERROR] Failed to cancel escrow ${escrowId}:`,
+      error,
+      ' - Error details: ',
+      JSON.stringify(error, (_, value) => (typeof value === 'bigint' ? value.toString() : value))
+    );
+    throw error;
+  }
+};

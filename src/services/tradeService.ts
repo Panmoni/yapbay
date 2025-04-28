@@ -13,8 +13,17 @@ import {
 import { formatNumber } from '../lib/utils';
 import { handleApiError } from '../utils/errorHandling';
 import { toast } from 'sonner';
-import { createEscrowTransaction, markFiatPaidTransaction, checkAndFundEscrow } from './chainService';
+import { 
+  createEscrowTransaction, 
+  markFiatPaidTransaction, 
+  checkAndFundEscrow, 
+  releaseEscrowTransaction,
+  disputeEscrowTransaction,
+  cancelEscrowTransaction,
+  checkEscrowState
+} from './chainService';
 import { config } from '../config';
+import { ethers } from 'ethers';
 
 interface StartTradeParams {
   offerId: number;
@@ -31,14 +40,6 @@ interface TransactionResult {
   blockNumber?: number;
   escrowId?: string;
   escrowAddress?: string;
-}
-
-interface EscrowResponseWithTx {
-  txHash: string;
-  blockNumber?: number;
-  success?: boolean;
-  message?: string;
-  [key: string]: unknown;
 }
 
 /**
@@ -196,7 +197,7 @@ export const createTradeEscrow = async ({
       metadata: {
         escrow_id: txResult.status === 'PENDING' ? '0' : txResult.escrowId,
         seller: sellerAddress,
-        buyer: buyerAddress,
+        buyer: buyerAddress
       },
     });
 
@@ -480,8 +481,8 @@ interface MarkFiatPaidParams {
   trade: Trade;
   primaryWallet: {
     address?: string;
-    getWalletClient: () => Promise<unknown>;
-    getPublicClient: () => Promise<unknown>;
+    getWalletClient?: () => Promise<unknown>;
+    getPublicClient?: () => Promise<unknown>;
   };
 }
 
@@ -542,7 +543,11 @@ export const markTradeFiatPaid = async ({ trade, primaryWallet }: MarkFiatPaidPa
  */
 interface ReleaseCryptoParams {
   trade: Trade;
-  primaryWallet: { address?: string };
+  primaryWallet: { 
+    address?: string;
+    getWalletClient?: () => Promise<unknown>;
+    getPublicClient?: () => Promise<unknown>;
+  };
 }
 
 /**
@@ -552,32 +557,61 @@ export const releaseTradeCrypto = async ({
   trade,
   primaryWallet,
 }: ReleaseCryptoParams): Promise<void> => {
+  if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
+
   try {
-    // Call API to release escrow
-    const response = await releaseEscrow({
-      escrow_id: trade.id,
-      trade_id: trade.id,
-      authority: primaryWallet.address || '',
-      buyer_token_account: 'placeholder', // This would come from the wallet
-      arbitrator_token_account: 'placeholder', // This would be a system account
+    toast('Releasing crypto on blockchain...', {
+      description: 'Please approve the transaction in your wallet.',
     });
 
-    // Record the transaction if we have a transaction hash
-    if (response?.data && typeof response.data === 'object' && 'txHash' in response.data) {
-      // Cast to unknown first, then to our type to avoid TypeScript errors
-      const txData = response.data as unknown as EscrowResponseWithTx;
+    // Make sure the wallet has the required methods
+    if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
+      // Create a properly structured wallet object with bound methods
+      const walletForRelease = {
+        address: primaryWallet.address,
+        getWalletClient: async () => {
+          if (primaryWallet.getWalletClient) {
+            return await primaryWallet.getWalletClient();
+          }
+          throw new Error('getWalletClient is not available');
+        },
+        getPublicClient: async () => {
+          if (primaryWallet.getPublicClient) {
+            return await primaryWallet.getPublicClient();
+          }
+          throw new Error('getPublicClient is not available');
+        }
+      };
+
+      // Execute the blockchain transaction
+      const txResult = await releaseEscrowTransaction(
+        walletForRelease,
+        trade.leg1_escrow_onchain_id
+      );
+
+      // Record the transaction in the backend
+      await releaseEscrow({
+        escrow_id: Number(trade.leg1_escrow_onchain_id),
+        trade_id: trade.id,
+        tx_hash: txResult.txHash,
+        block_number: Number(txResult.blockNumber),
+      });
+
+      // Record the transaction details
       await recordTransaction({
         trade_id: trade.id,
-        escrow_id: trade.id,
-        transaction_hash: txData.txHash,
+        escrow_id: Number(trade.leg1_escrow_onchain_id),
+        transaction_hash: txResult.txHash,
         transaction_type: 'RELEASE_ESCROW',
-        from_address: primaryWallet.address || '',
-        to_address: trade.leg1_buyer_account_id?.toString() || '',
+        from_address: primaryWallet.address,
+        to_address: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
         amount: trade.leg1_crypto_amount,
         token_type: trade.leg1_crypto_token,
         status: 'SUCCESS',
-        block_number: Number(txData.blockNumber),
+        block_number: Number(txResult.blockNumber),
       });
+    } else {
+      throw new Error('Wallet does not have required methods');
     }
 
     toast.success('Crypto released successfully!');
@@ -594,38 +628,83 @@ export const releaseTradeCrypto = async ({
  */
 interface DisputeTradeParams {
   trade: Trade;
-  primaryWallet: { address?: string };
+  primaryWallet: {
+    address?: string;
+    getWalletClient?: () => Promise<unknown>;
+    getPublicClient?: () => Promise<unknown>;
+  };
 }
 
 /**
  * Disputes a trade
  */
-export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams): Promise<void> => {
+export const disputeTrade = async ({ 
+  trade, 
+  primaryWallet 
+}: DisputeTradeParams): Promise<void> => {
+  if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
+
   try {
-    // Call API to dispute escrow
-    const response = await disputeEscrow({
-      escrow_id: trade.id,
-      trade_id: trade.id,
-      disputing_party: primaryWallet.address || '',
-      disputing_party_token_account: 'placeholder', // This would come from the wallet
+    toast('Opening dispute on blockchain...', {
+      description: 'Please approve the transaction in your wallet.',
     });
 
-    // Record the transaction if we have a transaction hash
-    if (response?.data && typeof response.data === 'object' && 'txHash' in response.data) {
-      // Cast to unknown first, then to our type to avoid TypeScript errors
-      const txData = response.data as unknown as EscrowResponseWithTx;
+    // Generate a dummy evidence hash for now - in production this would be a real hash of evidence
+    const evidenceHash = ethers.id('dispute_evidence_' + Date.now().toString());
+
+    // Make sure the wallet has the required methods
+    if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
+      // Create a properly structured wallet object with bound methods
+      const walletForDispute = {
+        address: primaryWallet.address,
+        getWalletClient: async () => {
+          if (primaryWallet.getWalletClient) {
+            return await primaryWallet.getWalletClient();
+          }
+          throw new Error('getWalletClient is not available');
+        },
+        getPublicClient: async () => {
+          if (primaryWallet.getPublicClient) {
+            return await primaryWallet.getPublicClient();
+          }
+          throw new Error('getPublicClient is not available');
+        }
+      };
+
+      // Execute the blockchain transaction
+      const txResult = await disputeEscrowTransaction(
+        walletForDispute,
+        trade.leg1_escrow_onchain_id,
+        evidenceHash
+      );
+
+      // Record the dispute in the backend
+      await disputeEscrow({
+        escrow_id: Number(trade.leg1_escrow_onchain_id),
+        trade_id: trade.id,
+        disputing_party: primaryWallet.address,
+        disputing_party_token_account: 'placeholder',
+        evidence_hash: evidenceHash,
+        tx_hash: txResult.txHash,
+        block_number: Number(txResult.blockNumber),
+      });
+
+      // Record the transaction details
       await recordTransaction({
         trade_id: trade.id,
-        escrow_id: trade.id,
-        transaction_hash: txData.txHash,
+        escrow_id: Number(trade.leg1_escrow_onchain_id),
+        transaction_hash: txResult.txHash,
         transaction_type: 'DISPUTE_ESCROW',
-        from_address: primaryWallet.address || '',
+        from_address: primaryWallet.address,
         status: 'SUCCESS',
-        block_number: Number(txData.blockNumber),
+        block_number: Number(txResult.blockNumber),
         metadata: {
-          disputing_party: primaryWallet.address || ''
+          disputing_party: primaryWallet.address,
+          evidence_hash: evidenceHash
         }
       });
+    } else {
+      throw new Error('Wallet does not have required methods');
     }
 
     toast.success('Trade disputed successfully');
@@ -638,51 +717,101 @@ export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams)
 };
 
 /**
- * Parameters for cancelling a trade
+ * Interface for cancel trade parameters
  */
 interface CancelTradeParams {
   trade: Trade;
-  primaryWallet: { address?: string };
-  userRole: string;
-  counterpartyAddress?: string;
+  primaryWallet: {
+    address?: string;
+    getWalletClient?: () => Promise<unknown>;
+    getPublicClient?: () => Promise<unknown>;
+  };
 }
 
 /**
  * Cancels a trade
  */
-export const cancelTrade = async ({
-  trade,
-  primaryWallet,
-  userRole,
-  counterpartyAddress,
+export const cancelTrade = async ({ 
+  trade, 
+  primaryWallet 
 }: CancelTradeParams): Promise<void> => {
+  if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
+
   try {
-    // Call API to cancel escrow
-    const response = await cancelEscrow({
-      escrow_id: trade.id,
-      trade_id: trade.id,
-      seller: userRole === 'seller' ? primaryWallet.address || '' : counterpartyAddress || '',
-      authority: primaryWallet.address || '',
+    toast('Checking escrow state...', {
+      description: 'Verifying that the escrow has no funds before cancellation.',
     });
 
-    // Record the transaction if we have a transaction hash
-    if (response?.data && typeof response.data === 'object' && 'txHash' in response.data) {
-      // Cast to unknown first, then to our type to avoid TypeScript errors
-      const txData = response.data as unknown as EscrowResponseWithTx;
+    // First, check if the escrow has funds
+    // Make sure the wallet has the required methods
+    if (!primaryWallet.getPublicClient) {
+      throw new Error('Wallet must implement getPublicClient');
+    }
+
+    const escrowState = await checkEscrowState(
+      primaryWallet,
+      trade.leg1_escrow_onchain_id
+    );
+    
+    // If the escrow has funds, we cannot cancel it
+    if (escrowState.hasFunds) {
+      toast.error('Cannot cancel trade', {
+        description: 'The escrow still has funds. The funds must be released or refunded before cancellation.',
+      });
+      throw new Error('Escrow has funds. Cannot cancel.');
+    }
+
+    toast('Cancelling trade on blockchain...', {
+      description: 'Please approve the transaction in your wallet.',
+    });
+
+    // Make sure the wallet has the required methods
+    if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
+      // Create a properly structured wallet object with bound methods
+      const walletForCancel = {
+        address: primaryWallet.address,
+        getWalletClient: async () => {
+          if (primaryWallet.getWalletClient) {
+            return await primaryWallet.getWalletClient();
+          }
+          throw new Error('getWalletClient is not available');
+        },
+        getPublicClient: async () => {
+          if (primaryWallet.getPublicClient) {
+            return await primaryWallet.getPublicClient();
+          }
+          throw new Error('getPublicClient is not available');
+        }
+      };
+
+      // Execute the blockchain transaction
+      const txResult = await cancelEscrowTransaction(
+        walletForCancel,
+        trade.leg1_escrow_onchain_id
+      );
+
+      // Record the cancellation in the backend
+      await cancelEscrow({
+        escrow_id: Number(trade.leg1_escrow_onchain_id),
+        trade_id: trade.id,
+        seller: trade.leg1_seller_account_id ? trade.leg1_seller_account_id.toString() : '',
+        authority: primaryWallet.address || '',
+        tx_hash: txResult.txHash,
+        block_number: Number(txResult.blockNumber),
+      });
+
+      // Record the transaction details
       await recordTransaction({
         trade_id: trade.id,
-        escrow_id: trade.id,
-        transaction_hash: txData.txHash,
+        escrow_id: Number(trade.leg1_escrow_onchain_id),
+        transaction_hash: txResult.txHash,
         transaction_type: 'CANCEL_ESCROW',
         from_address: primaryWallet.address || '',
-        to_address: userRole === 'seller' ? (primaryWallet.address || '') : (counterpartyAddress || ''),
         status: 'SUCCESS',
-        block_number: Number(txData.blockNumber),
-        metadata: {
-          cancelled_by: userRole,
-          authority: primaryWallet.address || ''
-        }
+        block_number: Number(txResult.blockNumber),
       });
+    } else {
+      throw new Error('Wallet does not have required methods');
     }
 
     toast.success('Trade cancelled successfully');
