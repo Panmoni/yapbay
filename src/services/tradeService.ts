@@ -102,11 +102,40 @@ interface CreateEscrowParams {
   trade: Trade;
   primaryWallet: {
     address?: string;
-    getWalletClient: () => Promise<unknown>;
-    getPublicClient: () => Promise<unknown>;
+    getWalletClient: () => Promise<WalletClient>;
+    getPublicClient: () => Promise<PublicClient>;
   };
   buyerAddress: string;
   sellerAddress: string;
+}
+
+interface PublicClient {
+  getTransactionReceipt: (params: { hash: `0x${string}` }) => Promise<TransactionReceipt | null>;
+  getLogs: (params: { address: string; event: string; fromBlock: bigint; toBlock: 'latest' }) => Promise<Log[]>;
+  readContract: (params: { address: `0x${string}`; abi: unknown[]; functionName?: string; args?: unknown[] }) => Promise<unknown>;
+}
+
+interface WalletClient {
+  writeContract: (params: { address: `0x${string}`; abi: unknown[]; functionName: string; args: unknown[] }) => Promise<`0x${string}`>;
+}
+
+interface TransactionReceipt {
+  blockNumber: bigint;
+  logs: Log[];
+  status: 'success' | 'reverted';
+}
+
+interface Log {
+  address: string;
+  topics: string[];
+  data: string;
+  blockNumber: bigint;
+}
+
+interface Wallet {
+  getPublicClient?: () => Promise<PublicClient>;
+  getWalletClient?: () => Promise<WalletClient>;
+  address?: string;
 }
 
 /**
@@ -359,11 +388,7 @@ export const createAndFundTradeEscrow = async ({
 const waitForEscrowConfirmation = async (
   txHash: string,
   tradeId: number,
-  wallet: {
-    getPublicClient?: () => Promise<any>;
-    getWalletClient?: () => Promise<any>;
-    address?: string;
-  }
+  wallet: Wallet
 ): Promise<string | null> => {
   // Maximum number of attempts to check transaction status
   const maxAttempts = 20;
@@ -379,9 +404,7 @@ const waitForEscrowConfirmation = async (
   // Function to check transaction status
   const checkTransactionStatus = async (
     hash: string, 
-    walletObj: {
-      getPublicClient?: () => Promise<any>;
-    }
+    walletObj: Wallet
   ): Promise<TransactionStatus> => {
     try {
       if (!walletObj.getPublicClient) {
@@ -451,9 +474,7 @@ const waitForEscrowConfirmation = async (
  */
 const extractEscrowIdFromTransaction = async (
   txHash: string,
-  wallet: {
-    getPublicClient?: () => Promise<any>;
-  }
+  wallet: Wallet
 ): Promise<string | null> => {
   try {
     if (!wallet.getPublicClient) {
@@ -478,7 +499,7 @@ const extractEscrowIdFromTransaction = async (
     const eventTopic = ethers.id(eventSignature);
     
     const escrowCreatedLog = receipt.logs.find(
-      (log) =>
+      (log: Log) =>
         log.address.toLowerCase() === contract.address.toLowerCase() &&
         log.topics[0] === eventTopic
     );
@@ -513,9 +534,7 @@ const extractEscrowIdFromTransaction = async (
  */
 const findRecentEscrowByTradeId = async (
   tradeId: number,
-  wallet: {
-    getPublicClient?: () => Promise<any>;
-  }
+  wallet: Wallet
 ): Promise<string | null> => {
   try {
     if (!wallet.getPublicClient) {
@@ -724,8 +743,8 @@ interface MarkFiatPaidParams {
   trade: Trade;
   primaryWallet: {
     address?: string;
-    getWalletClient?: () => Promise<unknown>;
-    getPublicClient?: () => Promise<unknown>;
+    getWalletClient?: () => Promise<WalletClient>;
+    getPublicClient?: () => Promise<PublicClient>;
   };
 }
 
@@ -788,8 +807,8 @@ interface ReleaseCryptoParams {
   trade: Trade;
   primaryWallet: { 
     address?: string;
-    getWalletClient?: () => Promise<unknown>;
-    getPublicClient?: () => Promise<unknown>;
+    getWalletClient?: () => Promise<WalletClient>;
+    getPublicClient?: () => Promise<PublicClient>;
   };
 }
 
@@ -884,8 +903,8 @@ interface DisputeTradeParams {
   trade: Trade;
   primaryWallet: {
     address?: string;
-    getWalletClient?: () => Promise<unknown>;
-    getPublicClient?: () => Promise<unknown>;
+    getWalletClient?: () => Promise<WalletClient>;
+    getPublicClient?: () => Promise<PublicClient>;
   };
 }
 
@@ -992,8 +1011,8 @@ interface CancelTradeParams {
   trade: Trade;
   primaryWallet: {
     address?: string;
-    getWalletClient?: () => Promise<unknown>;
-    getPublicClient?: () => Promise<unknown>;
+    getWalletClient?: () => Promise<WalletClient>;
+    getPublicClient?: () => Promise<PublicClient>;
   };
 }
 
