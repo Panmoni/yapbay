@@ -264,12 +264,12 @@ export const approveTokenSpending = async (
  * Assumes the caller (seller) has already approved the escrow contract to spend the necessary tokens.
  * @param wallet The Dynamic.xyz wallet object
  * @param escrowId The ID of the escrow to fund (as a string or number)
- * @returns The transaction hash.
+ * @returns The transaction result with txHash and blockNumber.
  */
 export const fundEscrowTransaction = async (
   wallet: any,
   escrowId: string | number
-): Promise<string> => {
+): Promise<{ txHash: string; blockNumber: bigint }> => {
   if (!wallet.getWalletClient || !wallet.getPublicClient) {
     throw new Error('Wallet must implement getWalletClient and getPublicClient');
   }
@@ -324,7 +324,10 @@ export const fundEscrowTransaction = async (
     // const fundsDepositedTopic = ethers.id('FundsDeposited(uint256,uint256,uint256,uint256,uint256)');
     // ... log parsing logic similar to createEscrow ...
 
-    return hash;
+    return {
+      txHash: hash,
+      blockNumber: receipt.blockNumber,
+    };
   } catch (error) {
     console.error(
       `[ERROR] Failed to fund escrow ${escrowId}:`,
@@ -369,7 +372,7 @@ export const checkAndFundEscrow = async (
   }
 
   // Fund the escrow
-  return fundEscrowTransaction(wallet, escrowId);
+  return fundEscrowTransaction(wallet, escrowId).then((result) => result.txHash);
 };
 
 /**

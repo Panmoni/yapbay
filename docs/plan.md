@@ -10,11 +10,13 @@ test correct recording of transaction types
 
 ensure escrow details and transactions remain visible for past trades
 
+test if mark fiat paid event updates the leg state
+
+test record transactions 404
+
 ## fixes
 
 - only show tx history component if there are txs for this trade
-
-- create escrow got recorded as other.
 
 ## escrow
 

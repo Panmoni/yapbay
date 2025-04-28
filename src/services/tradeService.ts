@@ -189,9 +189,12 @@ export const createAndFundTradeEscrow = async ({
   buyerAddress,
   sellerAddress,
 }: CreateEscrowParams) => {
+  let escrowResult;
+  let fundResult;
+  
   try {
     // First create the escrow
-    const escrowResult = await createTradeEscrow({
+    escrowResult = await createTradeEscrow({
       trade,
       primaryWallet,
       buyerAddress,
@@ -199,7 +202,7 @@ export const createAndFundTradeEscrow = async ({
     });
 
     // Then check and fund it - note: only pass 2 arguments if that's what the function expects
-    const fundResult = await checkAndFundEscrow(
+    fundResult = await checkAndFundEscrow(
       primaryWallet,
       escrowResult.escrowId
     );
@@ -211,31 +214,211 @@ export const createAndFundTradeEscrow = async ({
 
     // Record the funding transaction
     if (txResult && 'txHash' in txResult) {
-      await recordTransaction({
-        trade_id: trade.id,
-        escrow_id: parseInt(escrowResult.escrowId),
-        transaction_hash: txResult.txHash,
-        transaction_type: 'FUND_ESCROW',
-        from_address: sellerAddress,
-        to_address: txResult.escrowAddress || '',
-        amount: trade.leg1_crypto_amount,
-        token_type: trade.leg1_crypto_token,
-        status: 'SUCCESS',
-        block_number: Number(txResult.blockNumber),
-        metadata: {
-          escrow_id: escrowResult.escrowId
-        }
-      });
+      try {
+        await recordTransaction({
+          trade_id: trade.id,
+          escrow_id: parseInt(escrowResult.escrowId),
+          transaction_hash: txResult.txHash,
+          transaction_type: 'FUND_ESCROW',
+          from_address: sellerAddress,
+          to_address: '',
+          amount: trade.leg1_crypto_amount,
+          token_type: trade.leg1_crypto_token,
+          status: 'SUCCESS',
+          block_number: txResult.blockNumber ? Number(txResult.blockNumber) : undefined,
+          metadata: {
+            escrow_id: escrowResult.escrowId
+          }
+        });
+      } catch (recordError) {
+        // Log the error but don't fail the entire transaction
+        console.error('Failed to record transaction, but escrow was funded successfully:', recordError);
+        
+        // Store transaction in localStorage as fallback
+        storeTransactionLocally({
+          trade_id: trade.id,
+          escrow_id: parseInt(escrowResult.escrowId),
+          transaction_hash: txResult.txHash,
+          transaction_type: 'FUND_ESCROW',
+          from_address: sellerAddress,
+          amount: trade.leg1_crypto_amount,
+          token_type: trade.leg1_crypto_token,
+          block_number: txResult.blockNumber ? Number(txResult.blockNumber) : undefined,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Show a warning to the user
+        toast.warning('Transaction completed on blockchain but could not be recorded in our database. This will be synced later.');
+      }
     }
 
     return { escrow: escrowResult, fund: txResult };
   } catch (err) {
     console.error('Error in create and fund escrow flow:', err);
+    
+    // If we have partial results, store them for recovery
+    if (escrowResult && !fundResult) {
+      storeIncompleteEscrowLocally({
+        trade_id: trade.id,
+        escrow_id: escrowResult.escrowId,
+        status: 'CREATED_NOT_FUNDED',
+        timestamp: new Date().toISOString()
+      });
+    }
+    
     const errorMessage = handleApiError(err, 'Failed to create and fund escrow');
     toast.error(errorMessage);
     throw err;
   }
 };
+
+/**
+ * Helper function to store transaction data locally when API fails
+ * This serves as a fallback mechanism for transaction recording
+ */
+const storeTransactionLocally = (transactionData: {
+  trade_id: number;
+  escrow_id?: number;
+  transaction_hash: string;
+  transaction_type: string;
+  from_address: string;
+  to_address?: string;
+  amount?: string;
+  token_type?: string;
+  block_number?: number;
+  timestamp: string;
+}) => {
+  try {
+    // Get existing pending transactions or initialize empty array
+    const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions') || '[]');
+    
+    // Add new transaction to the array
+    pendingTransactions.push({
+      ...transactionData,
+      pendingSince: new Date().toISOString(),
+      retryCount: 0
+    });
+    
+    // Store updated array back to localStorage
+    localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+    
+    console.log('Transaction stored locally for future sync:', transactionData.transaction_hash);
+    
+    // Schedule a retry attempt
+    setTimeout(() => retryPendingTransactions(), 30000); // Try again in 30 seconds
+  } catch (error) {
+    console.error('Failed to store transaction locally:', error);
+  }
+};
+
+/**
+ * Helper function to store incomplete escrow data locally
+ * This helps with recovery of partially completed escrow operations
+ */
+const storeIncompleteEscrowLocally = (escrowData: {
+  trade_id: number;
+  escrow_id: string;
+  status: string;
+  timestamp: string;
+}) => {
+  try {
+    // Get existing incomplete escrows or initialize empty array
+    const incompleteEscrows = JSON.parse(localStorage.getItem('incompleteEscrows') || '[]');
+    
+    // Add new escrow to the array
+    incompleteEscrows.push({
+      ...escrowData,
+      createdAt: new Date().toISOString(),
+      retryCount: 0
+    });
+    
+    // Store updated array back to localStorage
+    localStorage.setItem('incompleteEscrows', JSON.stringify(incompleteEscrows));
+    
+    console.log('Incomplete escrow stored locally for future recovery:', escrowData.escrow_id);
+  } catch (error) {
+    console.error('Failed to store incomplete escrow locally:', error);
+  }
+};
+
+/**
+ * Retry sending pending transactions to the API
+ * This function attempts to sync locally stored transactions with the backend
+ */
+const retryPendingTransactions = async () => {
+  try {
+    // Get pending transactions from localStorage
+    const pendingTransactionsStr = localStorage.getItem('pendingTransactions');
+    if (!pendingTransactionsStr) return;
+    
+    const pendingTransactions = JSON.parse(pendingTransactionsStr);
+    if (!pendingTransactions.length) return;
+    
+    console.log(`Attempting to sync ${pendingTransactions.length} pending transactions`);
+    
+    // Keep track of successful transactions to remove them from localStorage
+    const successfulTransactions: number[] = [];
+    
+    // Process each pending transaction
+    for (let i = 0; i < pendingTransactions.length; i++) {
+      const transaction = pendingTransactions[i];
+      
+      // Skip transactions that have been retried too many times (e.g., 5 times)
+      if (transaction.retryCount >= 5) {
+        console.log(`Skipping transaction ${transaction.transaction_hash} - too many retry attempts`);
+        continue;
+      }
+      
+      try {
+        // Attempt to record the transaction
+        await recordTransaction({
+          trade_id: transaction.trade_id,
+          escrow_id: transaction.escrow_id,
+          transaction_hash: transaction.transaction_hash,
+          transaction_type: transaction.transaction_type,
+          from_address: transaction.from_address,
+          to_address: transaction.to_address || '',
+          amount: transaction.amount,
+          token_type: transaction.token_type,
+          status: 'SUCCESS',
+          block_number: transaction.block_number,
+          metadata: transaction.metadata || {}
+        });
+        
+        // If successful, mark for removal
+        successfulTransactions.push(i);
+        console.log(`Successfully synced transaction ${transaction.transaction_hash}`);
+      } catch (error) {
+        // Increment retry count
+        pendingTransactions[i].retryCount = (pendingTransactions[i].retryCount || 0) + 1;
+        console.error(`Failed to sync transaction ${transaction.transaction_hash}, retry count: ${pendingTransactions[i].retryCount}`, error);
+      }
+    }
+    
+    // Remove successful transactions (in reverse order to avoid index issues)
+    for (let i = successfulTransactions.length - 1; i >= 0; i--) {
+      pendingTransactions.splice(successfulTransactions[i], 1);
+    }
+    
+    // Update localStorage with remaining transactions
+    localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+    
+    // If there are still pending transactions, schedule another retry
+    if (pendingTransactions.length > 0) {
+      // Exponential backoff: wait longer between retries (1 minute)
+      setTimeout(() => retryPendingTransactions(), 60000);
+    }
+  } catch (error) {
+    console.error('Error in retryPendingTransactions:', error);
+    // Schedule another retry despite the error
+    setTimeout(() => retryPendingTransactions(), 60000);
+  }
+};
+
+// Initialize retry mechanism on page load
+setTimeout(() => {
+  retryPendingTransactions();
+}, 5000); // Wait 5 seconds after page load before first retry attempt
 
 /**
  * Parameters for marking fiat as paid
