@@ -221,7 +221,7 @@ export const createAndFundTradeEscrow = async ({
           transaction_hash: txResult.txHash,
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
-          to_address: '',
+          to_address: config.contractAddress, // Use the escrow contract address instead of empty string
           amount: trade.leg1_crypto_amount,
           token_type: trade.leg1_crypto_token,
           status: 'SUCCESS',
@@ -241,6 +241,7 @@ export const createAndFundTradeEscrow = async ({
           transaction_hash: txResult.txHash,
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
+          to_address: config.contractAddress, // Also update the fallback storage
           amount: trade.leg1_crypto_amount,
           token_type: trade.leg1_crypto_token,
           block_number: txResult.blockNumber ? Number(txResult.blockNumber) : undefined,
