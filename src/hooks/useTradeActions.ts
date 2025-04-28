@@ -8,12 +8,53 @@ import {
   createAndFundTradeEscrow,
 } from '../services/tradeService';
 
+interface WalletClient {
+  writeContract: (params: {
+    address: `0x${string}`;
+    abi: unknown[];
+    functionName: string;
+    args: unknown[];
+  }) => Promise<`0x${string}`>;
+}
+
+interface PublicClient {
+  getTransactionReceipt: (params: { hash: `0x${string}` }) => Promise<{
+    blockNumber: bigint;
+    logs: {
+      address: string;
+      topics: string[];
+      data: string;
+      blockNumber: bigint;
+    }[];
+    status: 'success' | 'reverted';
+  } | null>;
+  getLogs: (params: {
+    address: string;
+    event: string;
+    fromBlock: bigint;
+    toBlock: 'latest';
+  }) => Promise<
+    {
+      address: string;
+      topics: string[];
+      data: string;
+      blockNumber: bigint;
+    }[]
+  >;
+  readContract: (params: {
+    address: `0x${string}`;
+    abi: unknown[];
+    functionName?: string;
+    args?: unknown[];
+  }) => Promise<unknown>;
+}
+
 interface UseTradeActionsProps {
   trade: Trade | null;
   primaryWallet: {
     address?: string;
-    getWalletClient?: () => Promise<unknown>;
-    getPublicClient?: () => Promise<unknown>;
+    getWalletClient?: () => Promise<WalletClient>;
+    getPublicClient?: () => Promise<PublicClient>;
   };
   counterparty: Account | null;
   userRole: string;
@@ -36,7 +77,6 @@ export function useTradeActions({
   trade,
   primaryWallet,
   counterparty,
-  userRole,
   onRefresh,
 }: UseTradeActionsProps): UseTradeActionsResult {
   const [actionLoading, setActionLoading] = useState(false);
@@ -76,7 +116,10 @@ export function useTradeActions({
 
       // Create the escrow
       // Make sure the wallet has the required methods and they are properly bound
-      if (typeof primaryWallet.getWalletClient === 'function' && typeof primaryWallet.getPublicClient === 'function') {
+      if (
+        typeof primaryWallet.getWalletClient === 'function' &&
+        typeof primaryWallet.getPublicClient === 'function'
+      ) {
         // Create a properly structured wallet object with bound methods
         const walletForEscrow = {
           address: primaryWallet.address,
@@ -91,9 +134,9 @@ export function useTradeActions({
               return await primaryWallet.getPublicClient();
             }
             throw new Error('getPublicClient is not available');
-          }
+          },
         };
-        
+
         // Use the combined create and fund function instead of just creating the escrow
         await createAndFundTradeEscrow({
           trade,
@@ -125,23 +168,25 @@ export function useTradeActions({
     try {
       // Make sure the wallet has the required methods
       if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
+        const walletForMarkPaid = {
+          address: primaryWallet.address,
+          getWalletClient: async () => {
+            if (primaryWallet.getWalletClient) {
+              return await primaryWallet.getWalletClient();
+            }
+            throw new Error('getWalletClient is not available');
+          },
+          getPublicClient: async () => {
+            if (primaryWallet.getPublicClient) {
+              return await primaryWallet.getPublicClient();
+            }
+            throw new Error('getPublicClient is not available');
+          },
+        };
+
         await markTradeFiatPaid({
           trade,
-          primaryWallet: {
-            address: primaryWallet.address,
-            getWalletClient: async () => {
-              if (primaryWallet.getWalletClient) {
-                return await primaryWallet.getWalletClient();
-              }
-              throw new Error('getWalletClient is not available');
-            },
-            getPublicClient: async () => {
-              if (primaryWallet.getPublicClient) {
-                return await primaryWallet.getPublicClient();
-              }
-              throw new Error('getPublicClient is not available');
-            }
-          },
+          primaryWallet: walletForMarkPaid,
         });
       } else {
         throw new Error('Wallet does not have required methods');
@@ -165,9 +210,25 @@ export function useTradeActions({
 
     setActionLoading(true);
     try {
+      const walletForRelease = {
+        address: primaryWallet.address,
+        getWalletClient: async () => {
+          if (primaryWallet.getWalletClient) {
+            return await primaryWallet.getWalletClient();
+          }
+          throw new Error('getWalletClient is not available');
+        },
+        getPublicClient: async () => {
+          if (primaryWallet.getPublicClient) {
+            return await primaryWallet.getPublicClient();
+          }
+          throw new Error('getPublicClient is not available');
+        },
+      };
+
       await releaseTradeCrypto({
         trade,
-        primaryWallet,
+        primaryWallet: walletForRelease,
       });
 
       // Refresh the trade data
@@ -188,9 +249,25 @@ export function useTradeActions({
 
     setActionLoading(true);
     try {
+      const walletForDispute = {
+        address: primaryWallet.address,
+        getWalletClient: async () => {
+          if (primaryWallet.getWalletClient) {
+            return await primaryWallet.getWalletClient();
+          }
+          throw new Error('getWalletClient is not available');
+        },
+        getPublicClient: async () => {
+          if (primaryWallet.getPublicClient) {
+            return await primaryWallet.getPublicClient();
+          }
+          throw new Error('getPublicClient is not available');
+        },
+      };
+
       await disputeTrade({
         trade,
-        primaryWallet,
+        primaryWallet: walletForDispute,
       });
 
       // Refresh the trade data
@@ -211,11 +288,25 @@ export function useTradeActions({
 
     setActionLoading(true);
     try {
+      const walletForCancel = {
+        address: primaryWallet.address,
+        getWalletClient: async () => {
+          if (primaryWallet.getWalletClient) {
+            return await primaryWallet.getWalletClient();
+          }
+          throw new Error('getWalletClient is not available');
+        },
+        getPublicClient: async () => {
+          if (primaryWallet.getPublicClient) {
+            return await primaryWallet.getPublicClient();
+          }
+          throw new Error('getPublicClient is not available');
+        },
+      };
+
       await cancelTrade({
         trade,
-        primaryWallet,
-        userRole,
-        counterpartyAddress: counterparty?.wallet_address,
+        primaryWallet: walletForCancel,
       });
 
       // Refresh the trade data
