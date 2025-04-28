@@ -1,7 +1,5 @@
 # YapBay Frontend Development Plan
 
-7.22
-
 test update of escrow, trade tables for events
 
 ## fix
@@ -10,7 +8,11 @@ test correct recording of transaction types... still not working
 
 my escrows page is not showing correctly escrow state
 
-## escrow
+## TradePage update speed
+
+exceptional case appears when it shouldn't and takes a long time to update.
+
+## cancel escrow
 
 - cancel escrow
 

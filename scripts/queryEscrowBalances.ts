@@ -19,9 +19,10 @@ dotenv.config();
 
 const RPC_URL = process.env.VITE_CELO_RPC_URL;
 const CONTRACT_ADDRESS = process.env.VITE_CONTRACT_ADDRESS;
+const USDC_ADDRESS = process.env.VITE_USDC_ADDRESS_ALFAJORES;
 
-if (!RPC_URL || !CONTRACT_ADDRESS) {
-  console.error('Error: Missing VITE_CELO_RPC_URL or VITE_CONTRACT_ADDRESS in .env file');
+if (!RPC_URL || !CONTRACT_ADDRESS || !USDC_ADDRESS) {
+  console.error('Error: Missing VITE_CELO_RPC_URL, VITE_CONTRACT_ADDRESS, or VITE_USDC_ADDRESS_ALFAJORES in .env file');
   process.exit(1);
 }
 
@@ -65,6 +66,18 @@ async function main() {
 
   console.log(`Using contract address: ${CONTRACT_ADDRESS}`);
   const contract = new ethers.Contract(CONTRACT_ADDRESS!, YapBayEscrowABI.abi, provider);
+
+  // Create USDC token contract instance
+  const erc20Abi = [
+    {
+      constant: true,
+      inputs: [{ name: '_owner', type: 'address' }],
+      name: 'balanceOf',
+      outputs: [{ name: 'balance', type: 'uint256' }],
+      type: 'function',
+    },
+  ];
+  const usdcContract = new ethers.Contract(USDC_ADDRESS!, erc20Abi, provider);
 
   console.log('Querying EscrowCreated events...');
 
@@ -113,14 +126,32 @@ async function main() {
         const amountBigInt: bigint = escrowData[5];
         const state = Number(escrowData[8]) as EscrowState;
         const sequential: boolean = escrowData[9];
+        const sequentialEscrowAddress: string = escrowData[10];
         const fiat_paid: boolean = escrowData[11];
-        // const counter: bigint = escrowData[12]; // Removed
 
         console.log(`   ...Extracted data for Escrow ID ${id}`);
 
-        let balance = '0.00';
-        if (state >= EscrowState.FUNDED && state !== EscrowState.CANCELLED) {
-          balance = ethers.formatUnits(amountBigInt, 6); // Format USDC (6 decimals)
+        // Check the actual USDC balance for this escrow
+        let balance = BigInt(0);
+        
+        try {
+          // If this is a sequential escrow, check the sequential escrow address
+          if (sequential && sequentialEscrowAddress !== ethers.ZeroAddress) {
+            balance = await usdcContract.balanceOf(sequentialEscrowAddress);
+          } else {
+            // For non-sequential escrows, we need to check the main contract's balance
+            // This requires understanding how the contract tracks funds internally
+            // For now, we'll use the state to determine if there should be a balance
+            if (state === EscrowState.FUNDED) {
+              balance = amountBigInt;
+            }
+          }
+        } catch (balanceError) {
+          console.error(`   !!! Error fetching USDC balance for Escrow ID ${id}:`, balanceError);
+          // If balance check fails, fall back to the escrow amount if in FUNDED state
+          if (state === EscrowState.FUNDED) {
+            balance = amountBigInt;
+          }
         }
 
         const stateName =
@@ -136,7 +167,7 @@ async function main() {
           'Trade ID': trade_id.toString(),
           State: stateName,
           Amount: ethers.formatUnits(amountBigInt, 6),
-          Balance: balance,
+          Balance: ethers.formatUnits(balance, 6),
           Seller: formatAddress(seller, true),
           Buyer: formatAddress(buyer, true),
           Seq: sequential ? 't' : 'f', // Use abbreviated name

@@ -64,15 +64,55 @@ export function useEscrowDetails(escrowId: string | number | null, contractAddre
 
         // Fetch escrow details
         const escrow = await contract.escrows(escrowId);
-
-        // Calculate the balance based on escrow state and amount, rather than querying the contract's total balance
+        
+        // Get the actual USDC balance for this specific escrow
+        const usdcAddress = config.usdcAddressAlfajores;
+        
+        // Minimal ERC20 ABI for balanceOf
+        const erc20BalanceOfAbi = [
+          {
+            constant: true,
+            inputs: [{ name: '_owner', type: 'address' }],
+            name: 'balanceOf',
+            outputs: [{ name: 'balance', type: 'uint256' }],
+            type: 'function',
+          },
+        ];
+        
+        // Create a contract instance for the USDC token
+        const usdcContract = new ethers.Contract(usdcAddress, erc20BalanceOfAbi, provider);
+        
+        // Query the actual USDC balance
         let escrowBalance = BigInt(0);
-        const escrowState = Number(escrow.state);
-        const escrowAmount = escrow.amount;
-
-        // If the escrow is FUNDED or in a later state (except CANCELLED), use the escrow amount as the balance
-        if (escrowState >= EscrowState.FUNDED && escrowState !== EscrowState.CANCELLED) {
-          escrowBalance = escrowAmount;
+        
+        try {
+          // If this is a sequential escrow, check the sequential escrow address
+          if (escrow.sequential && escrow.sequential_escrow_address !== ethers.ZeroAddress) {
+            escrowBalance = await usdcContract.balanceOf(escrow.sequential_escrow_address);
+            console.log(`[DEBUG] Sequential escrow ${escrowId} balance: ${escrowBalance.toString()}`);
+          } else {
+            // For non-sequential escrows, we need to check if the contract has the funds for this escrow
+            // The escrow contract should have a function to check the balance for a specific escrow
+            // If such a function exists, we should use it
+            // For now, we'll use the state to determine if there should be a balance
+            const escrowState = Number(escrow.state);
+            
+            // Only show a balance for FUNDED escrows
+            if (escrowState === EscrowState.FUNDED) {
+              escrowBalance = escrow.amount;
+              console.log(`[DEBUG] Non-sequential escrow ${escrowId} in FUNDED state, using amount: ${escrowBalance.toString()}`);
+            } else {
+              console.log(`[DEBUG] Escrow ${escrowId} in state ${escrowState}, setting balance to 0`);
+            }
+          }
+        } catch (balanceError) {
+          console.error('Error fetching USDC balance:', balanceError);
+          // If balance check fails, fall back to a safer approach
+          const escrowState = Number(escrow.state);
+          if (escrowState === EscrowState.FUNDED) {
+            escrowBalance = escrow.amount;
+            console.log(`[DEBUG] Balance check failed, using escrow amount for FUNDED escrow: ${escrowBalance.toString()}`);
+          }
         }
 
         setBalance(ethers.formatUnits(escrowBalance, 6)); // USDC has 6 decimals
@@ -113,7 +153,7 @@ export function useEscrowDetails(escrowId: string | number | null, contractAddre
     // Initial fetch
     fetchEscrowDetails();
 
-    // Set up polling - every 5 seconds
+    // Set up polling - every 60 seconds
     const interval = setInterval(() => fetchEscrowDetails(), 60000);
 
     // Cleanup
