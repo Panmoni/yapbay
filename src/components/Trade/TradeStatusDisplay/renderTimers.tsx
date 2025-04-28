@@ -32,7 +32,9 @@ export const renderTimers = ({ trade, userRole }: RenderTimersProps) => {
           </p>
         ) : (
           <p className="text-amber-800 text-sm mt-2">
-            Deadline warning: Fund the escrow before the deadline to avoid trade failure.
+            {userRole === 'seller' 
+              ? "Deadline warning: Fund the escrow before the deadline to avoid trade failure."
+              : "Deadline warning: The seller must fund the escrow before the deadline to avoid trade failure. At this step, you, the buyer, can only wait for the seller to do so."}
           </p>
         )}
       </div>

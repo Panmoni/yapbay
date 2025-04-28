@@ -10,17 +10,6 @@ ensure escrow details and transactions remain visible for past trades
 
 test if mark fiat paid event updates the leg state
 
-## states
-
-In src/utils/tradeStates.ts (TradeLegState): States include all from the docs plus additional states: AWAITING_FIAT_PAYMENT, PENDING_CRYPTO_RELEASE, COMPLETED
-
-Where do these states come from?
-
-Additional UI states: The tradeStates.ts file includes additional states (AWAITING_FIAT_PAYMENT, PENDING_CRYPTO_RELEASE, COMPLETED) that appear to be UI-specific states not directly mapped to blockchain states.
-
-. Transaction Types
-In src/api/index.ts (TransactionRecord): Includes transaction types like MARK_FIAT_PAID, which corresponds to state transitions but is not explicitly mapped to states in the other files
-
 ## escrow
 
 - release escrow
