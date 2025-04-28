@@ -102,6 +102,11 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
     return `${explorerUrl}/tx/${txHash}`;
   };
 
+  // Don't render anything if there are no transactions and we're done loading
+  if (!loading && !error && transactions.length === 0) {
+    return null;
+  }
+
   return (
     <TooltipProvider>
       <Collapsible
