@@ -147,7 +147,7 @@ export const createTradeEscrow = async ({
       amount: trade.leg1_crypto_amount,
       token_type: trade.leg1_crypto_token,
       status: 'SUCCESS',
-      block_number: txResult.blockNumber,
+      block_number: Number(txResult.blockNumber),
       metadata: {
         escrow_id: txResult.escrowId,
         arbitrator: config.arbitratorAddress
@@ -221,7 +221,7 @@ export const createAndFundTradeEscrow = async ({
         amount: trade.leg1_crypto_amount,
         token_type: trade.leg1_crypto_token,
         status: 'SUCCESS',
-        block_number: txResult.blockNumber,
+        block_number: Number(txResult.blockNumber),
         metadata: {
           escrow_id: escrowResult.escrowId
         }
@@ -280,7 +280,7 @@ export const markTradeFiatPaid = async ({ trade, primaryWallet }: MarkFiatPaidPa
         transaction_type: 'MARK_FIAT_PAID',
         from_address: primaryWallet.address || '',
         status: 'SUCCESS',
-        block_number: txResult.blockNumber,
+        block_number: Number(txResult.blockNumber),
         metadata: {
           escrow_id: trade.leg1_escrow_onchain_id
         }
@@ -340,7 +340,7 @@ export const releaseTradeCrypto = async ({
         amount: trade.leg1_crypto_amount,
         token_type: trade.leg1_crypto_token,
         status: 'SUCCESS',
-        block_number: txData.blockNumber,
+        block_number: Number(txData.blockNumber),
       });
     }
 
@@ -385,7 +385,7 @@ export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams)
         transaction_type: 'DISPUTE_ESCROW',
         from_address: primaryWallet.address || '',
         status: 'SUCCESS',
-        block_number: txData.blockNumber,
+        block_number: Number(txData.blockNumber),
         metadata: {
           disputing_party: primaryWallet.address || ''
         }
@@ -441,7 +441,7 @@ export const cancelTrade = async ({
         from_address: primaryWallet.address || '',
         to_address: userRole === 'seller' ? (primaryWallet.address || '') : (counterpartyAddress || ''),
         status: 'SUCCESS',
-        block_number: txData.blockNumber,
+        block_number: Number(txData.blockNumber),
         metadata: {
           cancelled_by: userRole,
           authority: primaryWallet.address || ''
