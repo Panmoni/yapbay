@@ -1,14 +1,16 @@
 # YapBay Frontend Development Plan
 
-test recording of all events and transactions 404
-
 test update of escrow, trade tables for events
 
-test correct recording of transaction types
+## fix
 
-ensure escrow details and transactions remain visible for past trades
+Deadline warning: Mark fiat as paid before the deadline to proceed. customize for role
 
-test if mark fiat paid event updates the leg state
+when statis is fiat_paid I getCurrent Status:Trade status unavailable.
+
+and no release escrow button appears
+
+test correct recording of transaction types... still not working
 
 ## escrow
 

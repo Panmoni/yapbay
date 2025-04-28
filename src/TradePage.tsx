@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import ChatSection from '@/components/Trade/ChatSection';
@@ -15,6 +15,8 @@ import { TradeNavigation } from './components/Trade/TradeNavigation';
 import { LoadingIndicator } from './components/Trade/LoadingIndicator';
 import { TradeNotFoundAlert } from './components/Trade/TradeNotFoundAlert';
 import { refreshTrade } from './services/tradeService';
+import { getPendingTransactionsForTrade, retryTransactionVerification } from './services/transactionVerificationService';
+import { toast } from 'sonner';
 
 function TradePage() {
   const { id } = useParams<{ id: string }>();
@@ -37,9 +39,14 @@ function TradePage() {
     refresh: refreshEscrow,
   } = useEscrowDetails(trade?.leg1_escrow_onchain_id ?? null);
 
-  const handleRefreshTrade = () => {
-    refreshTrade(tradeId, setTrade);
-  };
+  // Function to refresh trade data
+  const handleRefreshTrade = useCallback(() => {
+    if (!tradeId) return;
+    
+    refreshTrade(tradeId, setTrade).catch(error => {
+      console.error('Error refreshing trade:', error);
+    });
+  }, [tradeId, setTrade]);
 
   const { createEscrow, markFiatPaid, releaseCrypto, disputeTrade, cancelTrade, actionLoading } =
     useTradeActions({
@@ -49,6 +56,84 @@ function TradePage() {
       userRole,
       onRefresh: handleRefreshTrade,
     });
+
+  const [pendingTxs, setPendingTxs] = useState<any[]>([]);
+
+  // Load pending transactions on component mount
+  useEffect(() => {
+    const loadPendingTransactions = () => {
+      if (!tradeId) return;
+      const pending = getPendingTransactionsForTrade(tradeId);
+      setPendingTxs(pending);
+    };
+    
+    loadPendingTransactions();
+    
+    // Refresh pending transactions every 15 seconds
+    const interval = setInterval(loadPendingTransactions, 15000);
+    
+    // Listen for trade refresh events
+    const handleRefreshEvent = (e: CustomEvent) => {
+      if (e.detail?.tradeId === tradeId) {
+        handleRefreshTrade();
+      }
+    };
+    
+    window.addEventListener('yapbay:refresh-trade', handleRefreshEvent as EventListener);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('yapbay:refresh-trade', handleRefreshEvent as EventListener);
+    };
+  }, [tradeId, handleRefreshTrade]);
+
+  // Handle retrying transaction verification
+  const handleRetryVerification = (txHash: string) => {
+    retryTransactionVerification(txHash);
+    toast.info('Retrying transaction verification...', {
+      description: 'We will check the blockchain again for your transaction.',
+    });
+  };
+
+  // Render pending transactions UI
+  const renderPendingTransactions = () => {
+    if (pendingTxs.length === 0) return null;
+    
+    return (
+      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 className="text-lg font-medium text-yellow-800">Pending Transactions</h3>
+        <div className="mt-2">
+          {pendingTxs.map((tx) => (
+            <div key={tx.txHash} className="flex items-center justify-between mt-2">
+              <div className="flex items-center">
+                <div className="animate-spin mr-2">⟳</div>
+                <div>
+                  <p className="text-sm text-yellow-700">
+                    {tx.type.replace(/_/g, ' ').toLowerCase()} - Transaction {tx.txHash.slice(0, 6)}...{tx.txHash.slice(-4)}
+                  </p>
+                  <p className="text-xs text-yellow-600">
+                    Submitted {new Date(tx.timestamp).toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+              {tx.attempts > 10 && (
+                <button 
+                  onClick={() => handleRetryVerification(tx.txHash)}
+                  className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-sm text-yellow-700">
+          Your transaction has been submitted to the blockchain and is being processed.
+          You can continue using the app while we wait for confirmation.
+        </p>
+      </div>
+    );
+  };
 
   // Update trade data when we receive updates via polling
   useEffect(() => {
@@ -120,6 +205,8 @@ function TradePage() {
         balance={balance}
         refreshEscrow={refreshEscrow}
       />
+
+      {renderPendingTransactions()}
 
       <ChatSection counterparty={counterparty} />
 

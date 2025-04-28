@@ -109,62 +109,85 @@ export const createEscrowTransaction = async (
 
     console.log('[DEBUG] Transaction sent:', hash);
 
-    // Wait for the transaction to be mined
-    const receipt = await publicClient.waitForTransactionReceipt({ hash });
-
-    console.log('[DEBUG] Transaction confirmed:', receipt);
-
-    // --- Corrected Log Parsing Logic ---
-    // 1. Find the relevant log first
-    const eventSignature =
-      'EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)';
-    const eventTopic = ethers.id(eventSignature); // ethers v6 way to get event topic
-
-    const escrowCreatedLog = receipt.logs.find(
-      (log: any) =>
-        log.address.toLowerCase() === contract.address.toLowerCase() && log.topics[0] === eventTopic
-    );
-
-    // 2. Check if the log was found
-    if (!escrowCreatedLog) {
-      console.error('[ERROR] Raw logs:', receipt.logs);
-      throw new Error('EscrowCreated event log not found in transaction receipt');
-    }
-
-    // 3. Decode the found log
-    let escrowId: string | null = null;
     try {
-      const iface = new ethers.Interface(contract.abi);
-      const decodedLog = iface.parseLog({
-        topics: [...escrowCreatedLog.topics],
-        data: escrowCreatedLog.data,
-      }); // Spread topics
-      if (decodedLog && decodedLog.name === 'EscrowCreated') {
-        escrowId = decodedLog.args.escrowId.toString();
-      } else {
-        throw new Error('Found log, but it was not the EscrowCreated event or decoding failed.');
+      // Wait for the transaction to be mined
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+      console.log('[DEBUG] Transaction confirmed:', receipt);
+
+      // --- Corrected Log Parsing Logic ---
+      // 1. Find the relevant log first
+      const eventSignature =
+        'EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)';
+      const eventTopic = ethers.id(eventSignature); // ethers v6 way to get event topic
+
+      const escrowCreatedLog = receipt.logs.find(
+        (log: any) =>
+          log.address.toLowerCase() === contract.address.toLowerCase() && log.topics[0] === eventTopic
+      );
+
+      // 2. Check if the log was found
+      if (!escrowCreatedLog) {
+        console.error('[ERROR] Raw logs:', receipt.logs);
+        throw new Error('EscrowCreated event log not found in transaction receipt');
       }
-    } catch (parseError) {
-      console.error('[ERROR] Failed to parse EscrowCreated log:', parseError);
-      console.error('[ERROR] Log details:', escrowCreatedLog);
-      throw new Error('Failed to parse EscrowCreated event log.');
+
+      // 3. Decode the found log
+      let escrowId: string | null = null;
+      try {
+        const iface = new ethers.Interface(contract.abi);
+        const decodedLog = iface.parseLog({
+          topics: [...escrowCreatedLog.topics],
+          data: escrowCreatedLog.data,
+        }); // Spread topics
+        if (decodedLog && decodedLog.name === 'EscrowCreated') {
+          escrowId = decodedLog.args.escrowId.toString();
+        } else {
+          throw new Error('Found log, but it was not the EscrowCreated event or decoding failed.');
+        }
+      } catch (parseError) {
+        console.error('[ERROR] Failed to parse EscrowCreated log:', parseError);
+        console.error('[ERROR] Log details:', escrowCreatedLog);
+        throw new Error('Failed to parse EscrowCreated event log.');
+      }
+
+      // 4. Check if escrowId was extracted
+      if (escrowId === null) {
+        // This case should ideally be caught by the errors above, but added for safety
+        throw new Error('EscrowCreated event log found, but escrowId could not be extracted.');
+      }
+
+      console.log('[DEBUG] Escrow ID (string):', escrowId);
+
+      // 5. Return the result from the try block
+      return {
+        escrowId, // Return as string
+        txHash: hash,
+        blockNumber: receipt.blockNumber,
+      };
+      // --- End Corrected Log Parsing Logic ---
+    } catch (receiptError: any) {
+      // Check for specific block out of range error
+      if (
+        (receiptError.message && receiptError.message.includes("block is out of range")) || 
+        (receiptError.details && typeof receiptError.details === 'string' && 
+         receiptError.details.includes("block is out of range"))
+      ) {
+        console.warn('[WARNING] Block out of range error. Transaction may still be processing:', hash);
+        
+        // Return partial result with txHash but mark as pending
+        return {
+          txHash: hash,
+          blockNumber: BigInt(0), // Use 0 to indicate pending
+          escrowId: '0', // Will be updated later
+          status: 'PENDING'
+        };
+      }
+      
+      // Re-throw other errors
+      console.error('[ERROR] Failed to get transaction receipt:', receiptError);
+      throw receiptError;
     }
-
-    // 4. Check if escrowId was extracted
-    if (escrowId === null) {
-      // This case should ideally be caught by the errors above, but added for safety
-      throw new Error('EscrowCreated event log found, but escrowId could not be extracted.');
-    }
-
-    console.log('[DEBUG] Escrow ID (string):', escrowId);
-
-    // 5. Return the result from the try block
-    return {
-      escrowId, // Return as string
-      txHash: hash,
-      blockNumber: receipt.blockNumber,
-    };
-    // --- End Corrected Log Parsing Logic ---
   } catch (error) {
     console.error('[ERROR] Failed to create escrow:', error);
     throw error;

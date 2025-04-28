@@ -137,6 +137,34 @@ export const createTradeEscrow = async ({
 
     console.log('[DEBUG] Transaction result:', txResult);
 
+    // Check if the transaction is pending (from block out of range error)
+    if (txResult.status === 'PENDING') {
+      console.log('[DEBUG] Transaction is pending due to block out of range error');
+      
+      // Store the pending transaction for later verification
+      import('../utils/pendingTransactions').then(({ addPendingTransaction }) => {
+        addPendingTransaction({
+          txHash: txResult.txHash,
+          tradeId: trade.id,
+          type: 'CREATE_ESCROW',
+          timestamp: Date.now()
+        });
+      });
+      
+      // Show pending status to user
+      toast.info('Transaction submitted! Waiting for confirmation...', {
+        description: 'Your transaction is being processed. You can continue using the app.',
+        duration: 8000,
+      });
+      
+      return {
+        txHash: txResult.txHash,
+        success: true,
+        message: 'Transaction submitted and being processed',
+        status: 'PENDING'
+      };
+    }
+
     // Record the transaction in our transaction system
     await recordTransaction({
       trade_id: trade.id,
