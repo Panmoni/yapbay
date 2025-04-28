@@ -53,9 +53,26 @@ function TradePage() {
   // Update trade data when we receive updates via polling
   useEffect(() => {
     if (tradeUpdates) {
+      console.log(`[TradePage] Received trade update for trade ${tradeId}:`, tradeUpdates);
       setTrade(tradeUpdates);
     }
-  }, [tradeUpdates, setTrade]);
+  }, [tradeUpdates, setTrade, tradeId]);
+
+  // Add a debug log to track trade state changes
+  useEffect(() => {
+    if (trade) {
+      console.log(`[TradePage] Current trade state for trade ${tradeId}:`, {
+        id: trade.id,
+        state: trade.leg1_state,
+        created_at: trade.created_at
+      });
+    }
+  }, [trade, tradeId]);
+
+  // Reset trade state when trade ID changes
+  useEffect(() => {
+    setTrade(null);
+  }, [tradeId, setTrade]);
 
   if (loading) {
     return <LoadingIndicator message="Loading trade details..." />;

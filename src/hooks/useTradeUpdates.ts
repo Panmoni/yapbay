@@ -6,6 +6,18 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string, pollInterval =
   const [error, setError] = useState<Error | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const previousTradeIdRef = useRef<number | null>(null);
+
+  // Reset state when tradeId changes
+  useEffect(() => {
+    if (previousTradeIdRef.current !== tradeId) {
+      // Clear the previous trade data when switching to a new trade
+      setTrade(null);
+      setError(null);
+      previousTradeIdRef.current = tradeId;
+      console.log(`[useTradeUpdates] Trade ID changed to ${tradeId}, resetting state`);
+    }
+  }, [tradeId]);
 
   // Wrap fetchTrade with useCallback to memoize it
   const fetchTrade = useCallback(async () => {
@@ -22,7 +34,11 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string, pollInterval =
     try {
       const response = await fetch(`${baseUrl}/trades/${tradeId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          // Add cache control headers to prevent browser caching
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
       });
 
