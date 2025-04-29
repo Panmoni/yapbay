@@ -27,7 +27,14 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  // server: {
-  //   allowedHosts: ['6c3b-2a01-4ff-f0-c8d4-00-1.ngrok-free.app']
-  // }
+  server: {
+    hmr: {
+      protocol: 'ws',
+      host: 'localhost',
+      port: 5173,
+    },
+    host: '0.0.0.0', // Listen on all available network interfaces
+    // ngrok
+    // allowedHosts: ['6c3b-2a01-4ff-f0-c8d4-00-1.ngrok-free.app']
+  },
 });
