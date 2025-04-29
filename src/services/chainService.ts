@@ -584,27 +584,95 @@ export const releaseEscrowTransaction = async (
 
     // Check for the EscrowReleased event in the logs
     // The event signature is: EscrowReleased(uint256 indexed escrowId, uint256 indexed tradeId, address buyer, uint256 amount, uint256 counter, uint256 timestamp, string destination)
-    
     // Parse the transaction logs to find the EscrowReleased event
     const contractLogs = receipt.logs.filter(
       (log: any) => log.address.toLowerCase() === contract.address.toLowerCase()
     );
-    
     console.log(`[DEBUG] Found ${contractLogs.length} logs from the contract in this transaction`);
-    
     if (contractLogs.length === 0) {
       console.warn('[WARNING] No logs found from the escrow contract in this transaction');
+    } else {
+      // Check if any of the logs contain the EscrowReleased event
+      const escrowReleasedEvent = contractLogs.find((log: any) => {
+        try {
+          const decodedLog = publicClient.decodeEventLog({
+            abi: contract.abi,
+            data: log.data,
+            topics: log.topics,
+          });
+          return decodedLog.eventName === 'EscrowReleased';
+        } catch {
+          // Ignore decoding errors and continue
+          return false;
+        }
+      });
+
+      if (escrowReleasedEvent) {
+        console.log('[DEBUG] Found EscrowReleased event in transaction logs');
+        // If we found the event, we can be more confident the release succeeded
+      } else {
+        console.warn('[WARNING] No EscrowReleased event found in transaction logs');
+      }
     }
-    
-    // Verify the escrow state after release
-    const postReleaseState = await checkEscrowState(wallet, escrowId);
-    console.log(`[DEBUG] Post-release escrow state: ${postReleaseState.state}, amount: ${postReleaseState.amount.toString()}`);
-    
-    if (postReleaseState.state !== 2) { // Should be RELEASED (2)
-      console.error(`[ERROR] Escrow state after release is ${postReleaseState.state}, expected 2 (RELEASED)`);
-      throw new Error(`Escrow state transition failed. Current state: ${postReleaseState.state}, expected: 2 (RELEASED)`);
+
+    // Add initial delay before first state check to allow RPC node to sync
+    console.log('[DEBUG] Waiting for blockchain state to synchronize...');
+    await delay(2000);
+
+    // Implement retry logic for state verification
+    let postReleaseState;
+    let retries = 3; // Number of retry attempts
+    let success = false;
+
+    while (retries > 0 && !success) {
+      // Get the current retry attempt number (4-retries gives us 1, 2, 3)
+      const attemptNumber = 4 - retries;
+
+      // Add increasing delay between retries
+      if (attemptNumber > 1) {
+        const waitTime = 2000 * attemptNumber; // 2s, 4s, 6s
+        console.log(`[DEBUG] Retry attempt ${attemptNumber}: Waiting ${waitTime / 1000}s before checking state...`);
+        await delay(waitTime);
+      }
+
+      // Check the escrow state
+      postReleaseState = await checkEscrowState(wallet, escrowId);
+      console.log(`[DEBUG] Post-release escrow state (attempt ${attemptNumber}): ${postReleaseState.state}, amount: ${postReleaseState.amount.toString()}`);
+
+      if (postReleaseState.state === 2) {
+        // RELEASED (2)
+        success = true;
+        break;
+      }
+
+      retries--;
     }
-    
+
+    if (!success) {
+      // If we have the EscrowReleased event but state check fails, log a warning but don't throw
+      const hasReleaseEvent = contractLogs.some((log: any) => {
+        try {
+          const decodedLog = publicClient.decodeEventLog({
+            abi: contract.abi,
+            data: log.data,
+            topics: log.topics,
+          });
+          return decodedLog.eventName === 'EscrowReleased';
+        } catch {
+          // Ignore decoding errors and continue
+          return false;
+        }
+      });
+
+      if (hasReleaseEvent) {
+        console.warn(`[WARNING] Escrow state check failed but EscrowReleased event was found. The transaction likely succeeded but the RPC node may be out of sync. Current state: ${postReleaseState ? postReleaseState.state : 'unknown'}, expected: 2 (RELEASED)`);
+        // Proceed as if successful since we have the event
+      } else {
+        console.error(`[ERROR] Escrow state after release is ${postReleaseState ? postReleaseState.state : 'unknown'}, expected 2 (RELEASED)`);
+        throw new Error(`Escrow state transition failed. Current state: ${postReleaseState ? postReleaseState.state : 'unknown'}, expected: 2 (RELEASED)`);
+      }
+    }
+
     // Verify the USDC balance of the escrow after release
     try {
       // Get the USDC contract
@@ -620,7 +688,7 @@ export const releaseEscrowTransaction = async (
           },
         ],
       };
-      
+
       // Check the USDC balance of the escrow contract for this escrow ID
       const escrowBalance = await publicClient.readContract({
         address: usdcContract.address,
@@ -628,11 +696,11 @@ export const releaseEscrowTransaction = async (
         functionName: 'balanceOf',
         args: [contract.address],
       });
-      
+
       console.log(`[DEBUG] USDC balance of escrow contract: ${escrowBalance.toString()}`);
-      
+
       // If the escrow still has the same amount as before, the transfer likely failed
-      if (postReleaseState.amount > BigInt(0)) {
+      if (postReleaseState && postReleaseState.amount > BigInt(0)) {
         console.error('[ERROR] Escrow still has funds after release. Transfer may have failed.');
         throw new Error('Escrow still has funds after release. The funds may not have been transferred properly.');
       } else {
@@ -641,7 +709,7 @@ export const releaseEscrowTransaction = async (
     } catch (balanceError) {
       console.error('[ERROR] Failed to check USDC balance:', balanceError);
     }
-    
+
     return {
       txHash: hash,
       blockNumber: receipt.blockNumber,
@@ -721,6 +789,13 @@ export const disputeEscrowTransaction = async (
     throw error;
   }
 };
+
+/**
+ * Helper function to add a delay
+ * @param ms Milliseconds to delay
+ * @returns Promise that resolves after the specified delay
+ */
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
  * Fetches the USDC balance for a given wallet address using VITE_CELO_RPC_URL.

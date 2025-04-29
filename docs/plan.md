@@ -1,9 +1,5 @@
 # YapBay Frontend Development Plan
 
-## smart polling
-
-maybe dial it down a bit so less volatile
-
 ## get the db straight for escrows, tx, events, etc
 
 test update of escrow, trade tables for events
@@ -11,6 +7,14 @@ test update of escrow, trade tables for events
 test correct recording of transaction types... still not working
 
 my escrows page is not showing correctly escrow state
+
+## fix
+
+escrows getting recorded twice to the db
+
+caching on my escrows and my trades not good
+
+my transactions shows the right tx type but not tx history
 
 ## implement cancel escrow/trade
 
