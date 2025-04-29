@@ -133,6 +133,13 @@ function TradePage() {
         
         // Show notification
         toast.success('Wallet connected. Trade data refreshed.');
+      } else {
+        // Handle wallet disconnection
+        console.log('[TradePage] Wallet disconnected, redirecting to home page');
+        // Redirect to home page
+        window.location.href = '/';
+        // Show notification
+        toast.info('Wallet disconnected. Redirecting to home page.');
       }
     };
     

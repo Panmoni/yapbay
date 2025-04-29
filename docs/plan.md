@@ -2,9 +2,13 @@
 
 test update of escrow, trade tables for events
 
-TradePage still not updating
+## fix
 
-color for mytrades statuses
+- still failing to clear the page when auth is lost
+
+- still not updating trade page when trade is updated
+
+- MyTrades is slow to update
 
 ## implement cancel escrow/trade
 
