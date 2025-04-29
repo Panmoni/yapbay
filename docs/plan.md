@@ -4,6 +4,8 @@ test update of escrow, trade tables for events
 
 TradePage still not updating
 
+color for mytrades statuses
+
 ## implement cancel escrow/trade
 
 ## do a full restart
@@ -12,7 +14,7 @@ TradePage still not updating
 
 ### re-deploy updated contract
 
-#### contract needs fixes for balance stuff and break out each contract to its own
+#### contract needs fixes for balance stuff
 
 See YapBayEscrow.sol in this repo
 
@@ -40,7 +42,12 @@ then update frontend to handle these improvements
 - useUserAccount for Account Page?
 - make sure RPC is efficient, maybe cache some of them.. run it through a redis?
 
-- localization
+- localization Spanish first
+- tg bot full trade interface
+- telegram auto fill
+- notifs system on site
+- whatsapp, sms, push, email, tg notifs
+- move usdc balance out of dropdown to underneath or enxt to dynamic widget or make a my balances page?
 
 ### web sockets for frontend-api
 

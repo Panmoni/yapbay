@@ -12,8 +12,8 @@ function OfferTypeTooltip({ offerType }: OfferTypeTooltipProps) {
           <span
             className={`px-2 py-1 rounded-full text-xs font-medium ${
               offerType === "BUY"
-                ? "bg-secondary-500 text-neutral-100"
-                : "bg-amber-500 text-neutral-100"
+                ? "bg-success text-neutral-100"
+                : "bg-error text-neutral-100"
             }`}
           >
             {offerType}
@@ -22,8 +22,8 @@ function OfferTypeTooltip({ offerType }: OfferTypeTooltipProps) {
         <TooltipContent
           className={
             offerType === "BUY"
-              ? "bg-secondary-200 text-secondary-900"
-              : "bg-primary-100 text-primary-800"
+              ? "bg-success text-neutral-100"
+              : "bg-error text-neutral-100"
           }
         >
           <p>
