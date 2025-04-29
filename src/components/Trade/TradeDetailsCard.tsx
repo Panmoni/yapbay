@@ -3,6 +3,10 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Trade, Offer, Account } from '@/api';
 import { formatNumber } from '@/lib/utils';
 import { formatRate } from '@/utils/stringUtils'; // Added import
+import { useState } from 'react'; // Added import
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'; // Added import
+import { ChevronDown, ChevronUp } from 'lucide-react'; // Added import
+import { Button } from '@/components/ui/button'; // Added import
 
 interface TradeDetailsCardProps {
   trade: Trade;
@@ -18,7 +22,8 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
       ? parseFloat(trade.leg1_fiat_amount) / parseFloat(trade.leg1_crypto_amount)
       : 0;
 
-  // Removed local formatRate function
+  // Added state for collapsible section
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   // The other party is the counterparty with a more descriptive role
   const otherParty = counterparty;
@@ -56,101 +61,129 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
         </p>
       </CardHeader>
       <CardContent>
-        <div className="text-lg mb-4">
-          <p>
-            You are <strong>{action}</strong>{' '}
-            {formatNumber(parseFloat(trade.leg1_crypto_amount || '0'))} {token} {''}
-            for {trade.leg1_fiat_amount
-              ? formatNumber(parseFloat(trade.leg1_fiat_amount))
-              : 'N/A'}{' '}
-            {trade.from_fiat_currency} {''} at {formatNumber(price)} {trade.from_fiat_currency}/
-            {token}. {''} This is{' '}
-            <span
-              className={
-                rateAdjustment > 1
-                  ? 'text-success-600'
-                  : rateAdjustment < 1
-                  ? 'text-red-600'
-                  : 'text-neutral-600'
-              }
-            >
-              {formatRate(rateAdjustment)}
-            </span>{' '}
-            {marketPosition} the market price.
-            {offer && (
-              <span className="ml-2">
-                <a
-                  href={`/offer/${offer.id}`}
-                  className="text-primary-700 hover:text-primary-800 underline text-sm"
-                >
-                  [view source offer]
-                </a>
-              </span>
-            )}
-          </p>
-          <div className="mt-2 text-neutral-600">
-            {otherParty && (
-              <div className="mt-2 flex items-center">
-                <strong className="mr-2">{otherPartyRole}:</strong>
-                <div className="flex items-center">
-                  <div className="w-6 h-6 rounded-full bg-neutral-200 flex items-center justify-center text-xs mr-2 overflow-hidden">
-                    {otherParty.profile_photo_url ? (
-                      <img
-                        src={otherParty.profile_photo_url}
-                        alt={otherParty.username || 'User'}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      otherParty.username?.[0]?.toUpperCase() ||
-                      otherParty.wallet_address?.[0]?.toUpperCase() ||
-                      '?'
+        <Collapsible
+          open={isDetailsOpen}
+          onOpenChange={setIsDetailsOpen}
+          className="w-full"
+        >
+          <div className="text-lg mb-4">
+            <p>
+              You are <strong>{action}</strong>{' '}
+              {formatNumber(parseFloat(trade.leg1_crypto_amount || '0'))} {token} {''}
+              for {trade.leg1_fiat_amount
+                ? formatNumber(parseFloat(trade.leg1_fiat_amount))
+                : 'N/A'}{' '}
+              {trade.from_fiat_currency} {''} at {formatNumber(price)} {trade.from_fiat_currency}/
+              {token}. {''} This is{' '}
+              <span
+                className={
+                  rateAdjustment > 1
+                    ? 'text-success-600'
+                    : rateAdjustment < 1
+                    ? 'text-red-600'
+                    : 'text-neutral-600'
+                }
+              >
+                {formatRate(rateAdjustment)}
+              </span>{' '}
+              {marketPosition} the market price.
+              {offer && (
+                <span className="ml-2">
+                  <a
+                    href={`/offer/${offer.id}`}
+                    className="text-primary-700 hover:text-primary-800 underline text-sm"
+                  >
+                    [view source offer]
+                  </a>
+                </span>
+              )}
+            </p>
+            <CollapsibleTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="mt-2 flex items-center text-neutral-600 hover:text-neutral-800"
+              >
+                {isDetailsOpen ? (
+                  <>
+                    <span>Hide details</span>
+                    <ChevronUp className="h-4 w-4 ml-1" />
+                  </>
+                ) : (
+                  <>
+                    <span>Show details</span>
+                    <ChevronDown className="h-4 w-4 ml-1" />
+                  </>
+                )}
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          
+          <CollapsibleContent>
+            <div className="mt-2 text-neutral-600">
+              {otherParty && (
+                <div className="mt-2 flex items-center">
+                  <strong className="mr-2">{otherPartyRole}:</strong>
+                  <div className="flex items-center">
+                    <div className="w-6 h-6 rounded-full bg-neutral-200 flex items-center justify-center text-xs mr-2 overflow-hidden">
+                      {otherParty.profile_photo_url ? (
+                        <img
+                          src={otherParty.profile_photo_url}
+                          alt={otherParty.username || 'User'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        otherParty.username?.[0]?.toUpperCase() ||
+                        otherParty.wallet_address?.[0]?.toUpperCase() ||
+                        '?'
+                      )}
+                    </div>
+                    <span className="font-medium mr-1">{otherParty.username || 'Anonymous'}</span>
+                    {otherParty.wallet_address && (
+                      <span className="text-xs text-neutral-500 mr-1">
+                        ({abbreviateWallet(otherParty.wallet_address)})
+                      </span>
+                    )}
+                    <span className="text-xs text-neutral-500 mr-2">ID: {otherParty.id}</span>
+                    {otherParty.telegram_username && (
+                      <a
+                        href={`https://t.me/${otherParty.telegram_username}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary-600 flex items-center"
+                      >
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 48 48"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="mr-1"
+                        >
+                          <path
+                            d="M41.4193 7.30899C41.4193 7.30899 45.3046 5.79399 44.9808 9.47328C44.8729 10.9883 43.9016 16.2908 43.1461 22.0262L40.5559 39.0159C40.5559 39.0159 40.3401 41.5048 38.3974 41.9377C36.4547 42.3705 33.5408 40.4227 33.0011 39.9898C32.5694 39.6652 24.9068 34.7955 22.2086 32.4148C21.4531 31.7655 20.5897 30.4669 22.3165 28.9519L33.6487 18.1305C34.9438 16.8319 36.2389 13.8019 30.8426 17.4812L15.7331 27.7616C15.7331 27.7616 14.0063 28.8437 10.7686 27.8698L3.75342 25.7055C3.75342 25.7055 1.16321 24.0823 5.58815 22.459C16.3807 17.3729 29.6555 12.1786 41.4193 7.30899Z"
+                            fill="#0088cc"
+                          />
+                        </svg>
+                      </a>
                     )}
                   </div>
-                  <span className="font-medium mr-1">{otherParty.username || 'Anonymous'}</span>
-                  {otherParty.wallet_address && (
-                    <span className="text-xs text-neutral-500 mr-1">
-                      ({abbreviateWallet(otherParty.wallet_address)})
-                    </span>
-                  )}
-                  <span className="text-xs text-neutral-500 mr-2">ID: {otherParty.id}</span>
-                  {otherParty.telegram_username && (
-                    <a
-                      href={`https://t.me/${otherParty.telegram_username}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary-600 flex items-center"
-                    >
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 48 48"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="mr-1"
-                      >
-                        <path
-                          d="M41.4193 7.30899C41.4193 7.30899 45.3046 5.79399 44.9808 9.47328C44.8729 10.9883 43.9016 16.2908 43.1461 22.0262L40.5559 39.0159C40.5559 39.0159 40.3401 41.5048 38.3974 41.9377C36.4547 42.3705 33.5408 40.4227 33.0011 39.9898C32.5694 39.6652 24.9068 34.7955 22.2086 32.4148C21.4531 31.7655 20.5897 30.4669 22.3165 28.9519L33.6487 18.1305C34.9438 16.8319 36.2389 13.8019 30.8426 17.4812L15.7331 27.7616C15.7331 27.7616 14.0063 28.8437 10.7686 27.8698L3.75342 25.7055C3.75342 25.7055 1.16321 24.0823 5.58815 22.459C16.3807 17.3729 29.6555 12.1786 41.4193 7.30899Z"
-                          fill="#0088cc"
-                        />
-                      </svg>
-                    </a>
-                  )}
                 </div>
-              </div>
-            )}
+              )}
 
-            {offer?.terms && (
-              <div className="mt-2 mb-3">
-                <p className="mb-1">
-                  <strong>Terms</strong>:
-                </p>
-                <blockquote className="pl-3 border-l-2 border-neutral-300 italic text-neutral-600 text-base">
-                  "{offer.terms}"
-                </blockquote>
-              </div>
-            )}
-          </div>
-        </div>
+              {offer?.terms && (
+                <div className="mt-2 mb-3">
+                  <p className="mb-1">
+                    <strong>Terms</strong>:
+                  </p>
+                  <blockquote className="pl-3 border-l-2 border-neutral-300 italic text-neutral-600 text-base">
+                    "{offer.terms}"
+                  </blockquote>
+                </div>
+              )}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
     </Card>
   );
