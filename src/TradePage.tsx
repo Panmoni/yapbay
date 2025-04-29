@@ -17,6 +17,13 @@ import { TradeNotFoundAlert } from './components/Trade/TradeNotFoundAlert';
 import { refreshTrade } from './services/tradeService';
 import { getPendingTransactionsForTrade, retryTransactionVerification } from './services/transactionVerificationService';
 import { toast } from 'sonner';
+import { 
+  AUTH_STATE_CHANGE_EVENT,
+  TRADE_REFRESH_EVENT,
+  TRADE_STATE_CHANGE_EVENT,
+  NEW_TRANSACTION_EVENT,
+  CRITICAL_STATE_CHANGE_EVENT
+} from './utils/events';
 
 function TradePage() {
   const { id } = useParams<{ id: string }>();
@@ -32,8 +39,7 @@ function TradePage() {
   // Use enhanced trade updates hook with smart polling
   const { 
     trade: tradeUpdates, 
-    forcePoll: forceTradeUpdate,
-    currentInterval: pollInterval
+    forcePoll: forceTradeUpdate
   } = useTradeUpdates(tradeId);
 
   const {
@@ -67,9 +73,6 @@ function TradePage() {
     });
 
   const [pendingTxs, setPendingTxs] = useState<any[]>([]);
-
-  // Reference to track previous polling interval value
-  const prevIntervalRef = useRef<number | null>(null);
   
   // Use ref to store pending transactions to avoid re-renders
   const pendingTxsRef = useRef<any[]>([]);
@@ -104,9 +107,7 @@ function TradePage() {
     // Listen for trade state change events
     const handleTradeStateChange = (e: CustomEvent) => {
       if (e.detail?.tradeId === tradeId) {
-        console.log(`[TradePage] Trade state changed to: ${e.detail.newState}`);
-        // Force refresh pending transactions immediately on state change
-        loadPendingTransactions();
+        handleRefreshTrade();
       }
     };
     
@@ -115,46 +116,55 @@ function TradePage() {
       loadPendingTransactions();
     };
     
-    window.addEventListener('yapbay:refresh-trade', handleRefreshEvent as EventListener);
-    window.addEventListener('yapbay:trade-state-changed', handleTradeStateChange as EventListener);
-    window.addEventListener('yapbay:new-transaction', handleNewTransaction as EventListener);
+    // Add event listeners
+    window.addEventListener(TRADE_REFRESH_EVENT, handleRefreshEvent as EventListener);
+    window.addEventListener(TRADE_STATE_CHANGE_EVENT, handleTradeStateChange as EventListener);
+    window.addEventListener(NEW_TRANSACTION_EVENT, handleNewTransaction);
     
+    // Listen for auth state change events (wallet connection/disconnection)
+    const handleAuthStateChange = (e: CustomEvent) => {
+      console.log('[TradePage] Auth state changed:', e.detail);
+      // Refresh trade data when wallet is connected
+      if (e.detail?.authenticated) {
+        console.log('[TradePage] Wallet connected, refreshing trade data');
+        handleRefreshTrade();
+        refreshEscrow();
+        loadPendingTransactions();
+        
+        // Show notification
+        toast.success('Wallet connected. Trade data refreshed.');
+      }
+    };
+    
+    // Add auth state change event listener
+    window.addEventListener(AUTH_STATE_CHANGE_EVENT, handleAuthStateChange as EventListener);
+    
+    // Clean up event listeners on component unmount
     return () => {
       clearInterval(interval);
-      window.removeEventListener('yapbay:refresh-trade', handleRefreshEvent as EventListener);
-      window.removeEventListener('yapbay:trade-state-changed', handleTradeStateChange as EventListener);
-      window.removeEventListener('yapbay:new-transaction', handleNewTransaction as EventListener);
+      window.removeEventListener(TRADE_REFRESH_EVENT, handleRefreshEvent as EventListener);
+      window.removeEventListener(TRADE_STATE_CHANGE_EVENT, handleTradeStateChange as EventListener);
+      window.removeEventListener(NEW_TRANSACTION_EVENT, handleNewTransaction);
+      window.removeEventListener(AUTH_STATE_CHANGE_EVENT, handleAuthStateChange as EventListener);
     };
-  }, [tradeId, handleRefreshTrade, loadPendingTransactions]);
-
-  // Log polling interval changes for debugging - only when it actually changes
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && 
-        prevIntervalRef.current !== pollInterval) {
-      // Only log when the interval actually changes
-      console.log(`[TradePage] Polling interval changed: ${pollInterval}ms`);
-      prevIntervalRef.current = pollInterval;
-    }
-  }, [pollInterval]);
+  }, [tradeId, handleRefreshTrade, loadPendingTransactions, refreshEscrow]);
 
   // Handle retrying transaction verification
   const handleRetryVerification = (txHash: string) => {
     retryTransactionVerification(txHash);
-    toast.info('Retrying transaction verification...', {
-      description: 'We will check the blockchain again for your transaction.',
-    });
+    toast.info('Retrying transaction verification...');
   };
 
   // Render pending transactions UI
   const renderPendingTransactions = () => {
     if (pendingTxs.length === 0) return null;
-    
+
     return (
-      <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <h3 className="text-lg font-medium text-yellow-800">Pending Transactions</h3>
-        <div className="mt-2">
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+        <h3 className="text-lg font-semibold text-yellow-800 mb-2">Pending Transactions</h3>
+        <div className="space-y-2">
           {pendingTxs.map((tx) => (
-            <div key={tx.txHash} className="flex items-center justify-between mt-2">
+            <div key={tx.txHash} className="flex items-center justify-between bg-yellow-100 p-2 rounded">
               <div className="flex items-center">
                 <div className="animate-spin mr-2">⟳</div>
                 <div>
@@ -222,11 +232,11 @@ function TradePage() {
     };
 
     // Add event listener for critical state changes
-    window.addEventListener('yapbay:critical-state-change', handleCriticalStateChange);
+    window.addEventListener(CRITICAL_STATE_CHANGE_EVENT, handleCriticalStateChange);
 
     // Clean up the event listener on component unmount
     return () => {
-      window.removeEventListener('yapbay:critical-state-change', handleCriticalStateChange);
+      window.removeEventListener(CRITICAL_STATE_CHANGE_EVENT, handleCriticalStateChange);
     };
   }, [tradeId, handleRefreshTrade, loadPendingTransactions]);
 

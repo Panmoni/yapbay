@@ -20,6 +20,7 @@ import EditOfferPage from '@/offer/EditOfferPage';
 import TradePage from './TradePage';
 import NotFoundPage from '@/pages/NotFoundPage'; // Import the 404 page
 import { Toaster } from 'sonner'; // Import Toaster
+import { dispatchAuthStateChange } from './utils/events';
 
 function App() {
   const { primaryWallet } = useDynamicContext();
@@ -39,11 +40,20 @@ function App() {
         try {
           const response = await getAccount();
           setAccount(response.data);
+          
+          // Dispatch global auth state change event after successful login
+          dispatchAuthStateChange(primaryWallet.address);
         } catch (err) {
           console.error('Failed to fetch account:', err);
         }
       };
       getUserData();
+    } else {
+      // User has disconnected their wallet
+      setAccount(null);
+      
+      // Dispatch event for logout as well
+      dispatchAuthStateChange(undefined);
     }
   }, [primaryWallet]);
 
