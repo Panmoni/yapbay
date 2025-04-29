@@ -1,16 +1,12 @@
 # YapBay Frontend Development Plan
 
-test update of escrow, trade tables for events
+review state ref escrows trades and trade checklist
 
 ## fix
 
 - dig into the transactions and the data being returned to clear some of these unknown results and get more complete data
 
-- still not updating trade page when trade is updated
-
-- MyTrades is slow to update
-
-## implement cancel escrow/trade
+- still not updating trade page when trade is updated... may need sockets
 
 ## do a full restart
 
@@ -42,9 +38,11 @@ then update frontend to handle these improvements
 
 ## Roadmap
 
+- create some views in mathesar, get a handle on that https://db.panmoni.com/db/7/schemas/2200/tables/22638/30
 - Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings pages?
 - useUserAccount for Account Page?
 - make sure RPC is efficient, maybe cache some of them.. run it through a redis?
+- integrate thirdweb as backup or even primary RPC https://thirdweb.com/team/panmoni/YapBay-90f2e3
 
 - localization Spanish first
 - tg bot full trade interface
@@ -52,8 +50,17 @@ then update frontend to handle these improvements
 - notifs system on site
 - whatsapp, sms, push, email, tg notifs
 - move usdc balance out of dropdown to underneath or enxt to dynamic widget or make a my balances page?
+- test mobile layout
 
-## the whole 2 legs thing
+- MyTrades is slow to update
+
+### chat
+
+https://www.freecodecamp.org/news/building-a-real-time-chat-app-with-reactjs-and-firebase/
+
+### implement cancel escrow/trade
+
+### the whole 2 legs thing
 
 ### web sockets for frontend-api
 
