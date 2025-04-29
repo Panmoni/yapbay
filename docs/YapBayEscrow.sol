@@ -80,6 +80,7 @@ contract YapBayEscrow is
     // -------------------------------
     uint256 public nextEscrowId; // auto-incrementing escrow id
     mapping(uint256 => Escrow) public escrows;
+    mapping(uint256 => uint256) public escrowBalances;
 
     IERC20Upgradeable public usdc;
     address public fixedArbitrator;
@@ -168,6 +169,12 @@ contract YapBayEscrow is
         bool decision, // true means buyer wins; false means seller wins
         bytes32 explanationHash,
         string bondAllocation
+    );
+
+    event EscrowBalanceChanged(
+        uint256 indexed escrowId, 
+        uint256 newBalance,
+        string reason
     );
 
     // -------------------------------
@@ -269,6 +276,8 @@ contract YapBayEscrow is
         // Use SafeERC20Upgradeable for token transfer
         usdc.safeTransferFrom(msg.sender, address(this), escrow.amount);
 
+        escrowBalances[_escrowId] = escrow.amount;
+
         escrow.state = EscrowState.Funded;
         escrow.fiat_deadline = block.timestamp + FIAT_DURATION;
         escrow.counter++;
@@ -278,6 +287,11 @@ contract YapBayEscrow is
             escrow.amount,
             escrow.counter,
             block.timestamp
+        );
+        emit EscrowBalanceChanged(
+            _escrowId,
+            escrow.amount,
+            "Escrow funded"
         );
     }
 
@@ -367,6 +381,8 @@ contract YapBayEscrow is
         escrow.state = EscrowState.Released;
         escrow.counter++;
 
+        escrowBalances[_escrowId] = 0;
+
         if (escrow.sequential) {
             usdc.safeTransfer(escrow.sequential_escrow_address, escrow.amount);
             emit EscrowReleased(
@@ -390,6 +406,11 @@ contract YapBayEscrow is
                 "direct to buyer"
             );
         }
+        emit EscrowBalanceChanged(
+            _escrowId,
+            0,
+            "Escrow released"
+        );
     }
 
     // -------------------------------
@@ -430,6 +451,12 @@ contract YapBayEscrow is
             );
             // Refund funds to Seller.
             usdc.safeTransfer(escrow.seller, escrow.amount);
+            escrowBalances[_escrowId] = 0;
+            emit EscrowBalanceChanged(
+                _escrowId,
+                0,
+                "Escrow cancelled"
+            );
         }
 
         escrow.state = EscrowState.Cancelled;
@@ -708,6 +735,12 @@ contract YapBayEscrow is
                 "Fiat deadline not expired"
             );
             usdc.safeTransfer(escrow.seller, escrow.amount);
+            escrowBalances[_escrowId] = 0;
+            emit EscrowBalanceChanged(
+                _escrowId,
+                0,
+                "Escrow cancelled"
+            );
         }
         escrow.state = EscrowState.Cancelled;
         escrow.counter++;
@@ -719,5 +752,41 @@ contract YapBayEscrow is
             escrow.counter,
             block.timestamp
         );
+    }
+
+    // -------------------------------
+    // I. Balance Query Functions
+    // -------------------------------
+    /// @notice Returns the actual balance of an escrow based on its state and type
+    /// @param _escrowId The escrow identifier
+    /// @return The balance in USDC smallest unit (e.g. 6 decimals)
+    function getEscrowBalance(uint256 _escrowId) external view returns (uint256) {
+        Escrow storage escrow = escrows[_escrowId];
+
+        if (escrow.sequential && escrow.sequential_escrow_address != address(0)) {
+            // For sequential escrows, return the balance of the sequential address
+            return usdc.balanceOf(escrow.sequential_escrow_address);
+        } else {
+            // For non-sequential escrows, return the tracked balance
+            return escrowBalances[_escrowId];
+        }
+    }
+
+    /// @notice Returns the correct balance based on escrow state and type
+    /// @param _escrowId The escrow identifier
+    /// @return The balance in USDC smallest unit (e.g. 6 decimals)
+    function getActualEscrowBalance(uint256 _escrowId) external view returns (uint256) {
+        Escrow storage escrow = escrows[_escrowId];
+
+        if (escrow.sequential && escrow.sequential_escrow_address != address(0)) {
+            // For sequential escrows, return the balance of the sequential address
+            return usdc.balanceOf(escrow.sequential_escrow_address);
+        } else if (escrow.state == EscrowState.Funded) {
+            // For funded escrows, return the amount
+            return escrow.amount;
+        } else {
+            // For other states, return 0
+            return 0;
+        }
     }
 }

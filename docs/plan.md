@@ -6,11 +6,41 @@ TradePage still not updating
 
 ## implement cancel escrow/trade
 
+## do a full restart
+
+### clear db and start over
+
+### re-deploy updated contract
+
+#### contract needs fixes for balance stuff and break out each contract to its own
+
+See YapBayEscrow.sol in this repo
+
+also consider needed changes for API and db
+
+Added Per-Escrow Balance Tracking:
+Created a new mapping escrowBalances to track each escrow's actual balance
+Updated the balance when an escrow is funded
+Updated Balance on State Changes:
+Set balance to 0 when an escrow is released
+Set balance to 0 when an escrow is cancelled
+Added appropriate balance updates in all relevant functions
+Added Balance Events:
+Created a new event EscrowBalanceChanged to track balance changes
+Emitted this event whenever an escrow's balance changes, with a reason
+Added Balance Query Functions:
+getEscrowBalance: Returns the tracked balance for an escrow
+getActualEscrowBalance: Returns the balance based on escrow state and type
+
+then update frontend to handle these improvements
+
 ## Roadmap
 
 - Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings pages?
 - useUserAccount for Account Page?
 - make sure RPC is efficient, maybe cache some of them.. run it through a redis?
+
+- localization
 
 ### web sockets for frontend-api
 
