@@ -160,8 +160,8 @@ export const Footer: React.FC = () => {
 
         <div className="footer-bottom">
           <p className="mb-2">
-            This is pre-alpha software running on a testnet blockchain. It will be hard to lose
-            money but exercise care nonetheless.
+            This is pre-alpha software running on the Celo Alfajores testnet blockchain. It will be
+            hard to lose money but exercise care nonetheless.
           </p>
           <p className="mb-2">
             Get{' '}
