@@ -4,6 +4,16 @@ test update of escrow, trade tables for events
 
 test correct recording of transaction types... still not working
 
+##
+
+Firefox can’t establish a connection to the server at ws://localhost:5173/?token=4v-J2g8REROf. client:756:30
+Firefox can’t establish a connection to the server at ws://localhost:5173/?token=4v-J2g8REROf. client:769:38
+[vite] failed to connect to websocket.
+your current setup:
+(browser) localhost:5173/ <--[HTTP]--> localhost:5173/ (server)
+(browser) localhost:5173/ <--[WebSocket (failing)]--> localhost:5173/ (server)
+Check out your Vite / network configuration and https://vite.dev/config/server-options.html#server-hmr .
+
 ## fix
 
 my escrows page is not showing correctly escrow state

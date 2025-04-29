@@ -62,10 +62,8 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
         const response = await getMyEscrows();
         let escrows = response.data.map(escrow => ({
           ...escrow,
-          // Generate a unique key combining onchain_escrow_id and escrow_address
-          uniqueKey: escrow.onchain_escrow_id
-            ? `${escrow.onchain_escrow_id}-${escrow.escrow_address}`
-            : escrow.escrow_address,
+          // Generate a unique key that guarantees uniqueness
+          uniqueKey: escrow.onchain_escrow_id || `no-id-${escrow.id}`,
         }));
 
         // Apply state filter if not ALL
