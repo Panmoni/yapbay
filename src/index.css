@@ -511,7 +511,7 @@ img {
   color: var(--color-primary-600); /* Fixed variable */
   transition: all 0.2s ease;
   padding: var(--space-xs);
-  min-width: 44px;
+  min-width: 24px;
   min-height: 44px;
   display: flex;
   align-items: center;
