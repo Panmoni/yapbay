@@ -52,7 +52,7 @@ export function useTradeDetails(tradeId: number | null): UseTradeDetailsResult {
           if (tradeData.leg1_buyer_account_id) {
             const buyerResponse = await getAccountById(tradeData.leg1_buyer_account_id.toString());
             setBuyerAccount(buyerResponse.data);
-            console.log('[DEBUG] Fetched buyer account:', buyerResponse.data);
+            // console.log('[DEBUG] Fetched buyer account:', buyerResponse.data);
           }
 
           // Fetch seller account
@@ -61,10 +61,10 @@ export function useTradeDetails(tradeId: number | null): UseTradeDetailsResult {
               tradeData.leg1_seller_account_id.toString()
             );
             setSellerAccount(sellerResponse.data);
-            console.log('[DEBUG] Fetched seller account:', sellerResponse.data);
+            // console.log('[DEBUG] Fetched seller account:', sellerResponse.data);
           }
 
-          console.log(`Trade state: ${tradeData.leg1_state}`);
+          // console.log(`Trade state: ${tradeData.leg1_state}`);
         }
       } catch (err) {
         const errorMessage = handleApiError(err, 'Unknown error');

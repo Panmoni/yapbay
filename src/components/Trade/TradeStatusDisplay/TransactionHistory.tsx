@@ -67,7 +67,7 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
       setIsRefreshing(true);
       setError(null);
       const response = await getTradeTransactions(tradeId);
-      console.log('Fetched transaction records:', response.data);
+      // console.log('Fetched transaction records:', response.data);
       setTransactions(response.data);
       setLastUpdated(new Date());
     } catch (error) {
@@ -194,7 +194,11 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
                         <Badge className={getStatusBadgeClass(tx.status)}>{tx.status}</Badge>
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                        {tx.created_at ? formatDistanceToNow(new Date(tx.created_at), { addSuffix: true }) : <span className="text-gray-400 italic">Unknown</span>}
+                        {tx.created_at ? (
+                          formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })
+                        ) : (
+                          <span className="text-gray-400 italic">Unknown</span>
+                        )}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                         {tx.transaction_hash ? (
