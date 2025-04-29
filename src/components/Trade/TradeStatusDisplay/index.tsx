@@ -96,9 +96,13 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
   const currentStateForProgress = getProgressState(rawCurrentState);
 
   const currentStatusMessage =
-    rawCurrentState && tradeStateMessages[rawCurrentState]
-      ? tradeStateMessages[rawCurrentState][userRole]
-      : 'Trade status unavailable.';
+    // First check if overall_status is COMPLETED
+    trade.overall_status === 'COMPLETED'
+      ? tradeStateMessages[TradeLegState.COMPLETED][userRole]
+      // Then fall back to the leg1_state message
+      : rawCurrentState && tradeStateMessages[rawCurrentState]
+        ? tradeStateMessages[rawCurrentState][userRole]
+        : 'Trade status unavailable.';
 
   const progressStates = useMemo(
     () =>
@@ -185,6 +189,12 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
                 rawCurrentState === TradeLegState.CANCELLED
               ) {
                 isCurrent = true;
+                isFuture = false;
+              } else if (
+                step.state === TradeLegState.COMPLETED &&
+                rawCurrentState === TradeLegState.RELEASED
+              ) {
+                isCompleted = true;
                 isFuture = false;
               } else if (stepIndexInFlow !== -1 && currentIndex !== -1) {
                 if (stepIndexInFlow < currentIndex) {

@@ -4,7 +4,7 @@ test update of escrow, trade tables for events
 
 ## fix
 
-- still failing to clear the page when auth is lost
+- dig into the transactions and the data being returned to clear some of these unknown results and get more complete data
 
 - still not updating trade page when trade is updated
 
@@ -52,6 +52,8 @@ then update frontend to handle these improvements
 - notifs system on site
 - whatsapp, sms, push, email, tg notifs
 - move usdc balance out of dropdown to underneath or enxt to dynamic widget or make a my balances page?
+
+## the whole 2 legs thing
 
 ### web sockets for frontend-api
 
