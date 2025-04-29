@@ -93,19 +93,27 @@ function MyTradesPage({ account }: MyTradesPageProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'CREATED':
-        return 'bg-primary-100 text-primary-800';
+        return 'bg-blue-500 text-white';
+      case 'FUNDED':
+        return 'bg-teal-500 text-white';
       case 'AWAITING_FIAT_PAYMENT':
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-amber-500 text-white';
+      case 'FIAT_PAID':
+        return 'bg-indigo-500 text-white';
       case 'PENDING_CRYPTO_RELEASE':
-        return 'bg-secondary-100 text-secondary-800';
+        return 'bg-purple-500 text-white';
       case 'COMPLETED':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success text-white';
+      case 'RELEASED':
+        return 'bg-green-600 text-white';
       case 'CANCELLED':
-        return 'bg-neutral-100 text-neutral-800';
+        return 'bg-neutral-500 text-white';
       case 'DISPUTED':
-        return 'bg-red-100 text-red-800';
+        return 'bg-error text-white';
+      case 'RESOLVED':
+        return 'bg-blue-700 text-white';
       default:
-        return 'bg-neutral-100 text-neutral-800';
+        return 'bg-neutral-300 text-neutral-800';
     }
   };
 
@@ -168,17 +176,21 @@ function MyTradesPage({ account }: MyTradesPageProps) {
             </div>
             <div className="w-full sm:w-auto">
               <Select value={filter} onValueChange={handleFilterChange}>
-                <SelectTrigger className="w-full sm:w-[250px] border-neutral-300 focus:ring-primary-500">
+                <SelectTrigger className="w-full sm:w-[180px]">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
-                <SelectContent className="bg-neutral-100">
+                <SelectContent className="bg-neutral-50">
                   <SelectItem value="ALL">All Statuses</SelectItem>
                   <SelectItem value="CREATED">Created</SelectItem>
+                  <SelectItem value="FUNDED">Funded</SelectItem>
                   <SelectItem value="AWAITING_FIAT_PAYMENT">Awaiting Payment</SelectItem>
+                  <SelectItem value="FIAT_PAID">Fiat Paid</SelectItem>
                   <SelectItem value="PENDING_CRYPTO_RELEASE">Pending Release</SelectItem>
+                  <SelectItem value="RELEASED">Released</SelectItem>
                   <SelectItem value="COMPLETED">Completed</SelectItem>
                   <SelectItem value="CANCELLED">Cancelled</SelectItem>
                   <SelectItem value="DISPUTED">Disputed</SelectItem>
+                  <SelectItem value="RESOLVED">Resolved</SelectItem>
                 </SelectContent>
               </Select>
             </div>
