@@ -1,79 +1,110 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { Trade } from '@/api';
+import { useSmartPolling } from './useSmartPolling';
 
-export function useTradeUpdates(tradeId: number, apiUrl?: string, pollInterval = 5000) {
-  const [trade, setTrade] = useState<Trade | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
-  const previousTradeIdRef = useRef<number | null>(null);
+export function useTradeUpdates(tradeId: number, apiUrl?: string) {
+  // Keep track of the previous data and ETag
+  const previousDataRef = useRef<Trade | null>(null);
+  const etagRef = useRef<string | null>(null);
 
-  // Reset state when tradeId changes
-  useEffect(() => {
-    if (previousTradeIdRef.current !== tradeId) {
-      // Clear the previous trade data when switching to a new trade
-      setTrade(null);
-      setError(null);
-      previousTradeIdRef.current = tradeId;
-      console.log(`[useTradeUpdates] Trade ID changed to ${tradeId}, resetting state`);
-    }
-  }, [tradeId]);
-
-  // Wrap fetchTrade with useCallback to memoize it
-  const fetchTrade = useCallback(async () => {
-    if (!tradeId) return;
+  // Memoize fetch function to avoid recreating it on each render
+  const fetchTrade = useCallback(async (): Promise<Trade | null> => {
+    if (!tradeId) return null;
 
     const baseUrl = apiUrl || import.meta.env.VITE_API_URL || "http://localhost:3000";
     const token = localStorage.getItem('token');
 
     if (!token) {
-      setError(new Error('No authentication token found'));
-      return;
+      throw new Error('No authentication token found');
+    }
+
+    // Add headers for conditional requests
+    const headers: HeadersInit = {
+      'Authorization': `Bearer ${token}`,
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    };
+    
+    // Add If-None-Match header if we have an ETag
+    if (etagRef.current) {
+      headers['If-None-Match'] = etagRef.current;
+    }
+    
+    // Add If-Modified-Since header if we have previous data
+    if (previousDataRef.current?.updated_at) {
+      headers['If-Modified-Since'] = new Date(previousDataRef.current.updated_at).toUTCString();
     }
 
     try {
-      const response = await fetch(`${baseUrl}/trades/${tradeId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          // Add cache control headers to prevent browser caching
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
+      console.log(`[useTradeUpdates] Fetching trade ${tradeId} with conditional headers:`, 
+        etagRef.current ? `ETag: ${etagRef.current.substring(0, 10)}...` : 'No ETag',
+        previousDataRef.current?.updated_at ? `If-Modified-Since: ${new Date(previousDataRef.current.updated_at).toUTCString()}` : 'No If-Modified-Since'
+      );
+      
+      const response = await fetch(`${baseUrl}/trades/${tradeId}`, { headers });
+      
+      // Store the new ETag if present
+      const newEtag = response.headers.get('ETag');
+      if (newEtag) {
+        etagRef.current = newEtag;
+      }
+      
+      // Handle 304 Not Modified
+      if (response.status === 304) {
+        console.log(`[useTradeUpdates] Received 304 Not Modified for trade ${tradeId}`);
+        // Return the previous data since nothing has changed
+        return previousDataRef.current;
+      }
 
       if (!response.ok) {
         throw new Error(`Failed to fetch trade: ${response.statusText}`);
       }
 
       const data = await response.json();
-      setTrade(data);
-      setError(null);
-      setIsConnected(true);
+      // Store the data for future conditional requests
+      previousDataRef.current = data;
+      return data;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Fetch error'));
-      setIsConnected(false);
+      throw err instanceof Error ? err : new Error('Fetch error');
     }
-  }, [tradeId, apiUrl]); // Add dependencies that fetchTrade relies on
+  }, [tradeId, apiUrl]);
 
-  useEffect(() => {
-    if (!tradeId) return;
+  // Handle trade state changes
+  const handleTradeStateChange = (newTrade: Trade) => {
+    console.log(`[useTradeUpdates] Trade state changed to: ${newTrade.leg1_state}`);
+    
+    // Dispatch a custom event to notify other components
+    const event = new CustomEvent('yapbay:trade-state-changed', {
+      detail: { tradeId, newState: newTrade.leg1_state }
+    });
+    window.dispatchEvent(event);
+    
+    // Also dispatch the existing refresh event for backward compatibility
+    const refreshEvent = new CustomEvent('yapbay:refresh-trade', {
+      detail: { tradeId }
+    });
+    window.dispatchEvent(refreshEvent);
+  };
 
-    // Initial fetch
-    fetchTrade();
+  // Use smart polling
+  const polling = useSmartPolling(fetchTrade, [tradeId, apiUrl], {
+    initialInterval: 5000,
+    minInterval: 2000,
+    maxInterval: 10000, // Reduced from 30000 to 10000 (10 seconds max)
+    inactivityThreshold: 3 * 60 * 1000, // 3 minutes
+    tradeStateChangeCallback: handleTradeStateChange
+  });
 
-    // Start polling
-    pollingRef.current = setInterval(fetchTrade, pollInterval);
-
-    // Cleanup
-    return () => {
-      if (pollingRef.current) {
-        clearInterval(pollingRef.current);
-      }
-    };
-  }, [tradeId, apiUrl, pollInterval, fetchTrade]); // Add fetchTrade as a dependency
-
-  return { trade, error, isConnected };
+  return {
+    trade: polling.data,
+    error: polling.error,
+    isPolling: polling.isPolling,
+    currentInterval: polling.currentInterval,
+    pausePolling: polling.pausePolling,
+    resumePolling: polling.resumePolling,
+    forcePoll: polling.forcePoll,
+    isConnected: !!polling.data && !polling.error
+  };
 }
 
 export function isDeadlineExpired(deadline: string | null): boolean {

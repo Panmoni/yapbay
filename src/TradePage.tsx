@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import ChatSection from '@/components/Trade/ChatSection';
@@ -29,7 +29,12 @@ function TradePage() {
 
   const { userRole, currentAccount, counterparty } = useTradeParticipants(trade);
 
-  const { trade: tradeUpdates } = useTradeUpdates(tradeId);
+  // Use enhanced trade updates hook with smart polling
+  const { 
+    trade: tradeUpdates, 
+    forcePoll: forceTradeUpdate,
+    currentInterval: pollInterval
+  } = useTradeUpdates(tradeId);
 
   const {
     escrowDetails,
@@ -43,10 +48,14 @@ function TradePage() {
   const handleRefreshTrade = useCallback(() => {
     if (!tradeId) return;
     
+    // Use the forcePoll function instead of calling the API directly
+    forceTradeUpdate();
+    
+    // Keep the original refresh for backward compatibility
     refreshTrade(tradeId, setTrade).catch(error => {
       console.error('Error refreshing trade:', error);
     });
-  }, [tradeId, setTrade]);
+  }, [tradeId, setTrade, forceTradeUpdate]);
 
   const { createEscrow, markFiatPaid, releaseCrypto, disputeTrade, cancelTrade, actionLoading } =
     useTradeActions({
@@ -59,14 +68,27 @@ function TradePage() {
 
   const [pendingTxs, setPendingTxs] = useState<any[]>([]);
 
+  // Reference to track previous polling interval value
+  const prevIntervalRef = useRef<number | null>(null);
+  
+  // Use ref to store pending transactions to avoid re-renders
+  const pendingTxsRef = useRef<any[]>([]);
+  
+  // Create a stable reference to the loadPendingTransactions function
+  const loadPendingTransactions = useCallback(() => {
+    if (!tradeId) return;
+    const pending = getPendingTransactionsForTrade(tradeId);
+    
+    // Only update state if the pending transactions have actually changed
+    if (JSON.stringify(pending) !== JSON.stringify(pendingTxsRef.current)) {
+      pendingTxsRef.current = pending;
+      setPendingTxs(pending);
+    }
+  }, [tradeId]);
+
   // Load pending transactions on component mount
   useEffect(() => {
-    const loadPendingTransactions = () => {
-      if (!tradeId) return;
-      const pending = getPendingTransactionsForTrade(tradeId);
-      setPendingTxs(pending);
-    };
-    
+    // Initial load
     loadPendingTransactions();
     
     // Refresh pending transactions every 15 seconds
@@ -79,13 +101,41 @@ function TradePage() {
       }
     };
     
+    // Listen for trade state change events
+    const handleTradeStateChange = (e: CustomEvent) => {
+      if (e.detail?.tradeId === tradeId) {
+        console.log(`[TradePage] Trade state changed to: ${e.detail.newState}`);
+        // Force refresh pending transactions immediately on state change
+        loadPendingTransactions();
+      }
+    };
+    
+    // Listen for new transaction events
+    const handleNewTransaction = () => {
+      loadPendingTransactions();
+    };
+    
     window.addEventListener('yapbay:refresh-trade', handleRefreshEvent as EventListener);
+    window.addEventListener('yapbay:trade-state-changed', handleTradeStateChange as EventListener);
+    window.addEventListener('yapbay:new-transaction', handleNewTransaction as EventListener);
     
     return () => {
       clearInterval(interval);
       window.removeEventListener('yapbay:refresh-trade', handleRefreshEvent as EventListener);
+      window.removeEventListener('yapbay:trade-state-changed', handleTradeStateChange as EventListener);
+      window.removeEventListener('yapbay:new-transaction', handleNewTransaction as EventListener);
     };
-  }, [tradeId, handleRefreshTrade]);
+  }, [tradeId, handleRefreshTrade, loadPendingTransactions]);
+
+  // Log polling interval changes for debugging - only when it actually changes
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && 
+        prevIntervalRef.current !== pollInterval) {
+      // Only log when the interval actually changes
+      console.log(`[TradePage] Polling interval changed: ${pollInterval}ms`);
+      prevIntervalRef.current = pollInterval;
+    }
+  }, [pollInterval]);
 
   // Handle retrying transaction verification
   const handleRetryVerification = (txHash: string) => {
@@ -158,6 +208,27 @@ function TradePage() {
   useEffect(() => {
     setTrade(null);
   }, [tradeId, setTrade]);
+
+  // Listen for critical state changes (like fiat paid) that require immediate refresh
+  useEffect(() => {
+    const handleCriticalStateChange = () => {
+      console.log('[TradePage] Critical state change detected, refreshing trade data');
+      if (tradeId) {
+        // Force refresh trade data
+        handleRefreshTrade();
+        // Also reload pending transactions
+        loadPendingTransactions();
+      }
+    };
+
+    // Add event listener for critical state changes
+    window.addEventListener('yapbay:critical-state-change', handleCriticalStateChange);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      window.removeEventListener('yapbay:critical-state-change', handleCriticalStateChange);
+    };
+  }, [tradeId, handleRefreshTrade, loadPendingTransactions]);
 
   if (loading) {
     return <LoadingIndicator message="Loading trade details..." />;

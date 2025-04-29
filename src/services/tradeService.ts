@@ -737,65 +737,137 @@ setTimeout(() => {
 }, 5000); // Wait 5 seconds after page load before first retry attempt
 
 /**
- * Parameters for marking fiat as paid
+ * Marks fiat as paid for a trade
  */
-interface MarkFiatPaidParams {
+export const markTradeFiatPaid = async ({
+  trade,
+  primaryWallet,
+}: {
   trade: Trade;
-  primaryWallet: {
-    address?: string;
-    getWalletClient?: () => Promise<WalletClient>;
-    getPublicClient?: () => Promise<PublicClient>;
-  };
-}
-
-/**
- * Marks fiat as paid for a trade on the blockchain and in the backend
- */
-export const markTradeFiatPaid = async ({ trade, primaryWallet }: MarkFiatPaidParams) => {
+  primaryWallet: Wallet;
+}) => {
   try {
     if (!trade.leg1_escrow_onchain_id) {
       throw new Error('No escrow ID found for this trade');
     }
 
-    // Show notification message using toast
-    toast('Marking fiat as paid on blockchain...', {
-      description: 'Please approve the transaction in your wallet.',
-    });
+    // Check the current state of the escrow
+    try {
+      // Just check if the escrow exists, we don't need to use the state value
+      await checkEscrowState(
+        primaryWallet,
+        trade.leg1_escrow_onchain_id
+      );
 
-    // Call blockchain service to mark fiat as paid
-    const result = await markFiatPaidTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
-    
-    // Convert result to expected format
-    const txResult: TransactionResult = typeof result === 'string' 
-      ? { txHash: result } 
-      : result as TransactionResult;
-
-    // Record the transaction
-    if (txResult && 'txHash' in txResult) {
-      await recordTransaction({
-        trade_id: trade.id,
-        escrow_id: parseInt(trade.leg1_escrow_onchain_id),
-        transaction_hash: txResult.txHash,
-        transaction_type: 'MARK_FIAT_PAID',
-        from_address: primaryWallet.address || '',
-        status: 'SUCCESS',
-        block_number: Number(txResult.blockNumber),
-        metadata: {
-          escrow_id: trade.leg1_escrow_onchain_id
-        }
+      // Show notification message using toast
+      toast('Marking fiat as paid...', {
+        description: 'Please approve the transaction in your wallet.',
       });
+
+      // Make sure the wallet has the required methods
+      if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
+        // Create a properly structured wallet object with bound methods
+        const walletForMarkPaid = {
+          address: primaryWallet.address,
+          getWalletClient: async () => {
+            if (primaryWallet.getWalletClient) {
+              return await primaryWallet.getWalletClient();
+            }
+            throw new Error('getWalletClient is not available');
+          },
+          getPublicClient: async () => {
+            if (primaryWallet.getPublicClient) {
+              return await primaryWallet.getPublicClient();
+            }
+            throw new Error('getPublicClient is not available');
+          }
+        };
+
+        try {
+          // Execute the blockchain transaction
+          const result = await markFiatPaidTransaction(
+            walletForMarkPaid,
+            trade.leg1_escrow_onchain_id
+          );
+          
+          // Define the type for the result to avoid TypeScript errors
+          interface TransactionResult {
+            txHash: string;
+            blockNumber?: bigint;
+          }
+          
+          // Handle both string and object return types from markFiatPaidTransaction
+          const txHash = typeof result === 'string' ? result : (result as TransactionResult).txHash;
+          const blockNumber = typeof result === 'string' ? undefined : (result as TransactionResult).blockNumber;
+
+          // Record the transaction details via the recordTransaction API
+          await recordTransaction({
+            trade_id: trade.id,
+            escrow_id: Number(trade.leg1_escrow_onchain_id),
+            transaction_hash: txHash,
+            transaction_type: 'MARK_FIAT_PAID',
+            from_address: primaryWallet.address || '',
+            status: 'SUCCESS',
+            block_number: blockNumber ? Number(blockNumber) : undefined,
+            metadata: {
+              buyer: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
+            }
+          });
+
+          // Call the backend API to update the trade status
+          await markFiatPaid(trade.id);
+          
+          // Dispatch a global event to notify all open tabs/windows about this critical state change
+          const event = new CustomEvent('yapbay:critical-state-change', {
+            detail: { 
+              tradeId: trade.id, 
+              newState: 'FIAT_PAID',
+              timestamp: new Date().toISOString()
+            }
+          });
+          window.dispatchEvent(event);
+          
+          // Force an immediate refresh for all clients by invalidating cache
+          localStorage.setItem('yapbay_last_trade_update', new Date().toISOString());
+
+          toast.success('Fiat payment marked as complete');
+        } catch (error: unknown) {
+          const err = error as Error;
+          // Handle specific blockchain errors with user-friendly messages
+          if (err.message.includes('User rejected the request')) {
+            toast.error('Transaction cancelled', {
+              description: 'You cancelled the transaction in your wallet.',
+            });
+          } else if (err.message.includes('reverted')) {
+            toast.error('Transaction failed', {
+              description: 'The blockchain rejected this transaction. The escrow may be in an invalid state or you may not have permission to mark it as paid.',
+            });
+          } else {
+            // Generic error handling
+            toast.error('Failed to mark fiat as paid', {
+              description: err.message || 'An unexpected error occurred',
+            });
+          }
+          throw error;
+        }
+      } else {
+        toast.error('Wallet configuration error', {
+          description: 'Your wallet is not properly configured for this operation.',
+        });
+        throw new Error('Wallet does not have required methods');
+      }
+    } catch (error) {
+      // This catch block handles errors from checkEscrowState
+      if (error instanceof Error && error.message.includes('Escrow not found')) {
+        toast.error('Escrow not found', {
+          description: 'The escrow could not be found on the blockchain.',
+        });
+      }
+      throw error;
     }
-
-    // Call API to update backend state
-    await markFiatPaid(trade.id);
-
-    toast.success('Fiat payment marked as paid successfully!');
-
-    return txResult;
   } catch (err) {
     console.error('Error marking fiat as paid:', err);
-    const errorMessage = handleApiError(err, 'Failed to mark fiat as paid');
-    toast.error(errorMessage);
+    // Don't show another toast here since we've already shown specific ones above
     throw err;
   }
 };

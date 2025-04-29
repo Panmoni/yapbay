@@ -1,24 +1,26 @@
 # YapBay Frontend Development Plan
 
+## smart polling
+
+maybe dial it down a bit so less volatile
+
+## get the db straight for escrows, tx, events, etc
+
 test update of escrow, trade tables for events
 
 test correct recording of transaction types... still not working
 
-## fix
-
 my escrows page is not showing correctly escrow state
 
-## TradePage update speed
-
-exceptional case appears when it shouldn't and takes a long time to update.
-
-## implement cancel escrow
+## implement cancel escrow/trade
 
 ## Roadmap
 
 - Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings pages?
 - useUserAccount for Account Page?
 - make sure RPC is efficient, maybe cache some of them.. run it through a redis?
+
+### web sockets for frontend-api
 
 ### Refund when Mark Fiat Paid timer runs out but escrow is still funded.. refund and then cancel both trade in db, escrow in db and on-chain escrow
 
