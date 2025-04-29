@@ -22,7 +22,9 @@ const CONTRACT_ADDRESS = process.env.VITE_CONTRACT_ADDRESS;
 const USDC_ADDRESS = process.env.VITE_USDC_ADDRESS_ALFAJORES;
 
 if (!RPC_URL || !CONTRACT_ADDRESS || !USDC_ADDRESS) {
-  console.error('Error: Missing VITE_CELO_RPC_URL, VITE_CONTRACT_ADDRESS, or VITE_USDC_ADDRESS_ALFAJORES in .env file');
+  console.error(
+    'Error: Missing VITE_CELO_RPC_URL, VITE_CONTRACT_ADDRESS, or VITE_USDC_ADDRESS_ALFAJORES in .env file'
+  );
   process.exit(1);
 }
 
@@ -60,15 +62,18 @@ interface EscrowOutputData {
   'Fiat Paid': 't' | 'f';
 }
 
-async function main() {
-  console.log(`Connecting to Celo Alfajores RPC: ${RPC_URL}`);
+// Copy of the getUsdcBalance function from chainService.ts
+/**
+ * Fetches the USDC balance for a given wallet address using VITE_CELO_RPC_URL.
+ * @param address Wallet address (string)
+ * @returns Promise<BigInt> USDC balance (in smallest unit, e.g. 6 decimals)
+ */
+async function getUsdcBalance(address: string): Promise<bigint> {
+  // Use ethers.js for direct RPC call
   const provider = new ethers.JsonRpcProvider(RPC_URL);
-
-  console.log(`Using contract address: ${CONTRACT_ADDRESS}`);
-  const contract = new ethers.Contract(CONTRACT_ADDRESS!, YapBayEscrowABI.abi, provider);
-
-  // Create USDC token contract instance
-  const erc20Abi = [
+  const usdcAddress = USDC_ADDRESS;
+  // Minimal ERC20 ABI for balanceOf
+  const erc20BalanceOfAbi = [
     {
       constant: true,
       inputs: [{ name: '_owner', type: 'address' }],
@@ -77,7 +82,17 @@ async function main() {
       type: 'function',
     },
   ];
-  const usdcContract = new ethers.Contract(USDC_ADDRESS!, erc20Abi, provider);
+  const contract = new ethers.Contract(usdcAddress!, erc20BalanceOfAbi, provider);
+  const balance: bigint = await contract.balanceOf(address);
+  return balance;
+}
+
+async function main() {
+  console.log(`Connecting to Celo Alfajores RPC: ${RPC_URL}`);
+  const provider = new ethers.JsonRpcProvider(RPC_URL);
+
+  console.log(`Using contract address: ${CONTRACT_ADDRESS}`);
+  const contract = new ethers.Contract(CONTRACT_ADDRESS!, YapBayEscrowABI.abi, provider);
 
   console.log('Querying EscrowCreated events...');
 
@@ -105,14 +120,14 @@ async function main() {
       return;
     }
 
-    console.log('\nFetching details for each escrow ID...');
+    // console.log('\nFetching details for each escrow ID...');
 
     // Use Promise.all for potentially faster fetching
     const fetchPromises = Array.from(escrowIds).map(async id => {
       try {
-        console.log(`   Fetching details for Escrow ID ${id}...`);
+        // console.log(`   Fetching details for Escrow ID ${id}...`);
         const escrowData = await contract.escrows(id);
-        console.log(`   ...Fetched details for Escrow ID ${id}`);
+        // console.log(`   ...Fetched details for Escrow ID ${id}`);
 
         if (!escrowData) {
           console.error(`   !!! Received null/undefined data for Escrow ID ${id}`);
@@ -129,37 +144,54 @@ async function main() {
         const sequentialEscrowAddress: string = escrowData[10];
         const fiat_paid: boolean = escrowData[11];
 
-        console.log(`   ...Extracted data for Escrow ID ${id}`);
+        // console.log(`   ...Extracted data for Escrow ID ${id}`);
 
-        // Check the actual USDC balance for this escrow
+        // Calculate the balance based on escrow state
         let balance = BigInt(0);
-        
-        try {
-          // If this is a sequential escrow, check the sequential escrow address
-          if (sequential && sequentialEscrowAddress !== ethers.ZeroAddress) {
-            balance = await usdcContract.balanceOf(sequentialEscrowAddress);
-          } else {
-            // For non-sequential escrows, we need to check the main contract's balance
-            // This requires understanding how the contract tracks funds internally
-            // For now, we'll use the state to determine if there should be a balance
-            if (state === EscrowState.FUNDED) {
-              balance = amountBigInt;
-            }
-          }
-        } catch (balanceError) {
-          console.error(`   !!! Error fetching USDC balance for Escrow ID ${id}:`, balanceError);
-          // If balance check fails, fall back to the escrow amount if in FUNDED state
-          if (state === EscrowState.FUNDED) {
-            balance = amountBigInt;
-          }
-        }
 
+        // Get the state name first before using it in logs
         const stateName =
           Object.keys(EscrowState).find(
             key => EscrowState[key as keyof typeof EscrowState] === state
           ) ?? `UNKNOWN (${state})`;
 
-        console.log(`   ...Calculated balance/state for Escrow ID ${id}`);
+        try {
+          // If this is a sequential escrow, check the sequential escrow address
+          if (sequential && sequentialEscrowAddress !== ethers.ZeroAddress) {
+            // For sequential escrows, get the actual balance of the sequential escrow address
+            balance = await getUsdcBalance(sequentialEscrowAddress);
+            // console.log(`   [DEBUG] Sequential escrow ${id} real balance: ${balance.toString()}`);
+          } else {
+            // For non-sequential escrows, calculate the balance based on state
+            if (state === EscrowState.FUNDED) {
+              // If the escrow is FUNDED, it should have the full amount
+              balance = amountBigInt;
+              console
+                .log
+                // `   [DEBUG] Non-sequential escrow ${id} in FUNDED state, using amount: ${balance.toString()}`
+                ();
+            } else if (state === EscrowState.RELEASED || state === EscrowState.CANCELLED) {
+              // If the escrow is RELEASED or CANCELLED, it should have zero balance
+              balance = BigInt(0);
+              console
+                .log
+                // `   [DEBUG] Non-sequential escrow ${id} in ${stateName} state, balance is 0`
+                ();
+            } else {
+              // For other states, also zero balance
+              balance = BigInt(0);
+              console
+                .log
+                // `   [DEBUG] Non-sequential escrow ${id} in ${stateName} state, balance is 0`
+                ();
+            }
+          }
+        } catch (balanceError) {
+          console.error(`   !!! Error calculating balance for Escrow ID ${id}:`, balanceError);
+          console.log(`   [WARNING] Unable to determine balance for escrow ${id}`);
+        }
+
+        // console.log(`   ...Calculated balance/state for Escrow ID ${id}`);
 
         // Populate the final data object with formatting
         outputData.push({
@@ -173,7 +205,7 @@ async function main() {
           Seq: sequential ? 't' : 'f', // Use abbreviated name
           'Fiat Paid': fiat_paid ? 't' : 'f',
         });
-        console.log(`   ...Pushed data for Escrow ID ${id}`);
+        // console.log(`   ...Pushed data for Escrow ID ${id}`);
       } catch (fetchError) {
         // This catch should handle errors during fetching/processing for a single ID
         console.error(`   !!! Error processing Escrow ID ${id}:`, fetchError);
@@ -189,6 +221,31 @@ async function main() {
 
     console.log('\nEscrow Details:');
     console.table(outputData);
+
+    // Calculate and display the total amount of USDC held in escrow
+    const totalUsdcInEscrow = outputData.reduce((total, escrow) => {
+      // Add to total only if there's a balance (converts string to number)
+      return total + parseFloat(escrow.Balance);
+    }, 0);
+
+    console.log(`\nTotal USDC currently held in escrow: ${totalUsdcInEscrow.toFixed(2)} USDC`);
+
+    // Get the real contract balance for comparison
+    try {
+      const contractBalance = await getUsdcBalance(CONTRACT_ADDRESS!);
+      const contractBalanceFormatted = ethers.formatUnits(contractBalance, 6);
+      console.log(`Total USDC balance of escrow contract: ${contractBalanceFormatted} USDC`);
+
+      if (Math.abs(totalUsdcInEscrow - parseFloat(contractBalanceFormatted)) > 0.01) {
+        console.log(`Note: There is a difference between calculated escrow total (${totalUsdcInEscrow.toFixed(2)}) and actual contract balance (${contractBalanceFormatted}).`);
+        console.log(`This could be due to:
+  - Escrows in transition states
+  - Sequential escrows with separate addresses
+  - Other funds in the contract not associated with active escrows`);
+      }
+    } catch (error) {
+      console.error('Error fetching total contract balance:', error);
+    }
   } catch (error) {
     // This catch handles errors during event querying or if Promise.all rejects unexpectedly
     console.error('\n!!! Top-level error:', error);

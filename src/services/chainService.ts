@@ -673,41 +673,22 @@ export const releaseEscrowTransaction = async (
       }
     }
 
-    // Verify the USDC balance of the escrow after release
+    // Verify the escrow state is RELEASED (2)
     try {
-      // Get the USDC contract
-      const usdcContract = {
-        address: config.usdcAddressAlfajores as Address,
-        abi: [
-          {
-            constant: true,
-            inputs: [{ name: '_owner', type: 'address' }],
-            name: 'balanceOf',
-            outputs: [{ name: 'balance', type: 'uint256' }],
-            type: 'function',
-          },
-        ],
-      };
-
-      // Check the USDC balance of the escrow contract for this escrow ID
-      const escrowBalance = await publicClient.readContract({
-        address: usdcContract.address,
-        abi: usdcContract.abi,
-        functionName: 'balanceOf',
-        args: [contract.address],
-      });
-
-      console.log(`[DEBUG] USDC balance of escrow contract: ${escrowBalance.toString()}`);
-
-      // If the escrow still has the same amount as before, the transfer likely failed
-      if (postReleaseState && postReleaseState.amount > BigInt(0)) {
-        console.error('[ERROR] Escrow still has funds after release. Transfer may have failed.');
-        throw new Error('Escrow still has funds after release. The funds may not have been transferred properly.');
+      // The proper way to check if an escrow is released is to verify its state
+      // We've already done this in the retry logic above, but let's double-check
+      
+      if (postReleaseState && postReleaseState.state === 2) {
+        // State 2 is RELEASED, which means the release was successful
+        console.log('[DEBUG] Escrow state is RELEASED (2), confirming successful release');
       } else {
-        console.log('[DEBUG] Escrow funds have been successfully transferred');
+        // If the state is not RELEASED, something went wrong
+        console.error(`[ERROR] Escrow state after release is ${postReleaseState ? postReleaseState.state : 'unknown'}, expected 2 (RELEASED)`);
+        throw new Error(`Escrow state transition failed. Current state: ${postReleaseState ? postReleaseState.state : 'unknown'}, expected: 2 (RELEASED)`);
       }
     } catch (balanceError) {
-      console.error('[ERROR] Failed to check USDC balance:', balanceError);
+      console.error('[ERROR] Failed to check escrow state:', balanceError);
+      throw balanceError;
     }
 
     return {
