@@ -120,14 +120,12 @@ async function main() {
       return;
     }
 
-    // console.log('\nFetching details for each escrow ID...');
+    console.log('\nFetching details for each escrow ID...');
 
     // Use Promise.all for potentially faster fetching
     const fetchPromises = Array.from(escrowIds).map(async id => {
       try {
-        // console.log(`   Fetching details for Escrow ID ${id}...`);
         const escrowData = await contract.escrows(id);
-        // console.log(`   ...Fetched details for Escrow ID ${id}`);
 
         if (!escrowData) {
           console.error(`   !!! Received null/undefined data for Escrow ID ${id}`);
@@ -144,54 +142,37 @@ async function main() {
         const sequentialEscrowAddress: string = escrowData[10];
         const fiat_paid: boolean = escrowData[11];
 
-        // console.log(`   ...Extracted data for Escrow ID ${id}`);
-
         // Calculate the balance based on escrow state
         let balance = BigInt(0);
-
+        
         // Get the state name first before using it in logs
         const stateName =
           Object.keys(EscrowState).find(
             key => EscrowState[key as keyof typeof EscrowState] === state
           ) ?? `UNKNOWN (${state})`;
-
+        
         try {
           // If this is a sequential escrow, check the sequential escrow address
           if (sequential && sequentialEscrowAddress !== ethers.ZeroAddress) {
             // For sequential escrows, get the actual balance of the sequential escrow address
             balance = await getUsdcBalance(sequentialEscrowAddress);
-            // console.log(`   [DEBUG] Sequential escrow ${id} real balance: ${balance.toString()}`);
           } else {
             // For non-sequential escrows, calculate the balance based on state
             if (state === EscrowState.FUNDED) {
               // If the escrow is FUNDED, it should have the full amount
               balance = amountBigInt;
-              console
-                .log
-                // `   [DEBUG] Non-sequential escrow ${id} in FUNDED state, using amount: ${balance.toString()}`
-                ();
             } else if (state === EscrowState.RELEASED || state === EscrowState.CANCELLED) {
               // If the escrow is RELEASED or CANCELLED, it should have zero balance
               balance = BigInt(0);
-              console
-                .log
-                // `   [DEBUG] Non-sequential escrow ${id} in ${stateName} state, balance is 0`
-                ();
             } else {
               // For other states, also zero balance
               balance = BigInt(0);
-              console
-                .log
-                // `   [DEBUG] Non-sequential escrow ${id} in ${stateName} state, balance is 0`
-                ();
             }
           }
         } catch (balanceError) {
           console.error(`   !!! Error calculating balance for Escrow ID ${id}:`, balanceError);
           console.log(`   [WARNING] Unable to determine balance for escrow ${id}`);
         }
-
-        // console.log(`   ...Calculated balance/state for Escrow ID ${id}`);
 
         // Populate the final data object with formatting
         outputData.push({
@@ -205,7 +186,6 @@ async function main() {
           Seq: sequential ? 't' : 'f', // Use abbreviated name
           'Fiat Paid': fiat_paid ? 't' : 'f',
         });
-        // console.log(`   ...Pushed data for Escrow ID ${id}`);
       } catch (fetchError) {
         // This catch should handle errors during fetching/processing for a single ID
         console.error(`   !!! Error processing Escrow ID ${id}:`, fetchError);
