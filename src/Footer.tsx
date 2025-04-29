@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="footer-section">
-            <h3 className="footer-title">Quick Links</h3>
+            <h3 className="footer-title">About</h3>
             <nav className="footer-nav">
               <a target="_blank" href="https://yapbay.com/" rel="noopener noreferrer">
                 Features
@@ -138,6 +138,17 @@ export const Footer: React.FC = () => {
             money but exercise care nonetheless.
           </p>
           <p className="mb-2">
+            Get{' '}
+            <a href="https://faucet.celo.org/alfajores" target="blank">
+              testnet CELO
+            </a>{' '}
+            and{' '}
+            <a href="https://faucet.circle.com/" target="blank">
+              Celo Alfajores USDC
+            </a>{' '}
+            in order to create test transactions.
+          </p>
+          <p className="mb-2">
             We welcome you for discussion and support in our{' '}
             <a href="https://t.me/Panmoni/288" target="_blank" rel="noopener noreferrer">
               Telegram
@@ -153,12 +164,12 @@ export const Footer: React.FC = () => {
           </p>
           <p>
             &copy; {new Date().getFullYear()} A{' '}
-            <a
-              className="panmoni-link"
-              href="https://panmoni.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a className="panmoni-link" href="https://panmoni.com" target="_blank" rel="noopener">
+              <img
+                src="/panmoni.svg"
+                alt="Panmoni Logo"
+                className="w-4 h-4 inline mr-1 align-middle"
+              />
               Panmoni
             </a>{' '}
             project
