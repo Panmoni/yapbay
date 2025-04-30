@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "build-image": "podman build -f Containerfile -t localhost/yapbay-vite:latest .",
-    "create-pod": "podman pod exists yapbay-vite || podman pod create --name yapbay-vite -p 5174:5174",
+    "create-pod": "podman pod exists yapbay-vite || podman pod create --name yapbay-vite --network host",
     "start-app": "podman container exists yapbay-app || podman run -d --name yapbay-app --pod yapbay-vite --mount type=bind,source=$(pwd)/.env,target=/app/.env,ro localhost/yapbay-vite:latest",
     "deploy": "npm run build-image && npm run create-pod && npm run start-app",
     "stop-pod": "podman pod stop yapbay-vite",

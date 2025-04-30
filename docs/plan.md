@@ -1,12 +1,18 @@
 # YapBay Frontend Development Plan
 
+clean up form yesterday
+
 review state ref escrows trades and trade checklist
+
+get the new pods to restart on boot
 
 ## fix
 
 - dig into the transactions and the data being returned to clear some of these unknown results and get more complete data
 
 - still not updating trade page when trade is updated... may need sockets
+
+mytradespage wtf
 
 ## do a full restart
 
