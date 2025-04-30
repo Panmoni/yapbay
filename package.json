@@ -13,8 +13,8 @@
     "start-app": "podman container exists yapbay-app || podman run -d --name yapbay-app --pod yapbay-vite --mount type=bind,source=$(pwd)/.env,target=/app/.env,ro localhost/yapbay-vite:latest",
     "deploy": "npm run build-image && npm run create-pod && npm run start-app",
     "stop-pod": "podman pod stop yapbay-vite",
-    "logs-app": "podman logs -f yapbay-app",
-    "clean-pod": "podman pod stop yapbay-vite && podman pod rm -f yapbay-vite"
+    "logs": "podman logs -f yapbay-app",
+    "clean": "podman pod stop yapbay-vite && podman pod rm -f yapbay-vite"
   },
   "dependencies": {
     "@dynamic-labs/ethereum": "^4.11.2",
