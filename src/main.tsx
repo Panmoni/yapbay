@@ -20,8 +20,24 @@ const myEvmNetworks: EvmNetwork[] = [
       iconUrl: 'https://app.dynamic.xyz/assets/networks/celo.svg',
     },
     networkId: 44787,
-    rpcUrls: ['https://alfajores-forno.celo-testnet.org'],
+    rpcUrls: [import.meta.env.VITE_CELO_RPC_URL_TESTNET],
     vanityName: 'Alfajores',
+  },
+  {
+    blockExplorerUrls: ['https://celoscan.io'],
+    chainId: 42220,
+    chainName: 'Celo Mainnet',
+    iconUrls: ['https://app.dynamic.xyz/assets/networks/celo.svg'],
+    name: 'Celo Mainnet',
+    nativeCurrency: {
+      decimals: 18,
+      name: 'Celo',
+      symbol: 'CELO',
+      iconUrl: 'https://app.dynamic.xyz/assets/networks/celo.svg',
+    },
+    networkId: 42220,
+    rpcUrls: [import.meta.env.VITE_CELO_RPC_URL],
+    vanityName: 'Celo',
   },
 ];
 

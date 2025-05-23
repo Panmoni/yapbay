@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { formatNumber } from './lib/utils';
-import { useDynamicContext, DynamicWidget, getAuthToken } from '@dynamic-labs/sdk-react-core';
+import { useDynamicContext, DynamicWidget, getAuthToken, getNetwork, useWalletConnectorEvent } from '@dynamic-labs/sdk-react-core';
 import { Account, setAuthToken, getPrices } from './api';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -31,6 +31,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
   );
   const [priceError, setPriceError] = useState<string | null>(null);
   const [usdcBalance, setUsdcBalance] = useState<string>('Loading...');
+  const [currentNetwork, setCurrentNetwork] = useState<number | null>(null);
 
   const fetchPrices = useCallback(async () => {
     try {
@@ -42,12 +43,12 @@ function Header({ isLoggedIn, account }: HeaderProps) {
     }
   }, []);
 
-  // Fetch USDC balance when wallet is connected
+  // Fetch USDC balance when wallet is connected or network changes
   useEffect(() => {
     const fetchUsdcBalance = async () => {
       if (primaryWallet?.address) {
         try {
-          const balance = await getUsdcBalance(primaryWallet.address);
+          const balance = await getUsdcBalance(primaryWallet.address, currentNetwork || undefined);
           // USDC has 6 decimals
           const formattedBalance = (Number(balance) / 1_000_000).toFixed(2);
           setUsdcBalance(formattedBalance);
@@ -64,13 +65,53 @@ function Header({ isLoggedIn, account }: HeaderProps) {
     // Refresh balance every 30 seconds
     const interval = setInterval(fetchUsdcBalance, 30000);
     return () => clearInterval(interval);
-  }, [primaryWallet]);
+  }, [primaryWallet, currentNetwork]);
 
   useEffect(() => {
     fetchPrices();
     const interval = setInterval(fetchPrices, 60000);
     return () => clearInterval(interval);
   }, [fetchPrices]);
+
+  // Listen for network changes
+  useWalletConnectorEvent(
+    primaryWallet?.connector,
+    'chainChange',
+    (chainInfo) => {
+      const networkId = typeof chainInfo.chain === 'string' ? parseInt(chainInfo.chain, 16) : parseInt(chainInfo.chain);
+      console.log('Network changed detected:', {
+        networkId,
+        networkName: networkId === 42220 ? 'Celo Mainnet' : networkId === 44787 ? 'Celo Alfajores' : 'Unknown Network',
+        wallet: primaryWallet?.address
+      });
+      
+      if (typeof networkId === 'number' && !isNaN(networkId)) {
+        setCurrentNetwork(networkId);
+      }
+    }
+  );
+
+  // Get initial network when wallet connects
+  useEffect(() => {
+    const getCurrentNetwork = async () => {
+      if (primaryWallet?.connector) {
+        try {
+          const networkId = await getNetwork(primaryWallet.connector);
+          if (typeof networkId === 'number') {
+            setCurrentNetwork(networkId);
+            console.log('Initial network detected:', {
+              networkId,
+              networkName: networkId === 42220 ? 'Celo Mainnet' : networkId === 44787 ? 'Celo Alfajores' : 'Unknown Network'
+            });
+          }
+        } catch (error) {
+          console.error('Error getting initial network:', error);
+        }
+      }
+    };
+
+    getCurrentNetwork();
+  }, [primaryWallet]);
 
   useEffect(() => {
     const token = getAuthToken();
