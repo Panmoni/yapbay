@@ -18,7 +18,7 @@ import { ExternalLink } from 'lucide-react';
 // Import our custom hooks and components
 import { useTradeConfirmation } from './useTradeConfirmation';
 import { TradeCalculatedValues } from './TradeCalculatedValues';
-import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { useDynamicContext, getNetwork } from '@dynamic-labs/sdk-react-core';
 
 interface TradeConfirmationDialogProps {
   isOpen: boolean;
@@ -297,6 +297,7 @@ function useSellerUsdcBalance(address: string | undefined, open: boolean, amount
   const [balance, setBalance] = React.useState<bigint | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const { primaryWallet } = useDynamicContext();
 
   React.useEffect(() => {
     if (!address || !open) {
@@ -307,20 +308,30 @@ function useSellerUsdcBalance(address: string | undefined, open: boolean, amount
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getUsdcBalance(address)
-      .then(bal => {
+  
+    const fetchBalance = async () => {
+      try {
+        let chainId: number | undefined = undefined;
+        if (primaryWallet?.connector) {
+          const networkId = await getNetwork(primaryWallet.connector);
+          chainId = typeof networkId === 'number' ? networkId : undefined;
+        }
+        const bal = await getUsdcBalance(address, chainId);
         if (!cancelled) setBalance(bal);
-      })
-      .catch(e => {
+      } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    };
+  
+    fetchBalance();
+  
     return () => {
       cancelled = true;
     };
-  }, [address, open, amount]);
+  }, [address, open, amount, primaryWallet]);
+
   return { balance, loading, error };
 }
 

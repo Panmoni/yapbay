@@ -4,6 +4,7 @@ import { config } from '../config';
 import YapBayEscrowABI from '../utils/YapBayEscrow.json';
 import { toast } from 'sonner';
 import { getUsdcBalance } from '../services/chainService';
+import { useDynamicContext, getNetwork } from '@dynamic-labs/sdk-react-core';
 
 // Define the escrow state type based on the contract
 export enum EscrowState {
@@ -44,6 +45,7 @@ export function useEscrowDetails(escrowId: string | number | null, contractAddre
   const [balance, setBalance] = useState('0');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { primaryWallet } = useDynamicContext();
 
   // Function to fetch escrow details
   const fetchEscrowDetails = useCallback(
@@ -73,7 +75,12 @@ export function useEscrowDetails(escrowId: string | number | null, contractAddre
           // If this is a sequential escrow, check the sequential escrow address
           if (escrow.sequential && escrow.sequential_escrow_address !== ethers.ZeroAddress) {
             // For sequential escrows, get the actual balance of the sequential escrow address
-            escrowBalance = await getUsdcBalance(escrow.sequential_escrow_address);
+            let chainId: number | undefined = undefined;
+            if (primaryWallet?.connector) {
+              const networkId = await getNetwork(primaryWallet.connector);
+              chainId = typeof networkId === 'number' ? networkId : undefined;
+            }
+            escrowBalance = await getUsdcBalance(escrow.sequential_escrow_address, chainId);
             console.log(`[DEBUG] Sequential escrow ${escrowId} actual balance: ${escrowBalance.toString()}`);
           } else {
             // For non-sequential escrows, calculate the balance based on state
@@ -119,7 +126,7 @@ export function useEscrowDetails(escrowId: string | number | null, contractAddre
         setIsRefreshing(false);
       }
     },
-    [escrowId, contractAddress]
+    [escrowId, contractAddress, primaryWallet]
   );
 
   // Initial fetch and polling setup

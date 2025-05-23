@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { config } from '../config';
+import { config, getNetworkConfig } from '../config';
 import YapBayEscrowABI from '../utils/YapBayEscrow.json';
 import { Address, parseUnits } from 'viem'; // Using viem for types and utils
 
@@ -779,14 +779,19 @@ export const disputeEscrowTransaction = async (
 const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
- * Fetches the USDC balance for a given wallet address using VITE_CELO_RPC_URL.
+ * Fetches the USDC balance for a given wallet address using the appropriate network configuration.
  * @param address Wallet address (string)
+ * @param chainId Network chain ID (optional, defaults to testnet)
  * @returns Promise<BigInt> USDC balance (in smallest unit, e.g. 6 decimals)
  */
-export async function getUsdcBalance(address: string): Promise<bigint> {
+export async function getUsdcBalance(address: string, chainId?: number): Promise<bigint> {
+  // Default to testnet if no chainId provided
+  const networkConfig = chainId ? getNetworkConfig(chainId) : config.networks.testnet;
+  
   // Use ethers.js for direct RPC call
-  const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_CELO_RPC_URL);
-  const usdcAddress = config.usdcAddressAlfajores;
+  const provider = new ethers.JsonRpcProvider(networkConfig.rpcUrl);
+  const usdcAddress = networkConfig.usdcAddress;
+  
   // Minimal ERC20 ABI for balanceOf
   const erc20BalanceOfAbi = [
     {
