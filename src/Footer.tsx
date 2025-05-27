@@ -161,7 +161,7 @@ export const Footer: React.FC = () => {
         <div className="footer-bottom">
           <p className="mb-2">
             This is beta software running on Celo Mainnet and the Alfajores testnet. Trades are
-            limited to 100 CELO per transaction.
+            limited to 100 USDC per transaction.
           </p>
           <p className="mb-2">To test on Celo Mainnet, you'll need CELO and USDC.</p>
           <p className="mb-2">
