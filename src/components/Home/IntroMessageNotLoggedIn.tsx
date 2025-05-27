@@ -33,7 +33,7 @@ const IntroMessageNotLoggedIn = () => {
             <p className="text-neutral-600 mb-4 text-sm sm:text-base">
               Trade USDC on YapBay directly with other users anywhere in the world. Buy and sell
               using any fiat payment method with our on-chain escrow system. Test on Celo Mainnet
-              with CELO and USDC. To test on the Celo Alfajores testnet, get
+              with CELO and USDC. To test on the Celo Alfajores testnet, get {''}
               <a
                 href="https://faucet.celo.org/alfajores/"
                 target="_blank"
