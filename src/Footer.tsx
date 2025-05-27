@@ -160,9 +160,10 @@ export const Footer: React.FC = () => {
 
         <div className="footer-bottom">
           <p className="mb-2">
-            This is pre-alpha software running on the Celo Alfajores testnet blockchain. It will be
-            hard to lose money but exercise care nonetheless.
+            This is beta software running on Celo Mainnet and the Alfajores testnet. Trades are
+            limited to 100 CELO per transaction.
           </p>
+          <p className="mb-2">To test on Celo Mainnet, you'll need CELO and USDC.</p>
           <p className="mb-2">
             Get{' '}
             <a href="https://faucet.celo.org/alfajores" target="blank">
@@ -172,7 +173,7 @@ export const Footer: React.FC = () => {
             <a href="https://faucet.circle.com/" target="blank">
               Celo Alfajores USDC
             </a>{' '}
-            in order to create test transactions.
+            in order to create test transactions on the Alfajores testnet.
           </p>
           <p className="mb-2">
             We welcome you for discussion and support in our{' '}

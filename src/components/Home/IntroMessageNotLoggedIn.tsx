@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useDynamicContext } from "@dynamic-labs/sdk-react-core";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
 const IntroMessageNotLoggedIn = () => {
   const { setShowAuthFlow } = useDynamicContext();
@@ -31,7 +31,45 @@ const IntroMessageNotLoggedIn = () => {
               Welcome to YapBay P2P Trading
             </h2>
             <p className="text-neutral-600 mb-4 text-sm sm:text-base">
-              Trade USDC on YapBay directly with other users anywhere in the world. Buy and sell using any fiat payment method with our on-chain escrow system. Get <a href="https://faucet.celo.org/alfajores/" target="_blank" rel="noopener noreferrer" className="text-primary-600 underline">testnet CELO (Alfajores)</a> and <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer" className="text-primary-600 underline">Celo Alfajores USDC</a> to test YapBay. Get support in <a href="https://t.me/Panmoni/288" target="_blank" rel="noopener noreferrer" className="text-primary-600 underline">English</a> or <a href="https://t.me/Panmoni/291" target="_blank" rel="noopener noreferrer" className="text-primary-600 underline">Español</a>.
+              Trade USDC on YapBay directly with other users anywhere in the world. Buy and sell
+              using any fiat payment method with our on-chain escrow system. Test on Celo Mainnet
+              with CELO and USDC. To test on the Celo Alfajores testnet, get
+              <a
+                href="https://faucet.celo.org/alfajores/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-600 underline"
+              >
+                testnet CELO (Alfajores)
+              </a>{' '}
+              and{' '}
+              <a
+                href="https://faucet.circle.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-600 underline"
+              >
+                Celo Alfajores USDC
+              </a>
+              . Get support in{' '}
+              <a
+                href="https://t.me/Panmoni/288"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-600 underline"
+              >
+                English
+              </a>{' '}
+              or{' '}
+              <a
+                href="https://t.me/Panmoni/291"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-600 underline"
+              >
+                Español
+              </a>
+              .
             </p>
             <Button
               onClick={() => setShowAuthFlow(true)}
