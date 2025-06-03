@@ -19,6 +19,7 @@ import MyTransactionsPage from './my/MyTransactionsPage';
 import EditOfferPage from '@/offer/EditOfferPage';
 import TradePage from './TradePage';
 import NotFoundPage from '@/pages/NotFoundPage'; // Import the 404 page
+import Status from './pages/Status';
 import { Toaster } from 'sonner'; // Import Toaster
 import { dispatchAuthStateChange } from './utils/events';
 
@@ -77,7 +78,7 @@ function App() {
               <Route path="/offer/:id" element={<OfferDetailPage />} />
               <Route path="/edit-offer/:id" element={<EditOfferPage />} />
               <Route path="/trade/:id" element={<TradePage />} />
-              {/* Catch-all route for 404 */}
+              <Route path="/status" element={<Status />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Container>
