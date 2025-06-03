@@ -4,8 +4,9 @@
   "version": "0.1.2",
   "type": "module",
   "scripts": {
+    "generate-version": "node scripts/generate-version.js",
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run generate-version && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "build-image": "podman build -f Containerfile -t localhost/yapbay-vite:latest .",
