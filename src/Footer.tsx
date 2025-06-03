@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Container from '@/components/Shared/Container';
 import StatusBadge from '@/components/Shared/StatusBadge';
+import { getHealth, HealthResponse } from '@/api';
 
 export const Footer: React.FC = () => {
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchHealth = async () => {
+      try {
+        const response = await getHealth();
+        setHealth(response.data);
+      } catch (err) {
+        setError('Failed to fetch system status');
+        console.error('Health check failed:', err);
+      }
+    };
+
+    fetchHealth();
+    const interval = setInterval(fetchHealth, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <footer className="site-footer">
       <Container>
@@ -163,31 +183,14 @@ export const Footer: React.FC = () => {
             This is beta software running on Celo Mainnet and the Alfajores testnet. Trades are
             limited to 100 USDC per transaction.
           </p>
-          <p className="mb-2">To test on Celo Mainnet, you'll need CELO and USDC.</p>
           <p className="mb-2">
-            Get{' '}
-            <a href="https://faucet.celo.org/alfajores" target="blank">
-              testnet CELO
-            </a>{' '}
-            and{' '}
-            <a href="https://faucet.circle.com/" target="blank">
-              Celo Alfajores USDC
-            </a>{' '}
-            in order to create test transactions on the Alfajores testnet.
-          </p>
-          <p className="mb-2">
-            We welcome you for discussion and support in our{' '}
+            Join the Telegram group:{' '}
             <a href="https://t.me/Panmoni/288" target="_blank" rel="noopener noreferrer">
-              Telegram
-            </a>{' '}
-            group.
-          </p>
-          <p className="mb-4">
-            Te damos la bienvenida para soporte en Español en{' '}
+              English
+            </a>{' '}|{' '}
             <a href="https://t.me/Panmoni/291" target="_blank" rel="noopener noreferrer">
-              Telegram
+              Español
             </a>
-            .
           </p>
           <p>
             &copy; 2023-{new Date().getFullYear()} A{' '}
@@ -201,6 +204,17 @@ export const Footer: React.FC = () => {
             </a>{' '}
             project
           </p>
+
+          {/* Simplified System Status */}
+          {error ? (
+            <p className="text-red-500 text-sm mt-4">{error}</p>
+          ) : health ? (
+            <p className="text-xs text-gray-600 mt-4">
+              Status: {health.status} | Database: {health.dbStatus} | API: {health.apiVersion.version} | Contract: {health.contractVersion} | Frontend: {import.meta.env.VITE_APP_VERSION || '0.1.2'} | Build: {new Date(health.apiVersion.buildDate).toLocaleString()} | <Link to="/status" className="text-primary-600 hover:text-primary-800">View Details</Link>
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500 mt-4">Loading system status...</p>
+          )}
         </div>
       </Container>
     </footer>
