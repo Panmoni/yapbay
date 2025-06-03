@@ -217,6 +217,48 @@ export interface TransactionRecord {
   metadata?: Record<string, string>;
 }
 
+export interface NetworkStatus {
+  id: number;
+  name: string;
+  chainId: number;
+  rpcUrl: string;
+  wsUrl: string;
+  contractAddress: string;
+  isTestnet: boolean;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  status: string;
+  error: string | null;
+  providerChainId: number;
+  providerName: string;
+}
+
+export interface ApiVersion {
+  version: string;
+  gitCommitHash: string;
+  gitCommitDate: string;
+  gitBranch: string;
+  buildDate: string;
+  isDirty: boolean;
+}
+
+export interface HealthResponse {
+  status: string;
+  timestamp: string;
+  userWallet: string;
+  dbStatus: string;
+  apiVersion: ApiVersion;
+  contractVersion: string;
+  networks: NetworkStatus[];
+  summary: {
+    totalNetworks: number;
+    activeNetworks: number;
+    connectedNetworks: number;
+    errorNetworks: number;
+  };
+}
+
 // --- API Functions ---
 
 // Accounts API
@@ -475,6 +517,9 @@ export const getUserTransactions = (params?: {
 
 // Prices API
 export const getPrices = () => api.get<PricesResponse>('/prices');
+
+// Health API
+export const getHealth = () => api.get<HealthResponse>('/health');
 
 // Export the api instance for use elsewhere
 export default api;
