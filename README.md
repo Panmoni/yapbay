@@ -1,6 +1,6 @@
 # YapBay: P2P Stablecoin Remittances for the Global South
 
-A Vite + React frontend for the [YapBay](https://YapBay.com/) P2P trading and remittances decentralized application (dapp) on Celo L2.
+A Vite + React frontend for the [YapBay](https://YapBay.com/) P2P trading and remittances decentralized application (dapp) on Solana.
 
 This repository serves as the user interface for YapBay, a decentralized peer-to-peer (P2P) exchange and remittances marketplace designed to facilitate secure, borderless cryptocurrency trading with fiat on-ramps and off-ramps.
 
@@ -10,7 +10,7 @@ This repository serves as the user interface for YapBay, a decentralized peer-to
 
 ### The Big Picture
 
-YapBay is an EVM dapp for P2P trading and remittances that is targeting deployment on Celo L2 mainnet. Our mission is to break down traditional financial barriers and unlock economic potential in emerging markets by enabling direct, trustless trades between peers worldwide. We provide a decentralized alternative to centralized exchanges, prioritizing financial inclusion, flexibility and community ownership.
+YapBay is an EVM dapp for P2P trading and remittances that is targeting deployment on Solana mainnet. Our mission is to break down traditional financial barriers and unlock economic potential in emerging markets by enabling direct, trustless trades between peers worldwide. We provide a decentralized alternative to centralized exchanges, prioritizing financial inclusion, flexibility and community ownership.
 
 [Browse the deck](https://static.panmoni.com/yb/yapbay-deck.pdf)
 
@@ -41,11 +41,11 @@ Beyond cash transfers, we aim to support "combo remittances," where senders can 
 
 YapBay is a modular ecosystem of interconnected repositories working together to deliver a seamless P2P trading experience. Here’s how they connect:
 
-1. **[yapbay-contracts-solidity](https://github.com/Panmoni/yapbay-contracts-solidity)**
+1. **[localsolana-contracts](https://github.com/Panmoni/localsolana-contracts)**
 
-   - **Role**: The on-chain backbone, a Solidity smart contract built with Hardhat.
+   - **Role**: The on-chain backbone, a Rust program built with Anchor.
    - **Functionality**: Manages escrow creation, funding, fiat payment confirmation, release, cancellation and dispute resolution for USDC trades (max 100 USDC during the MVP, 1% fee, 5% dispute bond).
-   - **Connection**: The frontend interacts with these contracts via Ethereum wallet integrations (e.g., MetaMask) to sign and submit transactions like escrow funding or release.
+   - **Connection**: The frontend interacts with these contracts via Solana wallet integrations (e.g., Phantom) to sign and submit transactions like escrow funding or release.
 
 2. **[yapbay-api](https://github.com/Panmoni/yapbay-api)**
 
@@ -56,7 +56,7 @@ YapBay is a modular ecosystem of interconnected repositories working together to
 3. **[yapbay](https://github.com/Panmoni/yapbay)** (this repo)
 
    - **Role**: The user interface, built with Vite + React.
-   - **Functionality**: Displays trade offers, manages user interactions, integrates with Ethereum wallets and communicates with the API and pricing server.
+   - **Functionality**: Displays trade offers, manages user interactions, integrates with Solana wallets and communicates with the API and pricing server.
    - **Connection**: Connects to the API for source-of-truth data and the contracts for on-chain actions, while querying the pricing server (via the API) for real-time fiat prices.
 
 4. **[pricing](https://github.com/Panmoni/pricing)**
@@ -82,7 +82,7 @@ YapBay is a modular ecosystem of interconnected repositories working together to
 ### Previous Versions
 
 - The 2024 version of yapbay is in the yapbay-2024 branch of this repo.
-- Here are the 2024 contracts: [https://github.com/Panmoni/yapbay-contracts](https://github.com/Panmoni/yapbay-contracts)
+- Here are the 2024 Solidity contracts: [https://github.com/Panmoni/yapbay-contracts](https://github.com/Panmoni/yapbay-contracts)
 
 ## YapBay Background
 
