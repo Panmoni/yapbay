@@ -11,7 +11,7 @@ interface StatusBadgeProps
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({
-  children = 'Mainnet Beta',
+  children = 'Devnet MVP',
   className = '',
   showOnMobile = false,
   ...props
