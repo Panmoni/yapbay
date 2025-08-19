@@ -3,63 +3,16 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
 
-import { DynamicContextProvider, EvmNetwork, mergeNetworks } from '@dynamic-labs/sdk-react-core';
-import { EthereumWalletConnectors } from '@dynamic-labs/ethereum';
+import { DynamicContextProvider } from '@dynamic-labs/sdk-react-core';
 
-const myEvmNetworks: EvmNetwork[] = [
-  {
-    blockExplorerUrls: ['https://alfajores.celoscan.io'],
-    chainId: 44787,
-    chainName: 'Celo Alfajores',
-    iconUrls: ['https://app.dynamic.xyz/assets/networks/celo.svg'],
-    name: 'Celo Alfajores',
-    nativeCurrency: {
-      decimals: 18,
-      name: 'Celo',
-      symbol: 'CELO',
-      iconUrl: 'https://app.dynamic.xyz/assets/networks/celo.svg',
-    },
-    networkId: 44787,
-    rpcUrls: [import.meta.env.VITE_CELO_RPC_URL_TESTNET],
-    vanityName: 'Alfajores',
-  },
-  {
-    blockExplorerUrls: ['https://celoscan.io'],
-    chainId: 42220,
-    chainName: 'Celo Mainnet',
-    iconUrls: ['https://app.dynamic.xyz/assets/networks/celo.svg'],
-    name: 'Celo Mainnet',
-    nativeCurrency: {
-      decimals: 18,
-      name: 'Celo',
-      symbol: 'CELO',
-      iconUrl: 'https://app.dynamic.xyz/assets/networks/celo.svg',
-    },
-    networkId: 42220,
-    rpcUrls: [import.meta.env.VITE_CELO_RPC_URL],
-    vanityName: 'Celo',
-  },
-];
-
-const DynamicSettings = {
-  overrides: {
-    evmNetworks: (dashboardNetworks: any[]) => {
-      const evmNetworks = dashboardNetworks.filter(
-        (network): network is EvmNetwork =>
-          'chainId' in network && typeof network.chainId === 'number'
-      );
-      return mergeNetworks(myEvmNetworks, evmNetworks);
-    },
-  },
-};
+import { SolanaWalletConnectors } from '@dynamic-labs/solana';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <DynamicContextProvider
       settings={{
         environmentId: '322e23a8-06d7-445f-b525-66426d63d858',
-        walletConnectors: [EthereumWalletConnectors],
-        overrides: DynamicSettings.overrides,
+        walletConnectors: [SolanaWalletConnectors],
       }}
     >
       <App />
