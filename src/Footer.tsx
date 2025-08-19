@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
                 <h4 className="font-black text-primary-800 my-1">YapBay</h4>
                 <StatusBadge />
               </Link>
-              <p className="text-sm">Buy, sell and remit USDC on Celo L2 P2P anywhere, anyhow</p>
+              <p className="text-sm">Buy, sell and remit USDC on Solana P2P anywhere, anyhow</p>
             </div>
           </div>
 
@@ -180,14 +180,15 @@ export const Footer: React.FC = () => {
 
         <div className="footer-bottom">
           <p className="mb-2">
-            This is beta software running on Celo Mainnet and the Alfajores testnet. Trades are
-            limited to 100 USDC per transaction.
+            This is alpha software running on Solana devnet. Trades are limited to 100 USDC per
+            transaction.
           </p>
           <p className="mb-2">
             Join the Telegram group:{' '}
             <a href="https://t.me/Panmoni/288" target="_blank" rel="noopener noreferrer">
               English
-            </a>{' '}|{' '}
+            </a>{' '}
+            |{' '}
             <a href="https://t.me/Panmoni/291" target="_blank" rel="noopener noreferrer">
               Español
             </a>
@@ -210,7 +211,13 @@ export const Footer: React.FC = () => {
             <p className="text-red-500 text-sm mt-4">{error}</p>
           ) : health ? (
             <p className="text-xs text-gray-600 mt-4">
-              Status: {health.status} | Database: {health.dbStatus} | API: {health.apiVersion.version} | Contract: {health.contractVersion} | Frontend: {import.meta.env.VITE_APP_VERSION || '0.1.2'} | Build: {new Date(health.apiVersion.buildDate).toLocaleString()} | <Link to="/status" className="text-primary-600 hover:text-primary-800">View Details</Link>
+              Status: {health.status} | Database: {health.dbStatus} | API:{' '}
+              {health.apiVersion.version} | Contract: {health.contractVersion} | Frontend:{' '}
+              {import.meta.env.VITE_APP_VERSION || '0.1.2'} | Build:{' '}
+              {new Date(health.apiVersion.buildDate).toLocaleString()} |{' '}
+              <Link to="/status" className="text-primary-600 hover:text-primary-800">
+                View Details
+              </Link>
             </p>
           ) : (
             <p className="text-sm text-gray-500 mt-4">Loading system status...</p>
