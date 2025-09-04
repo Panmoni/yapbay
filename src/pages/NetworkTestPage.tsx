@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { networkRegistry, NetworkType, NetworkConfig } from '../blockchain/index.js';
+import { BlockchainServiceTest } from '../components/BlockchainServiceTest.js';
 
 export const NetworkTestPage: React.FC = () => {
   const [networks, setNetworks] = useState<NetworkConfig[]>([]);
@@ -189,6 +190,11 @@ export const NetworkTestPage: React.FC = () => {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Blockchain Service Test */}
+      <div className="mt-8">
+        <BlockchainServiceTest />
       </div>
     </div>
   );

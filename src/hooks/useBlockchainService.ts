@@ -1,0 +1,80 @@
+/**
+ * React hook for blockchain service integration with Dynamic.xyz
+ */
+
+import { useEffect, useState } from 'react';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { blockchainService, BlockchainService } from '../services/blockchainService.js';
+import { NetworkConfig, TransactionResult, EscrowState } from '../blockchain/types/index.js';
+
+export interface UseBlockchainServiceReturn {
+  // Service instance
+  service: BlockchainService;
+
+  // Current state
+  currentNetwork: NetworkConfig;
+  walletAddress: string | null;
+  isConnected: boolean;
+
+  // Network info
+  networkName: string;
+  isTestnet: boolean;
+
+  // Loading states
+  isLoading: boolean;
+  error: string | null;
+}
+
+export function useBlockchainService(): UseBlockchainServiceReturn {
+  const { primaryWallet } = useDynamicContext();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Get current network and wallet info
+  const currentNetwork = blockchainService.getCurrentNetwork();
+  const walletAddress = blockchainService.getWalletAddress();
+  const isConnected = !!primaryWallet && !!walletAddress;
+
+  // Update wallet address when Dynamic.xyz wallet changes
+  useEffect(() => {
+    if (primaryWallet?.address) {
+      blockchainService.setWalletAddress(primaryWallet.address);
+    } else {
+      blockchainService.setWalletAddress(null);
+    }
+  }, [primaryWallet?.address]);
+
+  // Clear error when wallet connects
+  useEffect(() => {
+    if (isConnected) {
+      setError(null);
+    }
+  }, [isConnected]);
+
+  return {
+    service: blockchainService,
+    currentNetwork,
+    walletAddress,
+    isConnected,
+    networkName: currentNetwork.name,
+    isTestnet: currentNetwork.isTestnet,
+    isLoading,
+    error,
+  };
+}
+
+// Convenience hook for just the service instance
+export function useBlockchain(): BlockchainService {
+  const { service } = useBlockchainService();
+  return service;
+}
+
+// Hook for network information only
+export function useNetworkInfo() {
+  const { currentNetwork, networkName, isTestnet } = useBlockchainService();
+  return {
+    network: currentNetwork,
+    name: networkName,
+    isTestnet,
+  };
+}
