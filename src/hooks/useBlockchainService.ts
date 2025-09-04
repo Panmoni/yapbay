@@ -39,10 +39,12 @@ export function useBlockchainService(): UseBlockchainServiceReturn {
   useEffect(() => {
     if (primaryWallet?.address) {
       blockchainService.setWalletAddress(primaryWallet.address);
+      // Update wallet in Solana program
+      blockchainService.updateWallet(primaryWallet);
     } else {
       blockchainService.setWalletAddress(null);
     }
-  }, [primaryWallet?.address]);
+  }, [primaryWallet?.address, primaryWallet]);
 
   // Clear error when wallet connects
   useEffect(() => {

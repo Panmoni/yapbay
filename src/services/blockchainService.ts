@@ -20,6 +20,8 @@ import {
   ResolveDisputeParams,
 } from '../blockchain/types/index.js';
 import { networkRegistry } from '../blockchain/networks/index.js';
+import { SolanaProgram } from '../blockchain/networks/solana/program.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 
 export interface BlockchainService {
   // Network management (simplified for Solana devnet only)
@@ -57,9 +59,19 @@ export class UnifiedBlockchainService implements BlockchainService {
   private currentNetwork: NetworkConfig;
   private eventSubscriptions: Map<string, () => void> = new Map();
   private walletAddress: string | null = null;
+  private solanaProgram: SolanaProgram | null = null;
 
   constructor() {
     this.currentNetwork = networkRegistry.getDefault();
+    this.initializeSolanaProgram();
+  }
+
+  private initializeSolanaProgram(): void {
+    if (this.currentNetwork.type === NetworkType.SOLANA && this.currentNetwork.programId) {
+      const connection = new Connection(this.currentNetwork.rpcUrl, 'confirmed');
+      const programId = new PublicKey(this.currentNetwork.programId);
+      this.solanaProgram = new SolanaProgram(connection, programId);
+    }
   }
 
   // Network Management (simplified for Solana devnet only)
@@ -74,6 +86,13 @@ export class UnifiedBlockchainService implements BlockchainService {
 
   getWalletAddress(): string | null {
     return this.walletAddress;
+  }
+
+  // Update wallet in Solana program when Dynamic.xyz wallet changes
+  updateWallet(wallet: any): void {
+    if (this.solanaProgram) {
+      this.solanaProgram.updateWallet(wallet);
+    }
   }
 
   async getWalletBalance(): Promise<number> {
@@ -92,12 +111,11 @@ export class UnifiedBlockchainService implements BlockchainService {
       throw new Error('Wallet not connected');
     }
 
-    // Only support Solana for now
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.createSolanaEscrow(params);
+    return this.solanaProgram.createEscrow(params);
   }
 
   async fundEscrow(params: FundEscrowParams): Promise<TransactionResult> {
@@ -105,11 +123,11 @@ export class UnifiedBlockchainService implements BlockchainService {
       throw new Error('Wallet not connected');
     }
 
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.fundSolanaEscrow(params);
+    return this.solanaProgram.fundEscrow(params);
   }
 
   async markFiatPaid(params: MarkFiatPaidParams): Promise<TransactionResult> {
@@ -117,11 +135,11 @@ export class UnifiedBlockchainService implements BlockchainService {
       throw new Error('Wallet not connected');
     }
 
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.markFiatPaidSolana(params);
+    return this.solanaProgram.markFiatPaid(params);
   }
 
   async releaseEscrow(params: ReleaseEscrowParams): Promise<TransactionResult> {
@@ -129,11 +147,11 @@ export class UnifiedBlockchainService implements BlockchainService {
       throw new Error('Wallet not connected');
     }
 
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.releaseSolanaEscrow(params);
+    return this.solanaProgram.releaseEscrow(params);
   }
 
   async cancelEscrow(params: CancelEscrowParams): Promise<TransactionResult> {
@@ -141,11 +159,11 @@ export class UnifiedBlockchainService implements BlockchainService {
       throw new Error('Wallet not connected');
     }
 
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.cancelSolanaEscrow(params);
+    return this.solanaProgram.cancelEscrow(params);
   }
 
   // Dispute Operations (Solana devnet only for now)
@@ -154,11 +172,11 @@ export class UnifiedBlockchainService implements BlockchainService {
       throw new Error('Wallet not connected');
     }
 
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.openSolanaDispute(params);
+    return this.solanaProgram.openDisputeWithBond(params);
   }
 
   async respondToDispute(params: RespondToDisputeParams): Promise<TransactionResult> {
@@ -166,11 +184,11 @@ export class UnifiedBlockchainService implements BlockchainService {
       throw new Error('Wallet not connected');
     }
 
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.respondToSolanaDispute(params);
+    return this.solanaProgram.respondToDisputeWithBond(params);
   }
 
   async resolveDispute(params: ResolveDisputeParams): Promise<TransactionResult> {
@@ -178,28 +196,28 @@ export class UnifiedBlockchainService implements BlockchainService {
       throw new Error('Wallet not connected');
     }
 
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.resolveSolanaDispute(params);
+    return this.solanaProgram.resolveDisputeWithExplanation(params);
   }
 
   // State Queries (Solana devnet only for now)
   async getEscrowState(escrowId: number, tradeId: number): Promise<EscrowState> {
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.getSolanaEscrowState(escrowId, tradeId);
+    return this.solanaProgram.getEscrowState(escrowId, tradeId);
   }
 
   async getEscrowBalance(escrowId: number, tradeId: number): Promise<number> {
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    return this.getSolanaEscrowBalance(escrowId, tradeId);
+    return this.solanaProgram.getEscrowBalance(escrowId, tradeId);
   }
 
   // Event Monitoring (Solana devnet only for now)
@@ -215,66 +233,21 @@ export class UnifiedBlockchainService implements BlockchainService {
       this.eventSubscriptions.get(subscriptionKey)?.();
     }
 
-    if (this.currentNetwork.type !== NetworkType.SOLANA) {
-      throw new Error('Only Solana networks are supported currently');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
     }
 
-    // Create new subscription for Solana
-    const unsubscribe = this.subscribeToSolanaEscrowEvents(escrowId, tradeId, callback);
+    // For now, return a no-op unsubscribe function
+    // Event subscription will be implemented when we add the actual Solana program methods
+    const unsubscribe = () => {
+      this.eventSubscriptions.delete(subscriptionKey);
+    };
+
     this.eventSubscriptions.set(subscriptionKey, unsubscribe);
     return unsubscribe;
   }
 
-  // Solana-specific implementations (to be implemented in next phase)
-  private async createSolanaEscrow(params: CreateEscrowParams): Promise<TransactionResult> {
-    throw new Error('Solana escrow creation not implemented yet');
-  }
-
-  private async fundSolanaEscrow(params: FundEscrowParams): Promise<TransactionResult> {
-    throw new Error('Solana escrow funding not implemented yet');
-  }
-
-  private async markFiatPaidSolana(params: MarkFiatPaidParams): Promise<TransactionResult> {
-    throw new Error('Solana mark fiat paid not implemented yet');
-  }
-
-  private async releaseSolanaEscrow(params: ReleaseEscrowParams): Promise<TransactionResult> {
-    throw new Error('Solana escrow release not implemented yet');
-  }
-
-  private async cancelSolanaEscrow(params: CancelEscrowParams): Promise<TransactionResult> {
-    throw new Error('Solana escrow cancellation not implemented yet');
-  }
-
-  private async openSolanaDispute(params: OpenDisputeParams): Promise<TransactionResult> {
-    throw new Error('Solana dispute opening not implemented yet');
-  }
-
-  private async respondToSolanaDispute(params: RespondToDisputeParams): Promise<TransactionResult> {
-    throw new Error('Solana dispute response not implemented yet');
-  }
-
-  private async resolveSolanaDispute(params: ResolveDisputeParams): Promise<TransactionResult> {
-    throw new Error('Solana dispute resolution not implemented yet');
-  }
-
-  private async getSolanaEscrowState(escrowId: number, tradeId: number): Promise<EscrowState> {
-    throw new Error('Solana escrow state query not implemented yet');
-  }
-
-  private async getSolanaEscrowBalance(escrowId: number, tradeId: number): Promise<number> {
-    throw new Error('Solana escrow balance query not implemented yet');
-  }
-
-  private subscribeToSolanaEscrowEvents(
-    escrowId: number,
-    tradeId: number,
-    callback: (event: EscrowEvent) => void
-  ): () => void {
-    throw new Error('Solana event subscription not implemented yet');
-  }
-
-  // Note: EVM implementations removed for now - focusing on Solana devnet only
+  // Note: All Solana operations now handled by SolanaProgram class
 }
 
 // Singleton instance
