@@ -20,6 +20,7 @@ import EditOfferPage from '@/offer/EditOfferPage';
 import TradePage from './TradePage';
 import NotFoundPage from '@/pages/NotFoundPage'; // Import the 404 page
 import Status from './pages/Status';
+import { NetworkTestPage } from './pages/NetworkTestPage'; // Import the network test page
 import { Toaster } from 'sonner'; // Import Toaster
 import { dispatchAuthStateChange } from './utils/events';
 
@@ -41,7 +42,7 @@ function App() {
         try {
           const response = await getAccount();
           setAccount(response.data);
-          
+
           // Dispatch global auth state change event after successful login
           dispatchAuthStateChange(primaryWallet.address);
         } catch (err) {
@@ -52,7 +53,7 @@ function App() {
     } else {
       // User has disconnected their wallet
       setAccount(null);
-      
+
       // Dispatch event for logout as well
       dispatchAuthStateChange(undefined);
     }
@@ -79,6 +80,7 @@ function App() {
               <Route path="/edit-offer/:id" element={<EditOfferPage />} />
               <Route path="/trade/:id" element={<TradePage />} />
               <Route path="/status" element={<Status />} />
+              <Route path="/network-test" element={<NetworkTestPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Container>
