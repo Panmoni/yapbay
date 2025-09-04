@@ -1,14 +1,20 @@
-{
+/**
+ * Program IDL in camelCase format in order to be used in JS/TS.
+ *
+ * Note that this is only a type helper and is not the actual IDL. The original
+ * IDL can be found at `target/idl/localsolana_contracts.json`.
+ */
+export type LocalsolanaContracts = {
   "address": "D7KnbDFa85CwPbN5DzXKfPcKg5KNXRiQQMEoDTP4FRLe",
   "metadata": {
-    "name": "localsolana_contracts",
+    "name": "localsolanaContracts",
     "version": "0.1.2",
     "spec": "0.1.0",
     "description": "Created with Anchor"
   },
   "instructions": [
     {
-      "name": "auto_cancel",
+      "name": "autoCancel",
       "discriminator": [
         83,
         161,
@@ -48,18 +54,18 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
         },
         {
-          "name": "escrow_token_account",
+          "name": "escrowTokenAccount",
           "writable": true,
           "optional": true,
           "pda": {
@@ -89,19 +95,19 @@
           }
         },
         {
-          "name": "seller_token_account",
+          "name": "sellerTokenAccount",
           "writable": true,
           "optional": true
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": []
     },
     {
-      "name": "cancel_escrow",
+      "name": "cancelEscrow",
       "discriminator": [
         156,
         203,
@@ -141,18 +147,18 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
         },
         {
-          "name": "escrow_token_account",
+          "name": "escrowTokenAccount",
           "writable": true,
           "optional": true,
           "pda": {
@@ -182,19 +188,19 @@
           }
         },
         {
-          "name": "seller_token_account",
+          "name": "sellerTokenAccount",
           "writable": true,
           "optional": true
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": []
     },
     {
-      "name": "create_escrow",
+      "name": "createEscrow",
       "discriminator": [
         253,
         215,
@@ -232,27 +238,27 @@
               },
               {
                 "kind": "arg",
-                "path": "escrow_id"
+                "path": "escrowId"
               },
               {
                 "kind": "arg",
-                "path": "trade_id"
+                "path": "tradeId"
               }
             ]
           }
         },
         {
-          "name": "system_program",
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         }
       ],
       "args": [
         {
-          "name": "escrow_id",
+          "name": "escrowId",
           "type": "u64"
         },
         {
-          "name": "trade_id",
+          "name": "tradeId",
           "type": "u64"
         },
         {
@@ -264,7 +270,7 @@
           "type": "bool"
         },
         {
-          "name": "sequential_escrow_address",
+          "name": "sequentialEscrowAddress",
           "type": {
             "option": "pubkey"
           }
@@ -272,7 +278,7 @@
       ]
     },
     {
-      "name": "default_judgment",
+      "name": "defaultJudgment",
       "discriminator": [
         103,
         255,
@@ -312,18 +318,18 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
         },
         {
-          "name": "escrow_token_account",
+          "name": "escrowTokenAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -352,15 +358,15 @@
           }
         },
         {
-          "name": "buyer_token_account",
+          "name": "buyerTokenAccount",
           "writable": true
         },
         {
-          "name": "seller_token_account",
+          "name": "sellerTokenAccount",
           "writable": true
         },
         {
-          "name": "buyer_bond_account",
+          "name": "buyerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -387,7 +393,7 @@
           }
         },
         {
-          "name": "seller_bond_account",
+          "name": "sellerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -415,14 +421,14 @@
           }
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": []
     },
     {
-      "name": "fund_escrow",
+      "name": "fundEscrow",
       "discriminator": [
         155,
         18,
@@ -458,22 +464,22 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
         },
         {
-          "name": "seller_token_account",
+          "name": "sellerTokenAccount",
           "writable": true
         },
         {
-          "name": "escrow_token_account",
+          "name": "escrowTokenAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -502,14 +508,14 @@
           }
         },
         {
-          "name": "token_mint"
+          "name": "tokenMint"
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "name": "system_program",
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         },
         {
@@ -520,7 +526,7 @@
       "args": []
     },
     {
-      "name": "initialize_buyer_bond_account",
+      "name": "initializeBuyerBondAccount",
       "discriminator": [
         33,
         161,
@@ -554,17 +560,17 @@
               },
               {
                 "kind": "arg",
-                "path": "escrow_id"
+                "path": "escrowId"
               },
               {
                 "kind": "arg",
-                "path": "trade_id"
+                "path": "tradeId"
               }
             ]
           }
         },
         {
-          "name": "buyer_bond_account",
+          "name": "buyerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -591,14 +597,14 @@
           }
         },
         {
-          "name": "token_mint"
+          "name": "tokenMint"
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "name": "system_program",
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         },
         {
@@ -608,17 +614,17 @@
       ],
       "args": [
         {
-          "name": "_escrow_id",
+          "name": "escrowId",
           "type": "u64"
         },
         {
-          "name": "_trade_id",
+          "name": "tradeId",
           "type": "u64"
         }
       ]
     },
     {
-      "name": "initialize_seller_bond_account",
+      "name": "initializeSellerBondAccount",
       "discriminator": [
         164,
         116,
@@ -652,17 +658,17 @@
               },
               {
                 "kind": "arg",
-                "path": "escrow_id"
+                "path": "escrowId"
               },
               {
                 "kind": "arg",
-                "path": "trade_id"
+                "path": "tradeId"
               }
             ]
           }
         },
         {
-          "name": "seller_bond_account",
+          "name": "sellerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -690,14 +696,14 @@
           }
         },
         {
-          "name": "token_mint"
+          "name": "tokenMint"
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         },
         {
-          "name": "system_program",
+          "name": "systemProgram",
           "address": "11111111111111111111111111111111"
         },
         {
@@ -707,17 +713,17 @@
       ],
       "args": [
         {
-          "name": "_escrow_id",
+          "name": "escrowId",
           "type": "u64"
         },
         {
-          "name": "_trade_id",
+          "name": "tradeId",
           "type": "u64"
         }
       ]
     },
     {
-      "name": "mark_fiat_paid",
+      "name": "markFiatPaid",
       "discriminator": [
         147,
         155,
@@ -753,12 +759,12 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
@@ -767,7 +773,7 @@
       "args": []
     },
     {
-      "name": "open_dispute_with_bond",
+      "name": "openDisputeWithBond",
       "discriminator": [
         107,
         47,
@@ -780,7 +786,7 @@
       ],
       "accounts": [
         {
-          "name": "disputing_party",
+          "name": "disputingParty",
           "writable": true,
           "signer": true
         },
@@ -803,22 +809,22 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
         },
         {
-          "name": "disputing_party_token_account",
+          "name": "disputingPartyTokenAccount",
           "writable": true
         },
         {
-          "name": "buyer_bond_account",
+          "name": "buyerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -845,7 +851,7 @@
           }
         },
         {
-          "name": "seller_bond_account",
+          "name": "sellerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -873,13 +879,13 @@
           }
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": [
         {
-          "name": "evidence_hash",
+          "name": "evidenceHash",
           "type": {
             "array": [
               "u8",
@@ -890,7 +896,7 @@
       ]
     },
     {
-      "name": "release_escrow",
+      "name": "releaseEscrow",
       "discriminator": [
         146,
         253,
@@ -926,18 +932,18 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
         },
         {
-          "name": "escrow_token_account",
+          "name": "escrowTokenAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -966,27 +972,27 @@
           }
         },
         {
-          "name": "buyer_token_account",
+          "name": "buyerTokenAccount",
           "writable": true
         },
         {
-          "name": "arbitrator_token_account",
+          "name": "arbitratorTokenAccount",
           "writable": true
         },
         {
-          "name": "sequential_escrow_token_account",
+          "name": "sequentialEscrowTokenAccount",
           "writable": true,
           "optional": true
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": []
     },
     {
-      "name": "resolve_dispute_with_explanation",
+      "name": "resolveDisputeWithExplanation",
       "discriminator": [
         189,
         74,
@@ -1026,18 +1032,18 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
         },
         {
-          "name": "escrow_token_account",
+          "name": "escrowTokenAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -1066,19 +1072,19 @@
           }
         },
         {
-          "name": "buyer_token_account",
+          "name": "buyerTokenAccount",
           "writable": true
         },
         {
-          "name": "seller_token_account",
+          "name": "sellerTokenAccount",
           "writable": true
         },
         {
-          "name": "arbitrator_token_account",
+          "name": "arbitratorTokenAccount",
           "writable": true
         },
         {
-          "name": "buyer_bond_account",
+          "name": "buyerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -1105,7 +1111,7 @@
           }
         },
         {
-          "name": "seller_bond_account",
+          "name": "sellerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -1133,7 +1139,7 @@
           }
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
@@ -1143,7 +1149,7 @@
           "type": "bool"
         },
         {
-          "name": "resolution_hash",
+          "name": "resolutionHash",
           "type": {
             "array": [
               "u8",
@@ -1154,7 +1160,7 @@
       ]
     },
     {
-      "name": "respond_to_dispute_with_bond",
+      "name": "respondToDisputeWithBond",
       "discriminator": [
         228,
         27,
@@ -1167,7 +1173,7 @@
       ],
       "accounts": [
         {
-          "name": "responding_party",
+          "name": "respondingParty",
           "writable": true,
           "signer": true
         },
@@ -1190,22 +1196,22 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
         },
         {
-          "name": "responding_party_token_account",
+          "name": "respondingPartyTokenAccount",
           "writable": true
         },
         {
-          "name": "buyer_bond_account",
+          "name": "buyerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -1232,7 +1238,7 @@
           }
         },
         {
-          "name": "seller_bond_account",
+          "name": "sellerBondAccount",
           "writable": true,
           "pda": {
             "seeds": [
@@ -1260,13 +1266,13 @@
           }
         },
         {
-          "name": "token_program",
+          "name": "tokenProgram",
           "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
         }
       ],
       "args": [
         {
-          "name": "evidence_hash",
+          "name": "evidenceHash",
           "type": {
             "array": [
               "u8",
@@ -1277,7 +1283,7 @@
       ]
     },
     {
-      "name": "update_sequential_address",
+      "name": "updateSequentialAddress",
       "discriminator": [
         11,
         3,
@@ -1313,12 +1319,12 @@
               {
                 "kind": "account",
                 "path": "escrow.escrow_id",
-                "account": "Escrow"
+                "account": "escrow"
               },
               {
                 "kind": "account",
                 "path": "escrow.trade_id",
-                "account": "Escrow"
+                "account": "escrow"
               }
             ]
           }
@@ -1326,7 +1332,7 @@
       ],
       "args": [
         {
-          "name": "new_address",
+          "name": "newAddress",
           "type": "pubkey"
         }
       ]
@@ -1334,7 +1340,7 @@
   ],
   "accounts": [
     {
-      "name": "Escrow",
+      "name": "escrow",
       "discriminator": [
         31,
         213,
@@ -1349,7 +1355,7 @@
   ],
   "events": [
     {
-      "name": "DisputeDefaultJudgment",
+      "name": "disputeDefaultJudgment",
       "discriminator": [
         194,
         12,
@@ -1362,7 +1368,7 @@
       ]
     },
     {
-      "name": "DisputeOpened",
+      "name": "disputeOpened",
       "discriminator": [
         239,
         222,
@@ -1375,7 +1381,7 @@
       ]
     },
     {
-      "name": "DisputeResolved",
+      "name": "disputeResolved",
       "discriminator": [
         121,
         64,
@@ -1388,7 +1394,7 @@
       ]
     },
     {
-      "name": "DisputeResponseSubmitted",
+      "name": "disputeResponseSubmitted",
       "discriminator": [
         22,
         179,
@@ -1401,7 +1407,7 @@
       ]
     },
     {
-      "name": "EscrowBalanceChanged",
+      "name": "escrowBalanceChanged",
       "discriminator": [
         169,
         241,
@@ -1414,7 +1420,7 @@
       ]
     },
     {
-      "name": "EscrowCancelled",
+      "name": "escrowCancelled",
       "discriminator": [
         98,
         241,
@@ -1427,7 +1433,7 @@
       ]
     },
     {
-      "name": "EscrowCreated",
+      "name": "escrowCreated",
       "discriminator": [
         70,
         127,
@@ -1440,7 +1446,7 @@
       ]
     },
     {
-      "name": "EscrowReleased",
+      "name": "escrowReleased",
       "discriminator": [
         131,
         7,
@@ -1453,7 +1459,7 @@
       ]
     },
     {
-      "name": "FiatMarkedPaid",
+      "name": "fiatMarkedPaid",
       "discriminator": [
         38,
         159,
@@ -1466,7 +1472,7 @@
       ]
     },
     {
-      "name": "FundsDeposited",
+      "name": "fundsDeposited",
       "discriminator": [
         157,
         209,
@@ -1479,7 +1485,7 @@
       ]
     },
     {
-      "name": "SequentialAddressUpdated",
+      "name": "sequentialAddressUpdated",
       "discriminator": [
         205,
         6,
@@ -1495,115 +1501,115 @@
   "errors": [
     {
       "code": 6000,
-      "name": "InvalidAmount",
+      "name": "invalidAmount",
       "msg": "Invalid amount: Zero or negative"
     },
     {
       "code": 6001,
-      "name": "ExceedsMaximum",
+      "name": "exceedsMaximum",
       "msg": "Amount exceeds maximum (100 USDC)"
     },
     {
       "code": 6002,
-      "name": "Unauthorized",
+      "name": "unauthorized",
       "msg": "Unauthorized caller"
     },
     {
       "code": 6003,
-      "name": "DepositDeadlineExpired",
+      "name": "depositDeadlineExpired",
       "msg": "Deposit deadline expired"
     },
     {
       "code": 6004,
-      "name": "FiatDeadlineExpired",
+      "name": "fiatDeadlineExpired",
       "msg": "Fiat payment deadline expired"
     },
     {
       "code": 6005,
-      "name": "InvalidState",
+      "name": "invalidState",
       "msg": "Invalid state transition"
     },
     {
       "code": 6006,
-      "name": "MissingSequentialAddress",
+      "name": "missingSequentialAddress",
       "msg": "Missing sequential escrow address"
     },
     {
       "code": 6007,
-      "name": "TerminalState",
+      "name": "terminalState",
       "msg": "Already in terminal state"
     },
     {
       "code": 6008,
-      "name": "FeeCalculationError",
+      "name": "feeCalculationError",
       "msg": "Fee calculation error"
     },
     {
       "code": 6009,
-      "name": "InsufficientFunds",
+      "name": "insufficientFunds",
       "msg": "Insufficient funds to cover principal and fee"
     },
     {
       "code": 6010,
-      "name": "IncorrectBondAmount",
+      "name": "incorrectBondAmount",
       "msg": "Dispute bond amount incorrect"
     },
     {
       "code": 6011,
-      "name": "ResponseDeadlineExpired",
+      "name": "responseDeadlineExpired",
       "msg": "Dispute response deadline expired"
     },
     {
       "code": 6012,
-      "name": "InvalidEvidenceHash",
+      "name": "invalidEvidenceHash",
       "msg": "Evidence hash missing or invalid"
     },
     {
       "code": 6013,
-      "name": "DuplicateEvidence",
+      "name": "duplicateEvidence",
       "msg": "Duplicate evidence submission"
     },
     {
       "code": 6014,
-      "name": "ArbitrationDeadlineExpired",
+      "name": "arbitrationDeadlineExpired",
       "msg": "Arbitration deadline expired"
     },
     {
       "code": 6015,
-      "name": "MissingDisputeBond",
+      "name": "missingDisputeBond",
       "msg": "Missing dispute bond"
     },
     {
       "code": 6016,
-      "name": "InvalidResolutionExplanation",
+      "name": "invalidResolutionExplanation",
       "msg": "Invalid resolution explanation"
     },
     {
       "code": 6017,
-      "name": "BumpNotFound",
+      "name": "bumpNotFound",
       "msg": "Required bump seed not found"
     }
   ],
   "types": [
     {
-      "name": "DisputeDefaultJudgment",
+      "name": "disputeDefaultJudgment",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
-            "name": "defaulting_party",
+            "name": "defaultingParty",
             "type": "pubkey"
           },
           {
@@ -1618,24 +1624,24 @@
       }
     },
     {
-      "name": "DisputeOpened",
+      "name": "disputeOpened",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
-            "name": "disputing_party",
+            "name": "disputingParty",
             "type": "pubkey"
           },
           {
@@ -1643,7 +1649,7 @@
             "type": "i64"
           },
           {
-            "name": "evidence_hash",
+            "name": "evidenceHash",
             "type": {
               "array": [
                 "u8",
@@ -1652,27 +1658,27 @@
             }
           },
           {
-            "name": "bond_amount",
+            "name": "bondAmount",
             "type": "u64"
           }
         ]
       }
     },
     {
-      "name": "DisputeResolved",
+      "name": "disputeResolved",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
@@ -1692,7 +1698,7 @@
             "type": "i64"
           },
           {
-            "name": "resolution_hash",
+            "name": "resolutionHash",
             "type": {
               "array": [
                 "u8",
@@ -1705,31 +1711,31 @@
             "type": "pubkey"
           },
           {
-            "name": "explanation_reference",
+            "name": "explanationReference",
             "type": "string"
           }
         ]
       }
     },
     {
-      "name": "DisputeResponseSubmitted",
+      "name": "disputeResponseSubmitted",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
-            "name": "responding_party",
+            "name": "respondingParty",
             "type": "pubkey"
           },
           {
@@ -1737,7 +1743,7 @@
             "type": "i64"
           },
           {
-            "name": "evidence_hash",
+            "name": "evidenceHash",
             "type": {
               "array": [
                 "u8",
@@ -1746,23 +1752,23 @@
             }
           },
           {
-            "name": "bond_amount",
+            "name": "bondAmount",
             "type": "u64"
           }
         ]
       }
     },
     {
-      "name": "Escrow",
+      "name": "escrow",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
@@ -1786,18 +1792,18 @@
             "type": "u64"
           },
           {
-            "name": "deposit_deadline",
+            "name": "depositDeadline",
             "type": "i64"
           },
           {
-            "name": "fiat_deadline",
+            "name": "fiatDeadline",
             "type": "i64"
           },
           {
             "name": "state",
             "type": {
               "defined": {
-                "name": "EscrowState"
+                "name": "escrowState"
               }
             }
           },
@@ -1806,13 +1812,13 @@
             "type": "bool"
           },
           {
-            "name": "sequential_escrow_address",
+            "name": "sequentialEscrowAddress",
             "type": {
               "option": "pubkey"
             }
           },
           {
-            "name": "fiat_paid",
+            "name": "fiatPaid",
             "type": "bool"
           },
           {
@@ -1820,19 +1826,19 @@
             "type": "u64"
           },
           {
-            "name": "dispute_initiator",
+            "name": "disputeInitiator",
             "type": {
               "option": "pubkey"
             }
           },
           {
-            "name": "dispute_initiated_time",
+            "name": "disputeInitiatedTime",
             "type": {
               "option": "i64"
             }
           },
           {
-            "name": "dispute_evidence_hash_buyer",
+            "name": "disputeEvidenceHashBuyer",
             "type": {
               "option": {
                 "array": [
@@ -1843,7 +1849,7 @@
             }
           },
           {
-            "name": "dispute_evidence_hash_seller",
+            "name": "disputeEvidenceHashSeller",
             "type": {
               "option": {
                 "array": [
@@ -1854,7 +1860,7 @@
             }
           },
           {
-            "name": "dispute_resolution_hash",
+            "name": "disputeResolutionHash",
             "type": {
               "option": {
                 "array": [
@@ -1865,31 +1871,31 @@
             }
           },
           {
-            "name": "tracked_balance",
+            "name": "trackedBalance",
             "type": "u64"
           }
         ]
       }
     },
     {
-      "name": "EscrowBalanceChanged",
+      "name": "escrowBalanceChanged",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
-            "name": "new_balance",
+            "name": "newBalance",
             "type": "u64"
           },
           {
@@ -1904,20 +1910,20 @@
       }
     },
     {
-      "name": "EscrowCancelled",
+      "name": "escrowCancelled",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
@@ -1944,20 +1950,20 @@
       }
     },
     {
-      "name": "EscrowCreated",
+      "name": "escrowCreated",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
@@ -1981,11 +1987,11 @@
             "type": "u64"
           },
           {
-            "name": "deposit_deadline",
+            "name": "depositDeadline",
             "type": "i64"
           },
           {
-            "name": "fiat_deadline",
+            "name": "fiatDeadline",
             "type": "i64"
           },
           {
@@ -1993,7 +1999,7 @@
             "type": "bool"
           },
           {
-            "name": "sequential_escrow_address",
+            "name": "sequentialEscrowAddress",
             "type": {
               "option": "pubkey"
             }
@@ -2006,20 +2012,20 @@
       }
     },
     {
-      "name": "EscrowReleased",
+      "name": "escrowReleased",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
@@ -2050,46 +2056,46 @@
       }
     },
     {
-      "name": "EscrowState",
+      "name": "escrowState",
       "type": {
         "kind": "enum",
         "variants": [
           {
-            "name": "Created"
+            "name": "created"
           },
           {
-            "name": "Funded"
+            "name": "funded"
           },
           {
-            "name": "Released"
+            "name": "released"
           },
           {
-            "name": "Cancelled"
+            "name": "cancelled"
           },
           {
-            "name": "Disputed"
+            "name": "disputed"
           },
           {
-            "name": "Resolved"
+            "name": "resolved"
           }
         ]
       }
     },
     {
-      "name": "FiatMarkedPaid",
+      "name": "fiatMarkedPaid",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
@@ -2100,20 +2106,20 @@
       }
     },
     {
-      "name": "FundsDeposited",
+      "name": "fundsDeposited",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
@@ -2136,30 +2142,30 @@
       }
     },
     {
-      "name": "SequentialAddressUpdated",
+      "name": "sequentialAddressUpdated",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "object_id",
+            "name": "objectId",
             "type": "pubkey"
           },
           {
-            "name": "escrow_id",
+            "name": "escrowId",
             "type": "u64"
           },
           {
-            "name": "trade_id",
+            "name": "tradeId",
             "type": "u64"
           },
           {
-            "name": "old_address",
+            "name": "oldAddress",
             "type": {
               "option": "pubkey"
             }
           },
           {
-            "name": "new_address",
+            "name": "newAddress",
             "type": "pubkey"
           },
           {
@@ -2170,4 +2176,4 @@
       }
     }
   ]
-}
+};
