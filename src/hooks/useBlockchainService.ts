@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { blockchainService, BlockchainService } from '../services/blockchainService.js';
-import { NetworkConfig, TransactionResult, EscrowState } from '../blockchain/types/index.js';
+import { NetworkConfig } from '../blockchain/types/index.js';
 
 export interface UseBlockchainServiceReturn {
   // Service instance
@@ -27,7 +27,6 @@ export interface UseBlockchainServiceReturn {
 
 export function useBlockchainService(): UseBlockchainServiceReturn {
   const { primaryWallet } = useDynamicContext();
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Get current network and wallet info

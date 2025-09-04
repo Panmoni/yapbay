@@ -3,7 +3,7 @@
  * Run with: npm run dev (in browser console) or create a test component
  */
 
-import { networkRegistry, NetworkType, initializeNetworks } from './index.js';
+import { networkRegistry, NetworkType } from './index.js';
 
 console.log('🧪 Testing Network Registry System...\n');
 

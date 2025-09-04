@@ -6,7 +6,6 @@
 import {
   NetworkConfig,
   NetworkType,
-  WalletConnection,
   TransactionResult,
   EscrowState,
   EscrowEvent,
@@ -224,7 +223,7 @@ export class UnifiedBlockchainService implements BlockchainService {
   subscribeToEscrowEvents(
     escrowId: number,
     tradeId: number,
-    callback: (event: EscrowEvent) => void
+    _callback: (event: EscrowEvent) => void
   ): () => void {
     const subscriptionKey = `${escrowId}-${tradeId}`;
 
