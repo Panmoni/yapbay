@@ -67,9 +67,13 @@ export const createEscrowTransaction = async (
  * @returns The allowance amount as a BigInt (always returns max for Solana)
  */
 export const getTokenAllowance = async (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _wallet: any,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _tokenAddress: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _spenderAddress: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _ownerAddress?: string
 ): Promise<bigint> => {
   // In Solana, token accounts don't have allowances like ERC20
@@ -88,9 +92,13 @@ export const getTokenAllowance = async (
  * @returns The transaction hash (returns empty string for Solana)
  */
 export const approveTokenSpending = async (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _wallet: any,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _tokenAddress: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _spenderAddress: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _amount: bigint
 ): Promise<string> => {
   // In Solana, no approval is needed - the owner has full control
@@ -259,7 +267,11 @@ export const disputeEscrowTransaction = async (
  * @param chainId Network chain ID (optional, defaults to devnet)
  * @returns Promise<BigInt> USDC balance (in smallest unit, e.g. 6 decimals)
  */
-export async function getUsdcBalance(address: string, _chainId?: number): Promise<bigint> {
+export async function getUsdcBalance(
+  address: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _chainId?: number
+): Promise<bigint> {
   try {
     console.log(`[DEBUG] Getting USDC balance for Solana address: ${address}`);
 

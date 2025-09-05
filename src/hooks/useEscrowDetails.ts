@@ -35,7 +35,7 @@ export interface EscrowDetails {
   disputeEvidenceHash: string;
 }
 
-export function useEscrowDetails(escrowId: string | number | null, contractAddress?: string) {
+export function useEscrowDetails(escrowId: string | number | null) {
   const [escrowDetails, setEscrowDetails] = useState<EscrowDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -109,7 +109,7 @@ export function useEscrowDetails(escrowId: string | number | null, contractAddre
         setIsRefreshing(false);
       }
     },
-    [escrowId, contractAddress]
+    [escrowId]
   );
 
   // Initial fetch and polling setup
