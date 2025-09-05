@@ -76,21 +76,31 @@ export interface FundEscrowParams {
   escrowId: number;
   tradeId: number;
   amount: string;
+  sellerAddress: string;
+  sellerTokenAccount: string;
 }
 
 export interface MarkFiatPaidParams {
   escrowId: number;
   tradeId: number;
+  buyerAddress: string;
 }
 
 export interface ReleaseEscrowParams {
   escrowId: number;
   tradeId: number;
+  authorityAddress: string;
+  buyerTokenAccount: string;
+  arbitratorTokenAccount: string;
+  sequentialEscrowTokenAccount?: string;
 }
 
 export interface CancelEscrowParams {
   escrowId: number;
   tradeId: number;
+  sellerAddress: string;
+  authorityAddress: string;
+  sellerTokenAccount: string;
 }
 
 export interface OpenDisputeParams {
@@ -98,6 +108,8 @@ export interface OpenDisputeParams {
   tradeId: number;
   evidenceHash: string;
   bondAmount: string;
+  disputingPartyAddress: string;
+  disputingPartyTokenAccount: string;
 }
 
 export interface RespondToDisputeParams {
@@ -105,6 +117,8 @@ export interface RespondToDisputeParams {
   tradeId: number;
   evidenceHash: string;
   bondAmount: string;
+  respondingPartyAddress: string;
+  respondingPartyTokenAccount: string;
 }
 
 export interface ResolveDisputeParams {
@@ -112,26 +126,42 @@ export interface ResolveDisputeParams {
   tradeId: number;
   resolutionExplanation: string;
   buyerWins: boolean;
+  arbitratorAddress: string;
+  sellerAddress: string;
+  buyerTokenAccount: string;
+  sellerTokenAccount: string;
+  arbitratorTokenAccount: string;
+  resolutionHash: string;
 }
 
 export interface DefaultJudgmentParams {
   escrowId: number;
   tradeId: number;
+  sellerAddress: string;
+  arbitratorAddress: string;
+  buyerTokenAccount: string;
+  sellerTokenAccount: string;
 }
 
 export interface InitializeBondParams {
   escrowId: number;
   tradeId: number;
   bondAmount: string;
+  payerAddress: string;
+  tokenMint: string;
 }
 
 export interface UpdateSequentialParams {
   escrowId: number;
   tradeId: number;
   newSequentialAddress: string;
+  buyerAddress: string;
 }
 
 export interface AutoCancelParams {
   escrowId: number;
   tradeId: number;
+  arbitratorAddress: string;
+  sellerAddress: string;
+  sellerTokenAccount: string;
 }
