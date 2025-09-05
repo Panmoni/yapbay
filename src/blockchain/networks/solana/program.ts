@@ -75,9 +75,9 @@ export class SolanaProgram implements SolanaProgramInterface {
   }
 
   // Update wallet when Dynamic.xyz wallet changes
-  updateWallet(wallet: any): void {
+  updateWallet(wallet: Wallet): void {
     this.provider = new AnchorProvider(this.connection, wallet, { commitment: 'confirmed' });
-    this.program = new Program(idl as any, this.provider);
+    this.program = new Program(idl as unknown, this.provider);
   }
 
   // Core Escrow Operations
@@ -612,7 +612,7 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   // Helper Methods
   private mapEscrowState(
-    state: any
+    state: number
   ): 'CREATED' | 'FUNDED' | 'RELEASED' | 'CANCELLED' | 'DISPUTED' | 'RESOLVED' {
     // Map the Solana program state to our interface
     switch (state) {
@@ -633,9 +633,9 @@ export class SolanaProgram implements SolanaProgramInterface {
     }
   }
 
-  private handleError(error: any): string {
+  private handleError(error: unknown): string {
     // Handle Solana-specific errors
-    if (error.code) {
+    if (error && typeof error === 'object' && 'code' in error && typeof error.code === 'number') {
       // Anchor error codes
       const errorCode = error.code - 6000; // Anchor error offset
       switch (errorCode) {
@@ -675,10 +675,34 @@ export class SolanaProgram implements SolanaProgramInterface {
           return 'Invalid resolution explanation';
         case 17:
           return 'Bump not found';
-        default:
-          return `Solana error: ${error.message || 'Unknown error'}`;
+        default: {
+          const message =
+            error &&
+            typeof error === 'object' &&
+            'message' in error &&
+            typeof error.message === 'string'
+              ? error.message
+              : 'Unknown error';
+          return `Solana error: ${message}`;
+        }
       }
     }
-    return error.message || 'Unknown Solana error';
+
+    // Handle standard Error objects
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    // Handle objects with message property
+    if (
+      error &&
+      typeof error === 'object' &&
+      'message' in error &&
+      typeof error.message === 'string'
+    ) {
+      return error.message;
+    }
+
+    return 'Unknown Solana error';
   }
 }
