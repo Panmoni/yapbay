@@ -15,14 +15,17 @@ import { TradeNavigation } from './components/Trade/TradeNavigation';
 import { LoadingIndicator } from './components/Trade/LoadingIndicator';
 import { TradeNotFoundAlert } from './components/Trade/TradeNotFoundAlert';
 import { refreshTrade } from './services/tradeService';
-import { getPendingTransactionsForTrade, retryTransactionVerification } from './services/transactionVerificationService';
+import {
+  getPendingTransactionsForTrade,
+  retryTransactionVerification,
+} from './services/transactionVerificationService';
 import { toast } from 'sonner';
-import { 
+import {
   AUTH_STATE_CHANGE_EVENT,
   TRADE_REFRESH_EVENT,
   TRADE_STATE_CHANGE_EVENT,
   NEW_TRANSACTION_EVENT,
-  CRITICAL_STATE_CHANGE_EVENT
+  CRITICAL_STATE_CHANGE_EVENT,
 } from './utils/events';
 
 function TradePage() {
@@ -37,10 +40,7 @@ function TradePage() {
   const { userRole, currentAccount, counterparty } = useTradeParticipants(trade);
 
   // Use enhanced trade updates hook with smart polling
-  const { 
-    trade: tradeUpdates, 
-    forcePoll: forceTradeUpdate
-  } = useTradeUpdates(tradeId);
+  const { trade: tradeUpdates, forcePoll: forceTradeUpdate } = useTradeUpdates(tradeId);
 
   const {
     escrowDetails,
@@ -53,10 +53,10 @@ function TradePage() {
   // Function to refresh trade data
   const handleRefreshTrade = useCallback(() => {
     if (!tradeId) return;
-    
+
     // Use the forcePoll function instead of calling the API directly
     forceTradeUpdate();
-    
+
     // Keep the original refresh for backward compatibility
     refreshTrade(tradeId, setTrade).catch(error => {
       console.error('Error refreshing trade:', error);
@@ -73,15 +73,15 @@ function TradePage() {
     });
 
   const [pendingTxs, setPendingTxs] = useState<any[]>([]);
-  
+
   // Use ref to store pending transactions to avoid re-renders
   const pendingTxsRef = useRef<any[]>([]);
-  
+
   // Create a stable reference to the loadPendingTransactions function
   const loadPendingTransactions = useCallback(() => {
     if (!tradeId) return;
     const pending = getPendingTransactionsForTrade(tradeId);
-    
+
     // Only update state if the pending transactions have actually changed
     if (JSON.stringify(pending) !== JSON.stringify(pendingTxsRef.current)) {
       pendingTxsRef.current = pending;
@@ -93,34 +93,34 @@ function TradePage() {
   useEffect(() => {
     // Initial load
     loadPendingTransactions();
-    
+
     // Refresh pending transactions every 15 seconds
     const interval = setInterval(loadPendingTransactions, 15000);
-    
+
     // Listen for trade refresh events
     const handleRefreshEvent = (e: CustomEvent) => {
       if (e.detail?.tradeId === tradeId) {
         handleRefreshTrade();
       }
     };
-    
+
     // Listen for trade state change events
     const handleTradeStateChange = (e: CustomEvent) => {
       if (e.detail?.tradeId === tradeId) {
         handleRefreshTrade();
       }
     };
-    
+
     // Listen for new transaction events
     const handleNewTransaction = () => {
       loadPendingTransactions();
     };
-    
+
     // Add event listeners
     window.addEventListener(TRADE_REFRESH_EVENT, handleRefreshEvent as EventListener);
     window.addEventListener(TRADE_STATE_CHANGE_EVENT, handleTradeStateChange as EventListener);
     window.addEventListener(NEW_TRANSACTION_EVENT, handleNewTransaction);
-    
+
     // Listen for auth state change events (wallet connection/disconnection)
     const handleAuthStateChange = (e: CustomEvent) => {
       console.log('[TradePage] Auth state changed:', e.detail);
@@ -130,7 +130,7 @@ function TradePage() {
         handleRefreshTrade();
         refreshEscrow();
         loadPendingTransactions();
-        
+
         // Show notification
         toast.success('Wallet connected. Trade data refreshed.');
       } else {
@@ -142,10 +142,10 @@ function TradePage() {
         toast.info('Wallet disconnected. Redirecting to home page.');
       }
     };
-    
+
     // Add auth state change event listener
     window.addEventListener(AUTH_STATE_CHANGE_EVENT, handleAuthStateChange as EventListener);
-    
+
     // Clean up event listeners on component unmount
     return () => {
       clearInterval(interval);
@@ -170,13 +170,17 @@ function TradePage() {
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
         <h3 className="text-lg font-semibold text-yellow-800 mb-2">Pending Transactions</h3>
         <div className="space-y-2">
-          {pendingTxs.map((tx) => (
-            <div key={tx.txHash} className="flex items-center justify-between bg-yellow-100 p-2 rounded">
+          {pendingTxs.map(tx => (
+            <div
+              key={tx.txHash}
+              className="flex items-center justify-between bg-yellow-100 p-2 rounded"
+            >
               <div className="flex items-center">
                 <div className="animate-spin mr-2">⟳</div>
                 <div>
                   <p className="text-sm text-yellow-700">
-                    {tx.type.replace(/_/g, ' ').toLowerCase()} - Transaction {tx.txHash.slice(0, 6)}...{tx.txHash.slice(-4)}
+                    {tx.type.replace(/_/g, ' ').toLowerCase()} - Transaction {tx.txHash.slice(0, 6)}
+                    ...{tx.txHash.slice(-4)}
                   </p>
                   <p className="text-xs text-yellow-600">
                     Submitted {new Date(tx.timestamp).toLocaleTimeString()}
@@ -184,7 +188,7 @@ function TradePage() {
                 </div>
               </div>
               {tx.attempts > 10 && (
-                <button 
+                <button
                   onClick={() => handleRetryVerification(tx.txHash)}
                   className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
                 >
@@ -195,8 +199,8 @@ function TradePage() {
           ))}
         </div>
         <p className="mt-3 text-sm text-yellow-700">
-          Your transaction has been submitted to the blockchain and is being processed.
-          You can continue using the app while we wait for confirmation.
+          Your transaction has been submitted to the blockchain and is being processed. You can
+          continue using the app while we wait for confirmation.
         </p>
       </div>
     );
@@ -216,7 +220,7 @@ function TradePage() {
       console.log(`[TradePage] Current trade state for trade ${tradeId}:`, {
         id: trade.id,
         state: trade.leg1_state,
-        created_at: trade.created_at
+        created_at: trade.created_at,
       });
     }
   }, [trade, tradeId]);
@@ -282,8 +286,8 @@ function TradePage() {
         escrowDetails={
           escrowDetails
             ? {
-                escrow_id: escrowDetails.escrow_id,
-                amount: escrowDetails.amount,
+                escrow_id: BigInt(escrowDetails.escrowId),
+                amount: BigInt(escrowDetails.amount.toString()),
                 state: BigInt(escrowDetails.state),
               }
             : undefined

@@ -3,7 +3,6 @@ import { useEscrowDetails, getEscrowStateName, EscrowState } from '@/hooks/useEs
 import { checkAndFundEscrow } from '@/services/chainService';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { toast } from 'sonner';
-import { ethers } from 'ethers';
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronUp, RefreshCw, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,8 +29,8 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
 
     setActionLoading(true);
     try {
-      toast.info('Checking token allowance and funding escrow...', {
-        description: 'Please approve the transactions in your wallet.',
+      toast.info('Funding escrow on Solana...', {
+        description: 'Please approve the transaction in your wallet.',
       });
 
       await checkAndFundEscrow(primaryWallet, escrowId);
@@ -53,17 +52,23 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
   // Only show fund button for seller
   const showFundButton = userRole === 'seller' && needsFunding;
 
-  // Get block explorer URL for the network
-  const getBlockExplorerUrl = (address: string) => {
-    // Using Celo Alfajores explorer
-    return `https://alfajores.celoscan.io/address/${address}`;
+  // Get Solana explorer URL for the network
+  const getSolanaExplorerUrl = (address: string) => {
+    // Using Solana devnet explorer
+    return `https://explorer.solana.com/address/${address}?cluster=devnet`;
   };
 
   // Format timestamp
-  const formatTimestamp = (timestamp: bigint) => {
-    if (!timestamp || timestamp === BigInt(0)) return 'Not set';
+  const formatTimestamp = (timestamp: unknown) => {
+    if (!timestamp || timestamp.toString() === '0') return 'Not set';
 
-    const date = new Date(Number(timestamp) * 1000);
+    // Convert BN to number if needed
+    const timestampNumber =
+      typeof timestamp === 'object' && timestamp && 'toNumber' in timestamp
+        ? (timestamp as { toNumber: () => number }).toNumber()
+        : Number(timestamp);
+
+    const date = new Date(timestampNumber * 1000);
     return date.toLocaleString();
   };
 
@@ -89,8 +94,21 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
 
   // Format address for display
   const formatAddress = (address: string) => {
-    if (!address || address === '0x0000000000000000000000000000000000000000') return 'None';
-    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+    if (!address || address === '11111111111111111111111111111111') return 'None'; // Solana system program
+    return `${address.substring(0, 4)}...${address.substring(address.length - 4)}`;
+  };
+
+  // Format amount for display
+  const formatAmount = (amount: unknown) => {
+    if (!amount) return '0';
+
+    // Convert BN to number if needed
+    const amountNumber =
+      typeof amount === 'object' && amount && 'toNumber' in amount
+        ? (amount as { toNumber: () => number }).toNumber()
+        : Number(amount);
+
+    return (amountNumber / 1_000_000).toFixed(6); // USDC has 6 decimals
   };
 
   return (
@@ -103,7 +121,7 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
         <div className="flex items-center justify-between">
           <CollapsibleTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 font-medium">
-              <span>Escrow Details (On-Chain)</span>
+              <span>Escrow Details (Solana On-Chain)</span>
               {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
             </Button>
           </CollapsibleTrigger>
@@ -142,11 +160,11 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Escrow ID</div>
-                  <div className="font-medium">{escrowDetails.escrow_id.toString()}</div>
+                  <div className="font-medium">{escrowDetails.escrowId.toString()}</div>
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Trade ID</div>
-                  <div className="font-medium">{escrowDetails.trade_id.toString()}</div>
+                  <div className="font-medium">{escrowDetails.tradeId.toString()}</div>
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">State</div>
@@ -158,9 +176,7 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Amount</div>
-                  <div className="font-medium">
-                    {ethers.formatUnits(escrowDetails.amount, 6)} USDC
-                  </div>
+                  <div className="font-medium">{formatAmount(escrowDetails.amount)} USDC</div>
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Current Balance</div>
@@ -168,24 +184,24 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Fiat Paid</div>
-                  <div className="font-medium">{escrowDetails.fiat_paid ? 'Yes' : 'No'}</div>
+                  <div className="font-medium">{escrowDetails.fiatPaid ? 'Yes' : 'No'}</div>
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Deposit Deadline</div>
                   <div className="font-medium">
-                    {formatTimestamp(escrowDetails.deposit_deadline)}
+                    {formatTimestamp(escrowDetails.depositDeadline)}
                   </div>
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Fiat Deadline</div>
-                  <div className="font-medium">{formatTimestamp(escrowDetails.fiat_deadline)}</div>
+                  <div className="font-medium">{formatTimestamp(escrowDetails.fiatDeadline)}</div>
                 </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Seller</div>
                   <div className="font-medium flex items-center gap-1">
                     <span className="truncate">{formatAddress(escrowDetails.seller)}</span>
                     <a
-                      href={getBlockExplorerUrl(escrowDetails.seller)}
+                      href={getSolanaExplorerUrl(escrowDetails.seller)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:text-blue-700"
@@ -199,7 +215,7 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
                   <div className="font-medium flex items-center gap-1">
                     <span className="truncate">{formatAddress(escrowDetails.buyer)}</span>
                     <a
-                      href={getBlockExplorerUrl(escrowDetails.buyer)}
+                      href={getSolanaExplorerUrl(escrowDetails.buyer)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:text-blue-700"
@@ -213,7 +229,7 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
                   <div className="font-medium flex items-center gap-1">
                     <span className="truncate">{formatAddress(escrowDetails.arbitrator)}</span>
                     <a
-                      href={getBlockExplorerUrl(escrowDetails.arbitrator)}
+                      href={getSolanaExplorerUrl(escrowDetails.arbitrator)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-500 hover:text-blue-700"
@@ -250,8 +266,7 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
                       )}
                     </Button>
                     <p className="text-xs text-neutral-600">
-                      This will check your token allowance and fund the escrow in one or two
-                      transactions.
+                      This will fund the escrow on the Solana blockchain.
                     </p>
                   </div>
                 </div>
@@ -270,7 +285,7 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
             <div className="py-4 text-center">No escrow details found</div>
           )}
           <div className="mt-4 text-xs text-neutral-600 text-center">
-            Escrow data automatically updates every minute via RPC.
+            Escrow data automatically updates every minute via Solana RPC.
           </div>
         </CollapsibleContent>
       </Collapsible>

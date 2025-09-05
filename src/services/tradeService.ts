@@ -10,18 +10,16 @@ import {
 import { formatNumber } from '../lib/utils';
 import { handleApiError } from '../utils/errorHandling';
 import { toast } from 'sonner';
-import { 
-  createEscrowTransaction, 
-  markFiatPaidTransaction, 
-  checkAndFundEscrow, 
+import {
+  createEscrowTransaction,
+  markFiatPaidTransaction,
+  checkAndFundEscrow,
   releaseEscrowTransaction,
   disputeEscrowTransaction,
   cancelEscrowTransaction,
-  checkEscrowState
+  checkEscrowState,
 } from './chainService';
-import { config } from '../config';
-import { ethers } from 'ethers';
-import YapBayEscrowABI from '../utils/YapBayEscrow.json';
+// Removed unused imports
 
 interface StartTradeParams {
   offerId: number;
@@ -70,20 +68,6 @@ export const startTrade = async ({
 
     if (primaryWallet) {
       // MVP: Escrow creation moved to TradePage to happen manually by user action
-      // const seller = primaryWallet.address;
-      // const buyer = String(offer.creator_account_id);
-      //
-      // const escrowData = {
-      //   trade_id: tradeId,
-      //   escrow_id: Math.floor(Math.random() * 1000000),
-      //   seller,
-      //   buyer,
-      //   amount: parseFloat(amount),
-      // };
-      //
-      // const escrowResponse = await createEscrow(escrowData);
-      // console.log("[TradeService] Escrow instruction generated:", escrowResponse.data);
-
       onSuccess(tradeId);
     } else {
       alert(`Trade ${formatNumber(tradeId)} started, but no wallet connected`);
@@ -102,44 +86,13 @@ interface CreateEscrowParams {
   trade: Trade;
   primaryWallet: {
     address?: string;
-    getWalletClient: () => Promise<WalletClient>;
-    getPublicClient: () => Promise<PublicClient>;
   };
   buyerAddress: string;
   sellerAddress: string;
 }
 
-interface PublicClient {
-  getTransactionReceipt: (params: { hash: `0x${string}` }) => Promise<TransactionReceipt | null>;
-  getLogs: (params: { address: string; event: string; fromBlock: bigint; toBlock: 'latest' }) => Promise<Log[]>;
-  readContract: (params: { address: `0x${string}`; abi: unknown[]; functionName?: string; args?: unknown[] }) => Promise<unknown>;
-}
-
-interface WalletClient {
-  writeContract: (params: { address: `0x${string}`; abi: unknown[]; functionName: string; args: unknown[] }) => Promise<`0x${string}`>;
-}
-
-interface TransactionReceipt {
-  blockNumber: bigint;
-  logs: Log[];
-  status: 'success' | 'reverted';
-}
-
-interface Log {
-  address: string;
-  topics: string[];
-  data: string;
-  blockNumber: bigint;
-}
-
-interface Wallet {
-  getPublicClient?: () => Promise<PublicClient>;
-  getWalletClient?: () => Promise<WalletClient>;
-  address?: string;
-}
-
 /**
- * Creates an escrow for a trade on the blockchain and records it in the backend
+ * Creates an escrow for a trade on the Solana blockchain and records it in the backend
  */
 export const createTradeEscrow = async ({
   trade,
@@ -149,108 +102,71 @@ export const createTradeEscrow = async ({
 }: CreateEscrowParams) => {
   try {
     // Show notification message using toast
-    toast('Creating escrow on blockchain...', {
+    toast('Creating escrow on Solana blockchain...', {
       description: 'Please approve the transaction in your wallet.',
     });
 
-    // Create the escrow transaction on the blockchain
+    // Create the escrow transaction on the Solana blockchain
     const txResult = await createEscrowTransaction(primaryWallet, {
       tradeId: trade.id,
       buyer: buyerAddress,
       amount: parseFloat(trade.leg1_crypto_amount || '0'),
       sequential: false,
       sequentialEscrowAddress: undefined,
-      arbitrator: config.arbitratorAddress || '0x0000000000000000000000000000000000000000',
+      arbitrator: undefined, // Solana program handles arbitrator internally
     });
 
-    console.log('[DEBUG] Transaction result:', txResult);
-
-    // Check if the transaction is pending (from block out of range error)
-    if (txResult.status === 'PENDING') {
-      console.log('[DEBUG] Transaction is pending due to block out of range error');
-      
-      // Store the pending transaction for later verification
-      import('../utils/pendingTransactions').then(({ addPendingTransaction }) => {
-        addPendingTransaction({
-          txHash: txResult.txHash,
-          tradeId: trade.id,
-          type: 'CREATE_ESCROW',
-          timestamp: Date.now()
-        });
-      });
-      
-      // Show pending status to user
-      toast.info('Transaction submitted! Waiting for confirmation...', {
-        description: 'Your transaction is being processed. You can continue using the app.',
-        duration: 8000,
-      });
-      
-      return {
-        txHash: txResult.txHash,
-        success: true,
-        message: 'Transaction submitted and being processed',
-        status: 'PENDING'
-      };
-    }
+    console.log('[DEBUG] Solana transaction result:', txResult);
 
     // Record the escrow in our backend
     await recordEscrow({
       trade_id: trade.id,
       transaction_hash: txResult.txHash,
-      escrow_id: txResult.status === 'PENDING' ? '0' : txResult.escrowId,
+      escrow_id: txResult.escrowId,
       seller: sellerAddress,
       buyer: buyerAddress,
       amount: parseFloat(trade.leg1_crypto_amount || '0'),
       sequential: false,
-      sequential_escrow_address: '0x0000000000000000000000000000000000000000'
+      sequential_escrow_address: '0x0000000000000000000000000000000000000000', // Not applicable for Solana
     });
 
     // Add null checks and default values for all potentially undefined string values
     const leg1CryptoAmount = trade.leg1_crypto_amount || '0';
     const leg1CryptoToken = trade.leg1_crypto_token || 'USDC';
-    
+
     // Record the transaction
     await recordTransaction({
       trade_id: trade.id,
-      escrow_id: txResult.status === 'PENDING' ? 0 : parseInt(txResult.escrowId),
+      escrow_id: parseInt(txResult.escrowId),
       transaction_hash: txResult.txHash,
       transaction_type: 'CREATE_ESCROW',
       from_address: sellerAddress,
       to_address: buyerAddress,
       amount: leg1CryptoAmount,
       token_type: leg1CryptoToken,
-      status: txResult.status === 'PENDING' ? 'PENDING' : 'SUCCESS',
-      block_number: txResult.status === 'PENDING' ? 0 : Number(txResult.blockNumber),
+      status: 'SUCCESS',
+      block_number: Number(txResult.blockNumber),
       metadata: {
-        escrow_id: txResult.status === 'PENDING' ? '0' : txResult.escrowId,
+        escrow_id: txResult.escrowId,
         seller: sellerAddress,
-        buyer: buyerAddress
+        buyer: buyerAddress,
       },
     });
 
     // Show success message
-    toast.success(
-      txResult.status === 'PENDING' 
-        ? 'Transaction submitted! Waiting for confirmation...'
-        : 'Escrow created successfully!',
-      {
-        description: txResult.status === 'PENDING'
-          ? 'Your transaction is being processed. We will notify you when it is confirmed.'
-          : `Escrow ID: ${txResult.status === 'PENDING' ? '0' : txResult.escrowId}`,
-      }
-    );
+    toast.success('Escrow created successfully!', {
+      description: `Escrow ID: ${txResult.escrowId}`,
+    });
 
     return {
       txHash: txResult.txHash,
       blockNumber: txResult.blockNumber,
       success: true,
-      message: txResult.status === 'PENDING' 
-        ? 'Transaction submitted and being processed'
-        : `Escrow created with ID: ${txResult.status === 'PENDING' ? '0' : txResult.escrowId}`,
-      escrowId: txResult.status === 'PENDING' ? '0' : txResult.escrowId,
+      message: `Escrow created with ID: ${txResult.escrowId}`,
+      escrowId: txResult.escrowId,
     };
   } catch (err) {
-    console.error('Error creating escrow:', err);
+    console.error('Error creating Solana escrow:', err);
     const errorMessage = handleApiError(err, 'Failed to create escrow: Unknown error');
     toast.error(errorMessage);
     throw err;
@@ -269,7 +185,7 @@ export const createAndFundTradeEscrow = async ({
 }: CreateEscrowParams) => {
   let escrowResult;
   let fundResult;
-  
+
   try {
     // First create the escrow
     escrowResult = await createTradeEscrow({
@@ -279,40 +195,17 @@ export const createAndFundTradeEscrow = async ({
       sellerAddress,
     });
 
-    // Check if the escrow creation transaction is still pending
-    if (escrowResult.txHash && (escrowResult.status === 'PENDING' || escrowResult.escrowId === '0')) {
-      // Show notification that we're waiting for confirmation
-      toast('Waiting for escrow creation to be confirmed...', {
-        description: 'This may take a few moments. Please wait before funding.',
-      });
-      
-      // Wait for the transaction to be confirmed and get the actual escrow ID
-      const confirmedEscrowId = await waitForEscrowConfirmation(escrowResult.txHash, trade.id, primaryWallet);
-      
-      if (confirmedEscrowId) {
-        // Update the escrow result with the confirmed escrow ID
-        escrowResult.escrowId = confirmedEscrowId;
-        console.log(`[DEBUG] Escrow creation confirmed. Using escrow ID: ${confirmedEscrowId}`);
-      } else {
-        throw new Error('Failed to get confirmed escrow ID after waiting');
-      }
-    }
-
     // Verify we have a valid escrow ID before proceeding
     if (!escrowResult.escrowId || escrowResult.escrowId === '0') {
       throw new Error('Invalid escrow ID. Cannot proceed with funding.');
     }
 
     // Then check and fund it with the confirmed escrow ID
-    fundResult = await checkAndFundEscrow(
-      primaryWallet,
-      escrowResult.escrowId
-    );
+    fundResult = await checkAndFundEscrow(primaryWallet, escrowResult.escrowId);
 
     // Convert result to expected format
-    const txResult: TransactionResult = typeof fundResult === 'string' 
-      ? { txHash: fundResult } 
-      : fundResult as TransactionResult;
+    const txResult: TransactionResult =
+      typeof fundResult === 'string' ? { txHash: fundResult } : (fundResult as TransactionResult);
 
     // Record the funding transaction
     if (txResult && 'txHash' in txResult) {
@@ -320,10 +213,10 @@ export const createAndFundTradeEscrow = async ({
         await recordTransaction({
           trade_id: trade.id,
           escrow_id: escrowResult.escrowId ? parseInt(escrowResult.escrowId) : 0,
-          transaction_hash: txResult.txHash,
+          transaction_hash: String(txResult.txHash),
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
-          to_address: config.contractAddress || '',
+          to_address: '', // Solana doesn't use contract addresses
           amount: trade.leg1_crypto_amount || '0',
           token_type: trade.leg1_crypto_token || 'USDC',
           status: 'SUCCESS',
@@ -331,260 +224,54 @@ export const createAndFundTradeEscrow = async ({
           metadata: {
             escrow_id: escrowResult.escrowId || '0',
             seller: sellerAddress,
-            buyer: buyerAddress
-          }
+            buyer: buyerAddress,
+          },
         });
       } catch (recordError) {
         // Log the error but don't fail the entire transaction
-        console.error('Failed to record transaction, but escrow was funded successfully:', recordError);
-        
+        console.error(
+          'Failed to record transaction, but escrow was funded successfully:',
+          recordError
+        );
+
         // Store transaction in localStorage as fallback
         storeTransactionLocally({
           trade_id: trade.id,
           escrow_id: escrowResult.escrowId ? parseInt(escrowResult.escrowId) : 0,
-          transaction_hash: txResult.txHash,
+          transaction_hash: String(txResult.txHash),
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
-          to_address: config.contractAddress || '',
+          to_address: '',
           amount: trade.leg1_crypto_amount || '0',
           token_type: trade.leg1_crypto_token || 'USDC',
           block_number: txResult.blockNumber ? Number(txResult.blockNumber) : undefined,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
-        
+
         // Show a warning to the user
-        toast.warning('Transaction completed on blockchain but could not be recorded in our database. This will be synced later.');
+        toast.warning(
+          'Transaction completed on blockchain but could not be recorded in our database. This will be synced later.'
+        );
       }
     }
 
     return { escrow: escrowResult, fund: txResult };
   } catch (err) {
     console.error('Error in create and fund escrow flow:', err);
-    
+
     // If we have partial results, store them for recovery
     if (escrowResult && !fundResult) {
       storeIncompleteEscrowLocally({
         trade_id: trade.id,
         escrow_id: escrowResult.escrowId || '0',
         status: 'CREATED_NOT_FUNDED',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
     }
-    
+
     const errorMessage = handleApiError(err, 'Failed to create and fund escrow');
     toast.error(errorMessage);
     throw err;
-  }
-};
-
-/**
- * Helper function to wait for an escrow creation transaction to be confirmed
- * and return the actual escrow ID
- * @param txHash The transaction hash to monitor
- * @param tradeId The trade ID associated with this escrow
- * @param wallet The wallet to use for blockchain queries
- * @returns The confirmed escrow ID or null if not found
- */
-const waitForEscrowConfirmation = async (
-  txHash: string,
-  tradeId: number,
-  wallet: Wallet
-): Promise<string | null> => {
-  // Maximum number of attempts to check transaction status
-  const maxAttempts = 20;
-  // Delay between checks in milliseconds (3 seconds)
-  const checkDelay = 3000;
-  
-  // Define transaction status interface
-  interface TransactionStatus {
-    confirmed: boolean;
-    blockNumber?: string | number;
-  }
-  
-  // Function to check transaction status
-  const checkTransactionStatus = async (
-    hash: string, 
-    walletObj: Wallet
-  ): Promise<TransactionStatus> => {
-    try {
-      if (!walletObj.getPublicClient) {
-        throw new Error('Wallet must implement getPublicClient');
-      }
-      
-      const publicClient = await walletObj.getPublicClient();
-      const receipt = await publicClient.getTransactionReceipt({ hash: hash as `0x${string}` });
-      
-      if (receipt) {
-        return {
-          confirmed: true,
-          blockNumber: receipt.blockNumber.toString()
-        };
-      }
-      
-      return { confirmed: false };
-    } catch (error) {
-      console.error('[ERROR] Failed to check transaction status:', error);
-      return { confirmed: false };
-    }
-  };
-  
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    try {
-      console.log(`[DEBUG] Checking escrow creation transaction status (attempt ${attempt + 1}/${maxAttempts}): ${txHash}`);
-      
-      // Check if the transaction has been confirmed
-      const status = await checkTransactionStatus(txHash, wallet);
-      
-      if (status.confirmed) {
-        console.log(`[DEBUG] Transaction confirmed in block ${status.blockNumber}`);
-        
-        // Get the escrow ID from the transaction receipt
-        const escrowId = await extractEscrowIdFromTransaction(txHash, wallet);
-        
-        if (escrowId) {
-          console.log(`[DEBUG] Extracted escrow ID: ${escrowId} from transaction ${txHash}`);
-          return escrowId;
-        }
-        
-        // If we couldn't extract the escrow ID directly, try querying recent escrows
-        const recentEscrowId = await findRecentEscrowByTradeId(tradeId, wallet);
-        if (recentEscrowId) {
-          console.log(`[DEBUG] Found recent escrow ID: ${recentEscrowId} for trade ${tradeId}`);
-          return recentEscrowId;
-        }
-      }
-      
-      // Wait before checking again
-      await new Promise(resolve => setTimeout(resolve, checkDelay));
-    } catch (error) {
-      console.error(`[ERROR] Error checking transaction status (attempt ${attempt + 1}/${maxAttempts}):`, error);
-      // Continue to next attempt
-    }
-  }
-  
-  console.error(`[ERROR] Failed to confirm escrow creation after ${maxAttempts} attempts`);
-  return null;
-};
-
-/**
- * Extract the escrow ID from a transaction receipt
- * @param txHash The transaction hash
- * @param wallet The wallet to use for blockchain queries
- * @returns The escrow ID or null if not found
- */
-const extractEscrowIdFromTransaction = async (
-  txHash: string,
-  wallet: Wallet
-): Promise<string | null> => {
-  try {
-    if (!wallet.getPublicClient) {
-      throw new Error('Wallet must implement getPublicClient');
-    }
-    
-    const publicClient = await wallet.getPublicClient();
-    const receipt = await publicClient.getTransactionReceipt({ hash: txHash as `0x${string}` });
-    
-    if (!receipt) {
-      return null;
-    }
-    
-    // Create an interface to parse the logs
-    const contract = {
-      address: config.contractAddress as `0x${string}`,
-      abi: YapBayEscrowABI.abi,
-    };
-    
-    // Find the EscrowCreated event
-    const eventSignature = 'EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)';
-    const eventTopic = ethers.id(eventSignature);
-    
-    const escrowCreatedLog = receipt.logs.find(
-      (log: Log) =>
-        log.address.toLowerCase() === contract.address.toLowerCase() &&
-        log.topics[0] === eventTopic
-    );
-    
-    if (!escrowCreatedLog) {
-      return null;
-    }
-    
-    // Decode the log to extract the escrow ID
-    const iface = new ethers.Interface(contract.abi);
-    const decodedLog = iface.parseLog({
-      topics: [...escrowCreatedLog.topics],
-      data: escrowCreatedLog.data,
-    });
-    
-    if (decodedLog && decodedLog.name === 'EscrowCreated') {
-      return decodedLog.args.escrowId.toString();
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('[ERROR] Failed to extract escrow ID from transaction:', error);
-    return null;
-  }
-};
-
-/**
- * Find the most recent escrow for a trade ID
- * @param tradeId The trade ID to look for
- * @param wallet The wallet to use for blockchain queries
- * @returns The escrow ID or null if not found
- */
-const findRecentEscrowByTradeId = async (
-  tradeId: number,
-  wallet: Wallet
-): Promise<string | null> => {
-  try {
-    if (!wallet.getPublicClient) {
-      throw new Error('Wallet must implement getPublicClient');
-    }
-    
-    const publicClient = await wallet.getPublicClient();
-    const contract = {
-      address: config.contractAddress as `0x${string}`,
-      abi: YapBayEscrowABI.abi,
-    };
-    
-    // Query EscrowCreated events for this trade ID
-    const filter = {
-      address: contract.address,
-      event: 'EscrowCreated(uint256,uint256,address,address,address,uint256,uint256,uint256,bool,address,uint256)',
-      args: {
-        tradeId: BigInt(tradeId),
-      },
-    };
-    
-    const logs = await publicClient.getLogs({
-      address: contract.address,
-      event: filter.event,
-      fromBlock: BigInt(0),
-      toBlock: 'latest',
-    });
-    
-    if (logs && logs.length > 0) {
-      // Sort logs by block number (descending) to get the most recent
-      logs.sort((a: { blockNumber: bigint }, b: { blockNumber: bigint }) => 
-        Number(b.blockNumber) - Number(a.blockNumber)
-      );
-      
-      // Parse the most recent log to get the escrow ID
-      const iface = new ethers.Interface(contract.abi);
-      const decodedLog = iface.parseLog({
-        topics: [...logs[0].topics],
-        data: logs[0].data,
-      });
-      
-      if (decodedLog && decodedLog.name === 'EscrowCreated') {
-        return decodedLog.args.escrowId.toString();
-      }
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('[ERROR] Failed to find recent escrow by trade ID:', error);
-    return null;
   }
 };
 
@@ -607,19 +294,19 @@ const storeTransactionLocally = (transactionData: {
   try {
     // Get existing pending transactions or initialize empty array
     const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions') || '[]');
-    
+
     // Add new transaction to the array
     pendingTransactions.push({
       ...transactionData,
       pendingSince: new Date().toISOString(),
-      retryCount: 0
+      retryCount: 0,
     });
-    
+
     // Store updated array back to localStorage
     localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
-    
+
     console.log('Transaction stored locally for future sync:', transactionData.transaction_hash);
-    
+
     // Schedule a retry attempt
     setTimeout(() => retryPendingTransactions(), 30000); // Try again in 30 seconds
   } catch (error) {
@@ -640,17 +327,17 @@ const storeIncompleteEscrowLocally = (escrowData: {
   try {
     // Get existing incomplete escrows or initialize empty array
     const incompleteEscrows = JSON.parse(localStorage.getItem('incompleteEscrows') || '[]');
-    
+
     // Add new escrow to the array
     incompleteEscrows.push({
       ...escrowData,
       createdAt: new Date().toISOString(),
-      retryCount: 0
+      retryCount: 0,
     });
-    
+
     // Store updated array back to localStorage
     localStorage.setItem('incompleteEscrows', JSON.stringify(incompleteEscrows));
-    
+
     console.log('Incomplete escrow stored locally for future recovery:', escrowData.escrow_id);
   } catch (error) {
     console.error('Failed to store incomplete escrow locally:', error);
@@ -666,25 +353,27 @@ const retryPendingTransactions = async () => {
     // Get pending transactions from localStorage
     const pendingTransactionsStr = localStorage.getItem('pendingTransactions');
     if (!pendingTransactionsStr) return;
-    
+
     const pendingTransactions = JSON.parse(pendingTransactionsStr);
     if (!pendingTransactions.length) return;
-    
+
     console.log(`Attempting to sync ${pendingTransactions.length} pending transactions`);
-    
+
     // Keep track of successful transactions to remove them from localStorage
     const successfulTransactions: number[] = [];
-    
+
     // Process each pending transaction
     for (let i = 0; i < pendingTransactions.length; i++) {
       const transaction = pendingTransactions[i];
-      
+
       // Skip transactions that have been retried too many times (e.g., 5 times)
       if (transaction.retryCount >= 5) {
-        console.log(`Skipping transaction ${transaction.transaction_hash} - too many retry attempts`);
+        console.log(
+          `Skipping transaction ${transaction.transaction_hash} - too many retry attempts`
+        );
         continue;
       }
-      
+
       try {
         // Attempt to record the transaction
         await recordTransaction({
@@ -698,27 +387,30 @@ const retryPendingTransactions = async () => {
           token_type: transaction.token_type,
           status: 'SUCCESS',
           block_number: transaction.block_number,
-          metadata: transaction.metadata || {}
+          metadata: transaction.metadata || {},
         });
-        
+
         // If successful, mark for removal
         successfulTransactions.push(i);
         console.log(`Successfully synced transaction ${transaction.transaction_hash}`);
       } catch (error) {
         // Increment retry count
         pendingTransactions[i].retryCount = (pendingTransactions[i].retryCount || 0) + 1;
-        console.error(`Failed to sync transaction ${transaction.transaction_hash}, retry count: ${pendingTransactions[i].retryCount}`, error);
+        console.error(
+          `Failed to sync transaction ${transaction.transaction_hash}, retry count: ${pendingTransactions[i].retryCount}`,
+          error
+        );
       }
     }
-    
+
     // Remove successful transactions (in reverse order to avoid index issues)
     for (let i = successfulTransactions.length - 1; i >= 0; i--) {
       pendingTransactions.splice(successfulTransactions[i], 1);
     }
-    
+
     // Update localStorage with remaining transactions
     localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
-    
+
     // If there are still pending transactions, schedule another retry
     if (pendingTransactions.length > 0) {
       // Exponential backoff: wait longer between retries (1 minute)
@@ -744,7 +436,7 @@ export const markTradeFiatPaid = async ({
   primaryWallet,
 }: {
   trade: Trade;
-  primaryWallet: Wallet;
+  primaryWallet: { address?: string };
 }) => {
   try {
     if (!trade.leg1_escrow_onchain_id) {
@@ -754,107 +446,66 @@ export const markTradeFiatPaid = async ({
     // Check the current state of the escrow
     try {
       // Just check if the escrow exists, we don't need to use the state value
-      await checkEscrowState(
-        primaryWallet,
-        trade.leg1_escrow_onchain_id
-      );
+      await checkEscrowState(primaryWallet, trade.leg1_escrow_onchain_id);
 
       // Show notification message using toast
       toast('Marking fiat as paid...', {
         description: 'Please approve the transaction in your wallet.',
       });
 
-      // Make sure the wallet has the required methods
-      if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
-        // Create a properly structured wallet object with bound methods
-        const walletForMarkPaid = {
-          address: primaryWallet.address,
-          getWalletClient: async () => {
-            if (primaryWallet.getWalletClient) {
-              return await primaryWallet.getWalletClient();
-            }
-            throw new Error('getWalletClient is not available');
+      try {
+        // Execute the blockchain transaction
+        const result = await markFiatPaidTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
+
+        // Record the transaction details via the recordTransaction API
+        await recordTransaction({
+          trade_id: trade.id,
+          escrow_id: Number(trade.leg1_escrow_onchain_id),
+          transaction_hash: result,
+          transaction_type: 'MARK_FIAT_PAID',
+          from_address: primaryWallet.address || '',
+          status: 'SUCCESS',
+          metadata: {
+            buyer: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
           },
-          getPublicClient: async () => {
-            if (primaryWallet.getPublicClient) {
-              return await primaryWallet.getPublicClient();
-            }
-            throw new Error('getPublicClient is not available');
-          }
-        };
-
-        try {
-          // Execute the blockchain transaction
-          const result = await markFiatPaidTransaction(
-            walletForMarkPaid,
-            trade.leg1_escrow_onchain_id
-          );
-          
-          // Define the type for the result to avoid TypeScript errors
-          interface TransactionResult {
-            txHash: string;
-            blockNumber?: bigint;
-          }
-          
-          // Handle both string and object return types from markFiatPaidTransaction
-          const txHash = typeof result === 'string' ? result : (result as TransactionResult).txHash;
-          const blockNumber = typeof result === 'string' ? undefined : (result as TransactionResult).blockNumber;
-
-          // Record the transaction details via the recordTransaction API
-          await recordTransaction({
-            trade_id: trade.id,
-            escrow_id: Number(trade.leg1_escrow_onchain_id),
-            transaction_hash: txHash,
-            transaction_type: 'MARK_FIAT_PAID',
-            from_address: primaryWallet.address || '',
-            status: 'SUCCESS',
-            block_number: blockNumber ? Number(blockNumber) : undefined,
-            metadata: {
-              buyer: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
-            }
-          });
-
-          // Call the backend API to update the trade status
-          await markFiatPaid(trade.id);
-          
-          // Dispatch a global event to notify all open tabs/windows about this critical state change
-          const event = new CustomEvent('yapbay:critical-state-change', {
-            detail: { 
-              tradeId: trade.id, 
-              newState: 'FIAT_PAID',
-              timestamp: new Date().toISOString()
-            }
-          });
-          window.dispatchEvent(event);
-          
-          // Force an immediate refresh for all clients by invalidating cache
-          localStorage.setItem('yapbay_last_trade_update', new Date().toISOString());
-
-          toast.success('Fiat payment marked as complete');
-        } catch (error: unknown) {
-          const err = error as Error;
-          // Handle specific blockchain errors with user-friendly messages
-          if (err.message.includes('User rejected the request')) {
-            toast.error('Transaction cancelled', {
-              description: 'You cancelled the transaction in your wallet.',
-            });
-          } else if (err.message.includes('reverted')) {
-            toast.error('Transaction failed', {
-              description: 'The blockchain rejected this transaction. The escrow may be in an invalid state or you may not have permission to mark it as paid.',
-            });
-          } else {
-            // Generic error handling
-            toast.error('Failed to mark fiat as paid', {
-              description: err.message || 'An unexpected error occurred',
-            });
-          }
-          throw error;
-        }
-      } else {
-        toast.error('Wallet configuration error', {
-          description: 'Your wallet is not properly configured for this operation.',
         });
-        throw new Error('Wallet does not have required methods');
+
+        // Call the backend API to update the trade status
+        await markFiatPaid(trade.id);
+
+        // Dispatch a global event to notify all open tabs/windows about this critical state change
+        const event = new CustomEvent('yapbay:critical-state-change', {
+          detail: {
+            tradeId: trade.id,
+            newState: 'FIAT_PAID',
+            timestamp: new Date().toISOString(),
+          },
+        });
+        window.dispatchEvent(event);
+
+        // Force an immediate refresh for all clients by invalidating cache
+        localStorage.setItem('yapbay_last_trade_update', new Date().toISOString());
+
+        toast.success('Fiat payment marked as complete');
+      } catch (error: unknown) {
+        const err = error as Error;
+        // Handle specific blockchain errors with user-friendly messages
+        if (err.message.includes('User rejected the request')) {
+          toast.error('Transaction cancelled', {
+            description: 'You cancelled the transaction in your wallet.',
+          });
+        } else if (err.message.includes('reverted')) {
+          toast.error('Transaction failed', {
+            description:
+              'The blockchain rejected this transaction. The escrow may be in an invalid state or you may not have permission to mark it as paid.',
+          });
+        } else {
+          // Generic error handling
+          toast.error('Failed to mark fiat as paid', {
+            description: err.message || 'An unexpected error occurred',
+          });
+        }
+        throw error;
       }
     } catch (error) {
       // This catch block handles errors from checkEscrowState
@@ -877,10 +528,8 @@ export const markTradeFiatPaid = async ({
  */
 interface ReleaseCryptoParams {
   trade: Trade;
-  primaryWallet: { 
+  primaryWallet: {
     address?: string;
-    getWalletClient?: () => Promise<WalletClient>;
-    getPublicClient?: () => Promise<PublicClient>;
   };
 }
 
@@ -894,75 +543,53 @@ export const releaseTradeCrypto = async ({
   if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
 
   try {
-    toast('Releasing crypto on blockchain...', {
+    toast('Releasing crypto on Solana blockchain...', {
       description: 'Please approve the transaction in your wallet.',
     });
 
-    // Make sure the wallet has the required methods
-    if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
-      // Create a properly structured wallet object with bound methods
-      const walletForRelease = {
-        address: primaryWallet.address,
-        getWalletClient: async () => {
-          if (primaryWallet.getWalletClient) {
-            return await primaryWallet.getWalletClient();
-          }
-          throw new Error('getWalletClient is not available');
-        },
-        getPublicClient: async () => {
-          if (primaryWallet.getPublicClient) {
-            return await primaryWallet.getPublicClient();
-          }
-          throw new Error('getPublicClient is not available');
-        }
-      };
+    // Execute the blockchain transaction
+    const txResult = await releaseEscrowTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
 
-      // Execute the blockchain transaction
-      const txResult = await releaseEscrowTransaction(
-        walletForRelease,
-        trade.leg1_escrow_onchain_id
-      );
-
-      // Record the transaction details via the recordTransaction API
-      await recordTransaction({
-        trade_id: trade.id,
-        escrow_id: Number(trade.leg1_escrow_onchain_id),
-        transaction_hash: txResult.txHash,
-        transaction_type: 'RELEASE_ESCROW',
-        from_address: primaryWallet.address,
-        to_address: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
-        amount: trade.leg1_crypto_amount,
-        token_type: trade.leg1_crypto_token,
-        status: 'SUCCESS',
-        block_number: Number(txResult.blockNumber),
-      });
-    } else {
-      throw new Error('Wallet does not have required methods');
-    }
+    // Record the transaction details via the recordTransaction API
+    await recordTransaction({
+      trade_id: trade.id,
+      escrow_id: Number(trade.leg1_escrow_onchain_id),
+      transaction_hash: txResult.txHash,
+      transaction_type: 'RELEASE_ESCROW',
+      from_address: primaryWallet.address,
+      to_address: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
+      amount: trade.leg1_crypto_amount,
+      token_type: trade.leg1_crypto_token,
+      status: 'SUCCESS',
+      block_number: Number(txResult.blockNumber),
+    });
 
     toast.success('Crypto released successfully!');
   } catch (error: unknown) {
     console.error('Error releasing crypto:', error);
-    
+
     // Extract a more user-friendly error message
     let errorMessage = 'Failed to release crypto. Please try again.';
-    
+
     if (error instanceof Error && error.message) {
       if (error.message.includes('User rejected the request')) {
         errorMessage = 'Transaction was rejected in your wallet.';
       } else if (error.message.includes('reverted')) {
         // Extract the specific revert reason if available
         if (error.message.includes('Release escrow transaction reverted:')) {
-          const revertReason = error.message.split('Release escrow transaction reverted:')[1].trim();
+          const revertReason = error.message
+            .split('Release escrow transaction reverted:')[1]
+            .trim();
           errorMessage = `Transaction failed: ${revertReason}`;
         } else {
-          errorMessage = 'Transaction failed on the blockchain. This could be due to contract restrictions or network issues.';
+          errorMessage =
+            'Transaction failed on the blockchain. This could be due to contract restrictions or network issues.';
         }
       } else if (error.message.includes('no funds')) {
         errorMessage = 'This escrow has no funds to release.';
       }
     }
-    
+
     toast.error(errorMessage);
     throw error;
   }
@@ -975,99 +602,71 @@ interface DisputeTradeParams {
   trade: Trade;
   primaryWallet: {
     address?: string;
-    getWalletClient?: () => Promise<WalletClient>;
-    getPublicClient?: () => Promise<PublicClient>;
   };
 }
 
 /**
  * Disputes a trade
  */
-export const disputeTrade = async ({ 
-  trade, 
-  primaryWallet 
-}: DisputeTradeParams): Promise<void> => {
+export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams): Promise<void> => {
   if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
 
   try {
-    toast('Opening dispute on blockchain...', {
+    toast('Opening dispute on Solana blockchain...', {
       description: 'Please approve the transaction in your wallet.',
     });
 
     // Generate a dummy evidence hash for now - in production this would be a real hash of evidence
-    const evidenceHash = ethers.id('dispute_evidence_' + Date.now().toString());
+    const evidenceHash = 'dispute_evidence_' + Date.now().toString();
 
-    // Make sure the wallet has the required methods
-    if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
-      // Create a properly structured wallet object with bound methods
-      const walletForDispute = {
-        address: primaryWallet.address,
-        getWalletClient: async () => {
-          if (primaryWallet.getWalletClient) {
-            return await primaryWallet.getWalletClient();
-          }
-          throw new Error('getWalletClient is not available');
+    try {
+      // Execute the blockchain transaction
+      const txResult = await disputeEscrowTransaction(
+        primaryWallet,
+        trade.leg1_escrow_onchain_id,
+        evidenceHash
+      );
+
+      // Record the transaction details via the recordTransaction API
+      await recordTransaction({
+        trade_id: trade.id,
+        escrow_id: Number(trade.leg1_escrow_onchain_id),
+        transaction_hash: txResult.txHash,
+        transaction_type: 'DISPUTE_ESCROW',
+        from_address: primaryWallet.address,
+        status: 'SUCCESS',
+        block_number: Number(txResult.blockNumber),
+        metadata: {
+          disputing_party: primaryWallet.address,
+          evidence_hash: evidenceHash,
         },
-        getPublicClient: async () => {
-          if (primaryWallet.getPublicClient) {
-            return await primaryWallet.getPublicClient();
-          }
-          throw new Error('getPublicClient is not available');
-        }
-      };
-
-      try {
-        // Execute the blockchain transaction
-        const txResult = await disputeEscrowTransaction(
-          walletForDispute,
-          trade.leg1_escrow_onchain_id,
-          evidenceHash
-        );
-
-        // Record the transaction details via the recordTransaction API
-        await recordTransaction({
-          trade_id: trade.id,
-          escrow_id: Number(trade.leg1_escrow_onchain_id),
-          transaction_hash: txResult.txHash,
-          transaction_type: 'DISPUTE_ESCROW',
-          from_address: primaryWallet.address,
-          status: 'SUCCESS',
-          block_number: Number(txResult.blockNumber),
-          metadata: {
-            disputing_party: primaryWallet.address,
-            evidence_hash: evidenceHash
-          }
-        });
-
-        toast.success('Trade disputed successfully');
-      } catch (error: unknown) {
-        const err = error as Error;
-        // Handle specific blockchain errors with user-friendly messages
-        if (err.message.includes('User rejected the request')) {
-          toast.error('Transaction cancelled', {
-            description: 'You cancelled the transaction in your wallet.',
-          });
-        } else if (err.message.includes('reverted')) {
-          toast.error('Transaction failed', {
-            description: 'The blockchain rejected this transaction. The escrow may be in an invalid state for disputes or you may not have permission.',
-          });
-        } else if (err.message.includes('insufficient funds')) {
-          toast.error('Insufficient funds', {
-            description: 'You do not have enough funds to open a dispute. Disputes may require a bond payment.',
-          });
-        } else {
-          // Generic error handling
-          toast.error('Failed to open dispute', {
-            description: err.message || 'An unexpected error occurred',
-          });
-        }
-        throw error;
-      }
-    } else {
-      toast.error('Wallet configuration error', {
-        description: 'Your wallet is not properly configured for this operation.',
       });
-      throw new Error('Wallet does not have required methods');
+
+      toast.success('Trade disputed successfully');
+    } catch (error: unknown) {
+      const err = error as Error;
+      // Handle specific blockchain errors with user-friendly messages
+      if (err.message.includes('User rejected the request')) {
+        toast.error('Transaction cancelled', {
+          description: 'You cancelled the transaction in your wallet.',
+        });
+      } else if (err.message.includes('reverted')) {
+        toast.error('Transaction failed', {
+          description:
+            'The blockchain rejected this transaction. The escrow may be in an invalid state for disputes or you may not have permission.',
+        });
+      } else if (err.message.includes('insufficient funds')) {
+        toast.error('Insufficient funds', {
+          description:
+            'You do not have enough funds to open a dispute. Disputes may require a bond payment.',
+        });
+      } else {
+        // Generic error handling
+        toast.error('Failed to open dispute', {
+          description: err.message || 'An unexpected error occurred',
+        });
+      }
+      throw error;
     }
   } catch (err) {
     console.error('Error disputing trade:', err);
@@ -1083,18 +682,13 @@ interface CancelTradeParams {
   trade: Trade;
   primaryWallet: {
     address?: string;
-    getWalletClient?: () => Promise<WalletClient>;
-    getPublicClient?: () => Promise<PublicClient>;
   };
 }
 
 /**
  * Cancels a trade
  */
-export const cancelTrade = async ({ 
-  trade, 
-  primaryWallet 
-}: CancelTradeParams): Promise<void> => {
+export const cancelTrade = async ({ trade, primaryWallet }: CancelTradeParams): Promise<void> => {
   if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
 
   try {
@@ -1102,103 +696,66 @@ export const cancelTrade = async ({
       description: 'Verifying that the escrow has no funds before cancellation.',
     });
 
-    // First, check if the escrow has funds
-    // Make sure the wallet has the required methods
-    if (!primaryWallet.getPublicClient) {
-      toast.error('Wallet configuration error', {
-        description: 'Your wallet is not properly configured for this operation.',
-      });
-      throw new Error('Wallet must implement getPublicClient');
-    }
-
     try {
-      const escrowState = await checkEscrowState(
-        primaryWallet,
-        trade.leg1_escrow_onchain_id
-      );
-      
+      const escrowState = await checkEscrowState(primaryWallet, trade.leg1_escrow_onchain_id);
+
       // If the escrow has funds, we cannot cancel it
       if (escrowState.hasFunds) {
         toast.error('Cannot cancel trade', {
-          description: 'The escrow still has funds. The funds must be released or refunded before cancellation.',
+          description:
+            'The escrow still has funds. The funds must be released or refunded before cancellation.',
         });
         throw new Error('Escrow has funds. Cannot cancel.');
       }
 
-      toast('Cancelling trade on blockchain...', {
+      toast('Cancelling trade on Solana blockchain...', {
         description: 'Please approve the transaction in your wallet.',
       });
 
-      // Make sure the wallet has the required methods
-      if (primaryWallet.getWalletClient && primaryWallet.getPublicClient) {
-        // Create a properly structured wallet object with bound methods
-        const walletForCancel = {
-          address: primaryWallet.address,
-          getWalletClient: async () => {
-            if (primaryWallet.getWalletClient) {
-              return await primaryWallet.getWalletClient();
-            }
-            throw new Error('getWalletClient is not available');
+      try {
+        // Execute the blockchain transaction
+        const txResult = await cancelEscrowTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
+
+        // Record the transaction details via the recordTransaction API
+        await recordTransaction({
+          trade_id: trade.id,
+          escrow_id: Number(trade.leg1_escrow_onchain_id),
+          transaction_hash: String(txResult.txHash),
+          transaction_type: 'CANCEL_ESCROW',
+          from_address: primaryWallet.address,
+          status: 'SUCCESS',
+          block_number: Number(txResult.blockNumber),
+          metadata: {
+            seller: trade.leg1_seller_account_id ? trade.leg1_seller_account_id.toString() : '',
+            authority: primaryWallet.address,
           },
-          getPublicClient: async () => {
-            if (primaryWallet.getPublicClient) {
-              return await primaryWallet.getPublicClient();
-            }
-            throw new Error('getPublicClient is not available');
-          }
-        };
-
-        try {
-          // Execute the blockchain transaction
-          const txResult = await cancelEscrowTransaction(
-            walletForCancel,
-            trade.leg1_escrow_onchain_id
-          );
-
-          // Record the transaction details via the recordTransaction API
-          await recordTransaction({
-            trade_id: trade.id,
-            escrow_id: Number(trade.leg1_escrow_onchain_id),
-            transaction_hash: txResult.txHash,
-            transaction_type: 'CANCEL_ESCROW',
-            from_address: primaryWallet.address,
-            status: 'SUCCESS',
-            block_number: Number(txResult.blockNumber),
-            metadata: {
-              seller: trade.leg1_seller_account_id ? trade.leg1_seller_account_id.toString() : '',
-              authority: primaryWallet.address
-            }
-          });
-
-          toast.success('Trade cancelled successfully');
-        } catch (error: unknown) {
-          const err = error as Error;
-          // Handle specific blockchain errors with user-friendly messages
-          if (err.message.includes('User rejected the request')) {
-            toast.error('Transaction cancelled', {
-              description: 'You cancelled the transaction in your wallet.',
-            });
-          } else if (err.message.includes('reverted')) {
-            toast.error('Transaction failed', {
-              description: 'The blockchain rejected this transaction. The escrow may be in an invalid state or you may not have permission to cancel it.',
-            });
-          } else if (err.message.includes('Escrow has funds')) {
-            toast.error('Cannot cancel trade', {
-              description: 'The escrow still has funds. The funds must be released or refunded before cancellation.',
-            });
-          } else {
-            // Generic error handling
-            toast.error('Failed to cancel trade', {
-              description: err.message || 'An unexpected error occurred',
-            });
-          }
-          throw error;
-        }
-      } else {
-        toast.error('Wallet configuration error', {
-          description: 'Your wallet is not properly configured for this operation.',
         });
-        throw new Error('Wallet does not have required methods');
+
+        toast.success('Trade cancelled successfully');
+      } catch (error: unknown) {
+        const err = error as Error;
+        // Handle specific blockchain errors with user-friendly messages
+        if (err.message.includes('User rejected the request')) {
+          toast.error('Transaction cancelled', {
+            description: 'You cancelled the transaction in your wallet.',
+          });
+        } else if (err.message.includes('reverted')) {
+          toast.error('Transaction failed', {
+            description:
+              'The blockchain rejected this transaction. The escrow may be in an invalid state or you may not have permission to cancel it.',
+          });
+        } else if (err.message.includes('Escrow has funds')) {
+          toast.error('Cannot cancel trade', {
+            description:
+              'The escrow still has funds. The funds must be released or refunded before cancellation.',
+          });
+        } else {
+          // Generic error handling
+          toast.error('Failed to cancel trade', {
+            description: err.message || 'An unexpected error occurred',
+          });
+        }
+        throw error;
       }
     } catch (error) {
       // This catch block handles errors from checkEscrowState
