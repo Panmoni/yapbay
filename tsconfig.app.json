@@ -27,5 +27,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/utils/common.ts", "src/utils/YapBayEscrow.ts"]
 }
