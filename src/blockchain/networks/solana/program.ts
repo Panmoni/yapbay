@@ -4,8 +4,9 @@
  */
 
 import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
-import { PublicKey, Connection, Keypair, SYSVAR_RENT_PUBKEY, SystemProgram } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+// import { PublicKey, Connection, Keypair, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
+import { PublicKey, Connection, Keypair } from '@solana/web3.js';
+// import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import idl from '../../../contracts/solana/idl.json';
 import type { LocalsolanaContracts } from '../../../contracts/solana/types.js';
 import { PDADerivation } from '../../utils/pda.js';
@@ -82,20 +83,13 @@ export class SolanaProgram implements SolanaProgramInterface {
   // Core Escrow Operations
   async createEscrow(params: CreateEscrowParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
       // Convert addresses to PublicKeys
       const seller = new PublicKey(params.sellerAddress);
       const buyer = new PublicKey(params.buyerAddress);
 
       // Build transaction
       const tx = await this.program.methods
-        .creatEscrow(
+        .createEscrow(
           new BN(params.escrowId),
           new BN(params.tradeId),
           new BN(params.amount),
@@ -105,8 +99,6 @@ export class SolanaProgram implements SolanaProgramInterface {
         .accounts({
           seller: seller,
           buyer: buyer,
-          escrow: escrowPDA,
-          system_program: SystemProgram.programId,
         })
         .transaction();
 
@@ -128,15 +120,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async fundEscrow(params: FundEscrowParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [escrowTokenPDA] = PDADerivation.deriveEscrowTokenPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const seller = new PublicKey(params.sellerAddress);
       const sellerTokenAccount = new PublicKey(params.sellerTokenAccount);
@@ -153,13 +136,11 @@ export class SolanaProgram implements SolanaProgramInterface {
         .fundEscrow()
         .accounts({
           seller: seller,
-          escrow: escrowPDA,
           sellerTokenAccount: sellerTokenAccount,
-          escrowTokenAccount: escrowTokenPDA,
           tokenMint: usdcMint,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
-          rent: SYSVAR_RENT_PUBKEY,
+          // tokenProgram: TOKEN_PROGRAM_ID,
+          // systemProgram: SystemProgram.programId,
+          // rent: SYSVAR_RENT_PUBKEY,
         })
         .transaction();
 
@@ -181,13 +162,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async markFiatPaid(params: MarkFiatPaidParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
       // Convert addresses to PublicKeys
       const buyer = new PublicKey(params.buyerAddress);
 
@@ -196,7 +170,6 @@ export class SolanaProgram implements SolanaProgramInterface {
         .markFiatPaid()
         .accounts({
           buyer: buyer,
-          escrow: escrowPDA,
         })
         .transaction();
 
@@ -218,15 +191,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async releaseEscrow(params: ReleaseEscrowParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [escrowTokenPDA] = PDADerivation.deriveEscrowTokenPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const authority = new PublicKey(params.authorityAddress);
       const buyerTokenAccount = new PublicKey(params.buyerTokenAccount);
@@ -240,12 +204,10 @@ export class SolanaProgram implements SolanaProgramInterface {
         .releaseEscrow()
         .accounts({
           authority: authority,
-          escrow: escrowPDA,
-          escrowTokenAccount: escrowTokenPDA,
           buyerTokenAccount: buyerTokenAccount,
           arbitratorTokenAccount: arbitratorTokenAccount,
           sequentialEscrowTokenAccount: sequentialEscrowTokenAccount,
-          tokenProgram: TOKEN_PROGRAM_ID,
+          // tokenProgram: TOKEN_PROGRAM_ID,
         })
         .transaction();
 
@@ -267,15 +229,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async cancelEscrow(params: CancelEscrowParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [escrowTokenPDA] = PDADerivation.deriveEscrowTokenPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const seller = new PublicKey(params.sellerAddress);
       const authority = new PublicKey(params.authorityAddress);
@@ -287,10 +240,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         .accounts({
           seller: seller,
           authority: authority,
-          escrow: escrowPDA,
-          escrowTokenAccount: escrowTokenPDA,
           sellerTokenAccount: sellerTokenAccount,
-          tokenProgram: TOKEN_PROGRAM_ID,
+          // tokenProgram: TOKEN_PROGRAM_ID,
         })
         .transaction();
 
@@ -313,16 +264,6 @@ export class SolanaProgram implements SolanaProgramInterface {
   // Dispute Operations
   async openDisputeWithBond(params: OpenDisputeParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [buyerBondPDA] = PDADerivation.deriveBuyerBondPDA(this.programId, escrowPDA);
-      const [sellerBondPDA] = PDADerivation.deriveSellerBondPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const disputingParty = new PublicKey(params.disputingPartyAddress);
       const disputingPartyTokenAccount = new PublicKey(params.disputingPartyTokenAccount);
@@ -345,11 +286,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         .openDisputeWithBond(Array.from(evidenceHashBytes))
         .accounts({
           disputingParty: disputingParty,
-          escrow: escrowPDA,
           disputingPartyTokenAccount: disputingPartyTokenAccount,
-          buyerBondAccount: buyerBondPDA,
-          sellerBondAccount: sellerBondPDA,
-          tokenProgram: TOKEN_PROGRAM_ID,
+          // tokenProgram: TOKEN_PROGRAM_ID,
         })
         .transaction();
 
@@ -371,16 +309,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async respondToDisputeWithBond(params: RespondToDisputeParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [buyerBondPDA] = PDADerivation.deriveBuyerBondPDA(this.programId, escrowPDA);
-      const [sellerBondPDA] = PDADerivation.deriveSellerBondPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const respondingParty = new PublicKey(params.respondingPartyAddress);
       const respondingPartyTokenAccount = new PublicKey(params.respondingPartyTokenAccount);
@@ -403,11 +331,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         .respondToDisputeWithBond(Array.from(evidenceHashBytes))
         .accounts({
           respondingParty: respondingParty,
-          escrow: escrowPDA,
           respondingPartyTokenAccount: respondingPartyTokenAccount,
-          buyerBondAccount: buyerBondPDA,
-          sellerBondAccount: sellerBondPDA,
-          tokenProgram: TOKEN_PROGRAM_ID,
+          // tokenProgram: TOKEN_PROGRAM_ID,
         })
         .transaction();
 
@@ -429,17 +354,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async resolveDisputeWithExplanation(params: ResolveDisputeParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [escrowTokenPDA] = PDADerivation.deriveEscrowTokenPDA(this.programId, escrowPDA);
-      const [buyerBondPDA] = PDADerivation.deriveBuyerBondPDA(this.programId, escrowPDA);
-      const [sellerBondPDA] = PDADerivation.deriveSellerBondPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const arbitrator = new PublicKey(params.arbitratorAddress);
       const seller = new PublicKey(params.sellerAddress);
@@ -466,14 +380,10 @@ export class SolanaProgram implements SolanaProgramInterface {
         .accounts({
           arbitrator: arbitrator,
           seller: seller,
-          escrow: escrowPDA,
-          escrowTokenAccount: escrowTokenPDA,
           buyerTokenAccount: buyerTokenAccount,
           sellerTokenAccount: sellerTokenAccount,
           arbitratorTokenAccount: arbitratorTokenAccount,
-          buyerBondAccount: buyerBondPDA,
-          sellerBondAccount: sellerBondPDA,
-          tokenProgram: TOKEN_PROGRAM_ID,
+          // tokenProgram: TOKEN_PROGRAM_ID,
         })
         .transaction();
 
@@ -495,17 +405,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async defaultJudgment(params: DefaultJudgmentParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [escrowTokenPDA] = PDADerivation.deriveEscrowTokenPDA(this.programId, escrowPDA);
-      const [buyerBondPDA] = PDADerivation.deriveBuyerBondPDA(this.programId, escrowPDA);
-      const [sellerBondPDA] = PDADerivation.deriveSellerBondPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const seller = new PublicKey(params.sellerAddress);
       const arbitrator = new PublicKey(params.arbitratorAddress);
@@ -518,13 +417,9 @@ export class SolanaProgram implements SolanaProgramInterface {
         .accounts({
           seller: seller,
           arbitrator: arbitrator,
-          escrow: escrowPDA,
-          escrowTokenAccount: escrowTokenPDA,
           buyerTokenAccount: buyerTokenAccount,
           sellerTokenAccount: sellerTokenAccount,
-          buyerBondAccount: buyerBondPDA,
-          sellerBondAccount: sellerBondPDA,
-          tokenProgram: TOKEN_PROGRAM_ID,
+          // tokenProgram: TOKEN_PROGRAM_ID,
         })
         .transaction();
 
@@ -547,15 +442,6 @@ export class SolanaProgram implements SolanaProgramInterface {
   // Utility Operations
   async initializeBuyerBondAccount(params: InitializeBondParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [buyerBondPDA] = PDADerivation.deriveBuyerBondPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const payer = new PublicKey(params.payerAddress);
       const tokenMint = new PublicKey(params.tokenMint);
@@ -565,12 +451,10 @@ export class SolanaProgram implements SolanaProgramInterface {
         .initializeBuyerBondAccount(new BN(params.escrowId), new BN(params.tradeId))
         .accounts({
           payer: payer,
-          escrow: escrowPDA,
-          buyerBondAccount: buyerBondPDA,
           tokenMint: tokenMint,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
-          rent: SYSVAR_RENT_PUBKEY,
+          // tokenProgram: TOKEN_PROGRAM_ID,
+          // systemProgram: SystemProgram.programId,
+          // rent: SYSVAR_RENT_PUBKEY,
         })
         .transaction();
 
@@ -592,15 +476,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async initializeSellerBondAccount(params: InitializeBondParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [sellerBondPDA] = PDADerivation.deriveSellerBondPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const payer = new PublicKey(params.payerAddress);
       const tokenMint = new PublicKey(params.tokenMint);
@@ -610,12 +485,10 @@ export class SolanaProgram implements SolanaProgramInterface {
         .initializeSellerBondAccount(new BN(params.escrowId), new BN(params.tradeId))
         .accounts({
           payer: payer,
-          escrow: escrowPDA,
-          sellerBondAccount: sellerBondPDA,
           tokenMint: tokenMint,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
-          rent: SYSVAR_RENT_PUBKEY,
+          // tokenProgram: TOKEN_PROGRAM_ID,
+          // systemProgram: SystemProgram.programId,
+          // rent: SYSVAR_RENT_PUBKEY,
         })
         .transaction();
 
@@ -637,13 +510,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async updateSequentialAddress(params: UpdateSequentialParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
       // Convert addresses to PublicKeys
       const buyer = new PublicKey(params.buyerAddress);
 
@@ -652,7 +518,6 @@ export class SolanaProgram implements SolanaProgramInterface {
         .updateSequentialAddress(new PublicKey(params.newSequentialAddress))
         .accounts({
           buyer: buyer,
-          escrow: escrowPDA,
         })
         .transaction();
 
@@ -674,15 +539,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async autoCancel(params: AutoCancelParams): Promise<TransactionResult> {
     try {
-      // Derive PDAs
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-
-      const [escrowTokenPDA] = PDADerivation.deriveEscrowTokenPDA(this.programId, escrowPDA);
-
       // Convert addresses to PublicKeys
       const arbitrator = new PublicKey(params.arbitratorAddress);
       const seller = new PublicKey(params.sellerAddress);
@@ -694,10 +550,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         .accounts({
           arbitrator: arbitrator,
           seller: seller,
-          escrow: escrowPDA,
-          escrowTokenAccount: escrowTokenPDA,
           sellerTokenAccount: sellerTokenAccount,
-          tokenProgram: TOKEN_PROGRAM_ID,
+          // tokenProgram: TOKEN_PROGRAM_ID,
         })
         .transaction();
 
