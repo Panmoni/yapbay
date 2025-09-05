@@ -21,6 +21,7 @@ import {
 import { networkRegistry } from '../blockchain/networks/index.js';
 import { SolanaProgram } from '../blockchain/networks/solana/program.js';
 import { Connection, PublicKey } from '@solana/web3.js';
+import { Wallet } from '@coral-xyz/anchor';
 
 export interface BlockchainService {
   // Network management (simplified for Solana devnet only)
@@ -88,7 +89,7 @@ export class UnifiedBlockchainService implements BlockchainService {
   }
 
   // Update wallet in Solana program when Dynamic.xyz wallet changes
-  updateWallet(wallet: any): void {
+  updateWallet(wallet: Wallet): void {
     if (this.solanaProgram) {
       this.solanaProgram.updateWallet(wallet);
     }
@@ -223,6 +224,7 @@ export class UnifiedBlockchainService implements BlockchainService {
   subscribeToEscrowEvents(
     escrowId: number,
     tradeId: number,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _callback: (event: EscrowEvent) => void
   ): () => void {
     const subscriptionKey = `${escrowId}-${tradeId}`;

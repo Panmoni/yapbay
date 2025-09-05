@@ -59,14 +59,14 @@ export class SolanaProgram implements SolanaProgramInterface {
   private connection: Connection;
   private programId: PublicKey;
 
-  constructor(connection: Connection, programId: PublicKey, wallet: Wallet) {
+  constructor(connection: Connection, programId: PublicKey, wallet?: Wallet) {
     this.connection = connection;
     this.programId = programId;
 
     // Create provider (wallet will be set by Dynamic.xyz)
     this.provider = new AnchorProvider(
       connection,
-      wallet || new Keypair(), // Fallback for testing
+      wallet || (new Keypair() as unknown as Wallet), // Fallback for testing - cast for Keypair compatibility
       { commitment: 'confirmed' }
     );
 
