@@ -3,7 +3,7 @@
  * Integrates with the YapBay escrow program using Anchor
  */
 
-import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
+import { Program, AnchorProvider, BN, Wallet } from '@coral-xyz/anchor';
 // import { PublicKey, Connection, Keypair, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
 import { PublicKey, Connection, Keypair } from '@solana/web3.js';
 // import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
@@ -59,7 +59,7 @@ export class SolanaProgram implements SolanaProgramInterface {
   private connection: Connection;
   private programId: PublicKey;
 
-  constructor(connection: Connection, programId: PublicKey, wallet?: any) {
+  constructor(connection: Connection, programId: PublicKey, wallet: Wallet) {
     this.connection = connection;
     this.programId = programId;
 
@@ -71,7 +71,7 @@ export class SolanaProgram implements SolanaProgramInterface {
     );
 
     // Initialize program
-    this.program = new Program(idl as any, this.provider);
+    this.program = new Program(idl as LocalsolanaContracts, this.provider);
   }
 
   // Update wallet when Dynamic.xyz wallet changes
