@@ -116,6 +116,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
   useEffect(() => {
     const token = getAuthToken();
     if (token) setAuthToken(token);
+    // console.log(token)
   }, []);
 
   const toggleMobileMenu = () => {
