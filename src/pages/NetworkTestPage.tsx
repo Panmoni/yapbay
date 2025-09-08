@@ -8,8 +8,10 @@ import { networkRegistry, NetworkType, NetworkConfig } from '../blockchain/index
 import { BlockchainServiceTest } from '../components/BlockchainServiceTest.js';
 import { EscrowTestWorkflow } from '../components/EscrowTestWorkflow.js';
 import { UnifiedBlockchainService } from '../services/blockchainService.js';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
 export const NetworkTestPage: React.FC = () => {
+  const { primaryWallet } = useDynamicContext();
   const [networks, setNetworks] = useState<NetworkConfig[]>([]);
   const [defaultNetwork, setDefaultNetwork] = useState<NetworkConfig | null>(null);
   const [envVars, setEnvVars] = useState<Record<string, string>>({});
@@ -45,6 +47,19 @@ export const NetworkTestPage: React.FC = () => {
       VITE_SOLANA_ARBITRATOR_ADDRESS: import.meta.env.VITE_SOLANA_ARBITRATOR_ADDRESS || 'not set',
     });
   }, []);
+
+  // Update blockchain service with wallet address and wallet object when wallet changes
+  useEffect(() => {
+    if (blockchainService && primaryWallet?.address) {
+      blockchainService.setWalletAddress(primaryWallet.address);
+      blockchainService.updateWallet(primaryWallet);
+      console.log('Updated blockchain service with wallet address:', primaryWallet.address);
+    } else if (blockchainService && !primaryWallet?.address) {
+      blockchainService.setWalletAddress(null);
+      blockchainService.updateWallet(null);
+      console.log('Cleared wallet address from blockchain service');
+    }
+  }, [blockchainService, primaryWallet]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">

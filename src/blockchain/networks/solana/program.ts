@@ -3,9 +3,8 @@
  * Integrates with the YapBay escrow program using Anchor
  */
 
-import { Program, AnchorProvider, BN, Wallet } from '@coral-xyz/anchor';
-// import { PublicKey, Connection, Keypair, SystemProgram, SYSVAR_RENT_PUBKEY } from '@solana/web3.js';
-import { PublicKey, Connection, Keypair } from '@solana/web3.js';
+import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
+import { PublicKey, Connection } from '@solana/web3.js';
 // import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import idl from '../../../contracts/solana/idl.json';
 import type { LocalsolanaContracts } from '../../../contracts/solana/types.js';
@@ -54,41 +53,70 @@ export interface SolanaProgramInterface {
 }
 
 export class SolanaProgram implements SolanaProgramInterface {
-  private program: Program<LocalsolanaContracts>;
-  private provider: AnchorProvider;
   private connection: Connection;
   private programId: PublicKey;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private dynamicWallet: any; // Dynamic.xyz wallet
 
-  constructor(connection: Connection, programId: PublicKey, wallet?: Wallet) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(connection: Connection, programId: PublicKey, dynamicWallet?: any) {
     this.connection = connection;
     this.programId = programId;
-
-    // Create provider (wallet will be set by Dynamic.xyz)
-    this.provider = new AnchorProvider(
-      connection,
-      wallet || (new Keypair() as unknown as Wallet), // Fallback for testing - cast for Keypair compatibility
-      { commitment: 'confirmed' }
-    );
-
-    // Initialize program
-    this.program = new Program(idl as LocalsolanaContracts, this.provider);
+    this.dynamicWallet = dynamicWallet;
   }
 
   // Update wallet when Dynamic.xyz wallet changes
-  updateWallet(wallet: Wallet): void {
-    this.provider = new AnchorProvider(this.connection, wallet, { commitment: 'confirmed' });
-    this.program = new Program(idl as unknown, this.provider);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateWallet(dynamicWallet: any): void {
+    this.dynamicWallet = dynamicWallet;
+    // Program will be recreated when needed with the new wallet
+  }
+
+  // Helper method to get the proper provider and program with Dynamic.xyz wallet
+  private async getProviderAndProgram(): Promise<{
+    provider: AnchorProvider;
+    program: Program<LocalsolanaContracts>;
+  }> {
+    if (!this.dynamicWallet) {
+      throw new Error('Dynamic.xyz wallet not connected');
+    }
+
+    // Use our configured connection (devnet) instead of wallet's default connection
+    const connection = this.connection;
+    const signer = await this.dynamicWallet.getSigner();
+
+    // Create Anchor provider with Dynamic.xyz wallet
+    const provider = new AnchorProvider(
+      connection,
+      {
+        publicKey: new PublicKey(this.dynamicWallet.address),
+        signTransaction: async tx => signer.signTransaction(tx),
+        signAllTransactions: async txs => signer.signAllTransactions(txs),
+      },
+      { commitment: 'confirmed' }
+    );
+
+    // Create program with the provider
+    const program = new Program(
+      idl as LocalsolanaContracts,
+      provider
+    ) as Program<LocalsolanaContracts>;
+
+    return { provider, program };
   }
 
   // Core Escrow Operations
   async createEscrow(params: CreateEscrowParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const seller = new PublicKey(params.sellerAddress);
       const buyer = new PublicKey(params.buyerAddress);
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .createEscrow(
           new BN(params.escrowId),
           new BN(params.tradeId),
@@ -102,8 +130,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -120,19 +148,22 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async fundEscrow(params: FundEscrowParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const seller = new PublicKey(params.sellerAddress);
       const sellerTokenAccount = new PublicKey(params.sellerTokenAccount);
 
       // Get USDC mint from network config
       const usdcMint = new PublicKey(
-        this.provider.connection.rpcEndpoint.includes('devnet')
+        this.connection.rpcEndpoint.includes('devnet')
           ? '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU' // Devnet USDC
           : 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' // Mainnet USDC
       );
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .fundEscrow()
         .accounts({
           seller: seller,
@@ -144,8 +175,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -162,19 +193,22 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async markFiatPaid(params: MarkFiatPaidParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const buyer = new PublicKey(params.buyerAddress);
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .markFiatPaid()
         .accounts({
           buyer: buyer,
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -191,6 +225,9 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async releaseEscrow(params: ReleaseEscrowParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const authority = new PublicKey(params.authorityAddress);
       const buyerTokenAccount = new PublicKey(params.buyerTokenAccount);
@@ -200,7 +237,7 @@ export class SolanaProgram implements SolanaProgramInterface {
         : null;
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .releaseEscrow()
         .accounts({
           authority: authority,
@@ -211,8 +248,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -229,13 +266,16 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async cancelEscrow(params: CancelEscrowParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const seller = new PublicKey(params.sellerAddress);
       const authority = new PublicKey(params.authorityAddress);
       const sellerTokenAccount = new PublicKey(params.sellerTokenAccount);
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .cancelEscrow()
         .accounts({
           seller: seller,
@@ -245,8 +285,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -264,6 +304,9 @@ export class SolanaProgram implements SolanaProgramInterface {
   // Dispute Operations
   async openDisputeWithBond(params: OpenDisputeParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const disputingParty = new PublicKey(params.disputingPartyAddress);
       const disputingPartyTokenAccount = new PublicKey(params.disputingPartyTokenAccount);
@@ -282,7 +325,7 @@ export class SolanaProgram implements SolanaProgramInterface {
       }
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .openDisputeWithBond(Array.from(evidenceHashBytes))
         .accounts({
           disputingParty: disputingParty,
@@ -291,8 +334,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -309,6 +352,9 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async respondToDisputeWithBond(params: RespondToDisputeParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const respondingParty = new PublicKey(params.respondingPartyAddress);
       const respondingPartyTokenAccount = new PublicKey(params.respondingPartyTokenAccount);
@@ -327,7 +373,7 @@ export class SolanaProgram implements SolanaProgramInterface {
       }
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .respondToDisputeWithBond(Array.from(evidenceHashBytes))
         .accounts({
           respondingParty: respondingParty,
@@ -336,8 +382,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -354,6 +400,9 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async resolveDisputeWithExplanation(params: ResolveDisputeParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const arbitrator = new PublicKey(params.arbitratorAddress);
       const seller = new PublicKey(params.sellerAddress);
@@ -375,7 +424,7 @@ export class SolanaProgram implements SolanaProgramInterface {
       }
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .resolveDisputeWithExplanation(params.buyerWins, Array.from(resolutionHashBytes))
         .accounts({
           arbitrator: arbitrator,
@@ -387,8 +436,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -405,6 +454,9 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async defaultJudgment(params: DefaultJudgmentParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const seller = new PublicKey(params.sellerAddress);
       const arbitrator = new PublicKey(params.arbitratorAddress);
@@ -412,7 +464,7 @@ export class SolanaProgram implements SolanaProgramInterface {
       const sellerTokenAccount = new PublicKey(params.sellerTokenAccount);
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .defaultJudgment()
         .accounts({
           seller: seller,
@@ -423,8 +475,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -442,12 +494,15 @@ export class SolanaProgram implements SolanaProgramInterface {
   // Utility Operations
   async initializeBuyerBondAccount(params: InitializeBondParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const payer = new PublicKey(params.payerAddress);
       const tokenMint = new PublicKey(params.tokenMint);
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .initializeBuyerBondAccount(new BN(params.escrowId), new BN(params.tradeId))
         .accounts({
           payer: payer,
@@ -458,8 +513,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -476,12 +531,15 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async initializeSellerBondAccount(params: InitializeBondParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const payer = new PublicKey(params.payerAddress);
       const tokenMint = new PublicKey(params.tokenMint);
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .initializeSellerBondAccount(new BN(params.escrowId), new BN(params.tradeId))
         .accounts({
           payer: payer,
@@ -492,8 +550,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -510,19 +568,22 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async updateSequentialAddress(params: UpdateSequentialParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const buyer = new PublicKey(params.buyerAddress);
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .updateSequentialAddress(new PublicKey(params.newSequentialAddress))
         .accounts({
           buyer: buyer,
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -539,13 +600,16 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async autoCancel(params: AutoCancelParams): Promise<TransactionResult> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { provider, program } = await this.getProviderAndProgram();
+
       // Convert addresses to PublicKeys
       const arbitrator = new PublicKey(params.arbitratorAddress);
       const seller = new PublicKey(params.sellerAddress);
       const sellerTokenAccount = new PublicKey(params.sellerTokenAccount);
 
       // Build transaction
-      const tx = await this.program.methods
+      const tx = await program.methods
         .autoCancel()
         .accounts({
           arbitrator: arbitrator,
@@ -555,8 +619,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      // Send transaction
-      const signature = await this.provider.sendAndConfirm(tx);
+      // Send transaction using Dynamic.xyz wallet
+      const signature = await provider.sendAndConfirm(tx);
 
       return {
         success: true,
@@ -574,11 +638,14 @@ export class SolanaProgram implements SolanaProgramInterface {
   // State Queries
   async getEscrowState(escrowId: number, tradeId: number): Promise<EscrowState> {
     try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { program } = await this.getProviderAndProgram();
+
       // Derive PDA
       const [escrowPDA] = PDADerivation.deriveEscrowPDA(this.programId, escrowId, tradeId);
 
       // Fetch account data
-      const escrowAccount = await this.program.account.escrow.fetch(escrowPDA);
+      const escrowAccount = await program.account.escrow.fetch(escrowPDA);
 
       return {
         id: escrowAccount.escrowId.toNumber(),
