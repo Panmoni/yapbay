@@ -27,3 +27,4 @@ node_modules/
 .env%
 .env*
 stats.html
+jwt.txt
