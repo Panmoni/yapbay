@@ -3,7 +3,7 @@
  * Orchestrates comprehensive testing of the escrow lifecycle
  */
 
-import { Keypair } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import { UnifiedBlockchainService } from '../services/blockchainService.js';
 import {
   TransactionResult,
@@ -26,6 +26,8 @@ export interface EscrowTestState {
   escrowState?: EscrowState;
   error?: string;
   isRunning: boolean;
+  walletConnected: boolean;
+  walletAddress?: string;
   testData?: {
     sellerWallet: Keypair;
     buyerWallet: Keypair;
@@ -48,23 +50,53 @@ export class EscrowTestManager {
   private blockchainService: UnifiedBlockchainService;
   private testState: EscrowTestState;
   private onStateUpdate?: (state: EscrowTestState) => void;
+  private walletAddress?: string;
 
   constructor(
     blockchainService: UnifiedBlockchainService,
+    walletAddress?: string,
     onStateUpdate?: (state: EscrowTestState) => void
   ) {
     this.blockchainService = blockchainService;
+    this.walletAddress = walletAddress;
     this.onStateUpdate = onStateUpdate;
     this.testState = {
       currentStep: 0,
       transactionResults: [],
       isRunning: false,
+      walletConnected: !!walletAddress,
+      walletAddress,
     };
   }
 
   private updateState(updates: Partial<EscrowTestState>): void {
     this.testState = { ...this.testState, ...updates };
     this.onStateUpdate?.(this.testState);
+  }
+
+  async checkWalletConnection(): Promise<boolean> {
+    try {
+      const isConnected = !!this.walletAddress;
+
+      this.updateState({
+        walletConnected: isConnected,
+        walletAddress: this.walletAddress,
+      });
+
+      return isConnected;
+    } catch (error) {
+      console.error('Error checking wallet connection:', error);
+      this.updateState({ walletConnected: false });
+      return false;
+    }
+  }
+
+  updateWalletAddress(walletAddress?: string): void {
+    this.walletAddress = walletAddress;
+    this.updateState({
+      walletConnected: !!walletAddress,
+      walletAddress,
+    });
   }
 
   private generateRandomId(): number {
@@ -120,8 +152,19 @@ export class EscrowTestManager {
 
   async initializeTestData(): Promise<void> {
     try {
-      // Generate test wallets
-      const sellerWallet = Keypair.generate();
+      // Check wallet connection first
+      const isWalletConnected = await this.checkWalletConnection();
+      if (!isWalletConnected) {
+        throw new Error('Wallet not connected. Please connect your wallet first.');
+      }
+
+      // Use the connected wallet as the seller (primary user)
+      const connectedWalletAddress = this.walletAddress;
+      if (!connectedWalletAddress) {
+        throw new Error('No wallet address available');
+      }
+
+      // Generate test wallets for buyer and arbitrator
       const buyerWallet = Keypair.generate();
 
       // Use a known arbitrator address (you can replace this with a real one)
@@ -132,8 +175,16 @@ export class EscrowTestManager {
       const buyerTokenAccount = Keypair.generate().publicKey.toString();
       const arbitratorTokenAccount = Keypair.generate().publicKey.toString();
 
+      // Create a dummy seller wallet for the test data structure
+      const sellerWallet = Keypair.generate();
+      // Create a new keypair with the connected wallet address
+      const sellerWalletWithAddress = {
+        ...sellerWallet,
+        publicKey: new PublicKey(connectedWalletAddress),
+      } as Keypair;
+
       const testData = {
-        sellerWallet,
+        sellerWallet: sellerWalletWithAddress,
         buyerWallet,
         arbitratorAddress,
         sellerTokenAccount,
@@ -143,7 +194,7 @@ export class EscrowTestManager {
       };
 
       this.updateState({ testData });
-      console.log('✅ Test data initialized');
+      console.log('✅ Test data initialized with connected wallet:', connectedWalletAddress);
     } catch (error) {
       console.error('❌ Failed to initialize test data:', error);
       throw error;

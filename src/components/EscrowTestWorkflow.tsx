@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { EscrowTestManager, EscrowTestState } from '../utils/EscrowTestManager.js';
 import { UnifiedBlockchainService } from '../services/blockchainService.js';
 import { TransactionResult, EscrowState } from '../blockchain/types/index.js';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
 interface EscrowTestWorkflowProps {
   blockchainService: UnifiedBlockchainService;
@@ -117,11 +118,13 @@ const EscrowStateDisplay: React.FC<{ state?: EscrowState }> = ({ state }) => {
 };
 
 export const EscrowTestWorkflow: React.FC<EscrowTestWorkflowProps> = ({ blockchainService }) => {
+  const { primaryWallet } = useDynamicContext();
   const [testManager, setTestManager] = useState<EscrowTestManager | null>(null);
   const [testState, setTestState] = useState<EscrowTestState>({
     currentStep: 0,
     transactionResults: [],
     isRunning: false,
+    walletConnected: false,
   });
 
   const lifecycleSteps: TestStep[] = [
@@ -152,9 +155,17 @@ export const EscrowTestWorkflow: React.FC<EscrowTestWorkflowProps> = ({ blockcha
   ];
 
   useEffect(() => {
-    const manager = new EscrowTestManager(blockchainService, setTestState);
+    const walletAddress = primaryWallet?.address;
+    const manager = new EscrowTestManager(blockchainService, walletAddress, setTestState);
     setTestManager(manager);
-  }, [blockchainService]);
+  }, [blockchainService, primaryWallet?.address]);
+
+  // Update wallet connection status when Dynamic wallet changes
+  useEffect(() => {
+    if (testManager) {
+      testManager.updateWalletAddress(primaryWallet?.address);
+    }
+  }, [primaryWallet?.address, testManager]);
 
   const handleLifecycleTest = async () => {
     if (!testManager) return;
@@ -185,6 +196,7 @@ export const EscrowTestWorkflow: React.FC<EscrowTestWorkflowProps> = ({ blockcha
         currentStep: 0,
         transactionResults: [],
         isRunning: false,
+        walletConnected: false,
       });
     } catch (error) {
       console.error('Cleanup failed:', error);
@@ -237,14 +249,46 @@ export const EscrowTestWorkflow: React.FC<EscrowTestWorkflowProps> = ({ blockcha
     <div className="bg-white rounded-lg shadow p-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">🧪 Escrow Lifecycle Testing</h2>
 
+      {/* Wallet Connection Status */}
+      <div className="mb-6">
+        <div
+          className={`p-4 rounded-lg border ${
+            testState.walletConnected ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl">{testState.walletConnected ? '🟢' : '🔴'}</span>
+              <div>
+                <h3
+                  className={`font-semibold ${
+                    testState.walletConnected ? 'text-green-800' : 'text-red-800'
+                  }`}
+                >
+                  {testState.walletConnected ? 'Wallet Connected' : 'Wallet Not Connected'}
+                </h3>
+                {testState.walletAddress && (
+                  <p className="text-sm text-gray-600 font-mono">
+                    {testState.walletAddress.slice(0, 8)}...{testState.walletAddress.slice(-8)}
+                  </p>
+                )}
+              </div>
+            </div>
+            {!testState.walletConnected && (
+              <div className="text-sm text-red-700">Please connect your wallet to run tests</div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Test Controls */}
       <div className="mb-8">
         <div className="flex flex-wrap gap-4 mb-4">
           <button
             onClick={handleLifecycleTest}
-            disabled={testState.isRunning}
+            disabled={testState.isRunning || !testState.walletConnected}
             className={`px-6 py-3 rounded-lg font-medium ${
-              testState.isRunning
+              testState.isRunning || !testState.walletConnected
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
@@ -254,9 +298,9 @@ export const EscrowTestWorkflow: React.FC<EscrowTestWorkflowProps> = ({ blockcha
 
           <button
             onClick={handleDisputeTest}
-            disabled={testState.isRunning}
+            disabled={testState.isRunning || !testState.walletConnected}
             className={`px-6 py-3 rounded-lg font-medium ${
-              testState.isRunning
+              testState.isRunning || !testState.walletConnected
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-orange-600 text-white hover:bg-orange-700'
             }`}
