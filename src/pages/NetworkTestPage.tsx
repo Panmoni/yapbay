@@ -6,11 +6,14 @@
 import React, { useEffect, useState } from 'react';
 import { networkRegistry, NetworkType, NetworkConfig } from '../blockchain/index.js';
 import { BlockchainServiceTest } from '../components/BlockchainServiceTest.js';
+import { EscrowTestWorkflow } from '../components/EscrowTestWorkflow.js';
+import { UnifiedBlockchainService } from '../services/blockchainService.js';
 
 export const NetworkTestPage: React.FC = () => {
   const [networks, setNetworks] = useState<NetworkConfig[]>([]);
   const [defaultNetwork, setDefaultNetwork] = useState<NetworkConfig | null>(null);
   const [envVars, setEnvVars] = useState<Record<string, string>>({});
+  const [blockchainService, setBlockchainService] = useState<UnifiedBlockchainService | null>(null);
 
   useEffect(() => {
     // Get all networks
@@ -23,6 +26,14 @@ export const NetworkTestPage: React.FC = () => {
       setDefaultNetwork(defaultNet);
     } catch (error) {
       console.error('Error getting default network:', error);
+    }
+
+    // Initialize blockchain service
+    try {
+      const service = new UnifiedBlockchainService();
+      setBlockchainService(service);
+    } catch (error) {
+      console.error('Error initializing blockchain service:', error);
     }
 
     // Get environment variables for debugging
@@ -196,6 +207,13 @@ export const NetworkTestPage: React.FC = () => {
       <div className="mt-8">
         <BlockchainServiceTest />
       </div>
+
+      {/* Escrow Lifecycle Testing */}
+      {blockchainService && (
+        <div className="mt-8">
+          <EscrowTestWorkflow blockchainService={blockchainService} />
+        </div>
+      )}
     </div>
   );
 };
