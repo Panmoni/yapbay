@@ -164,17 +164,22 @@ export class EscrowTestManager {
         this.testState.tradeId
       );
 
-      console.log('🚀 [DEBUG] Calling blockchainService.getEscrowBalance...');
-      const balance = await this.blockchainService.getEscrowBalance(
-        this.testState.escrowId,
-        this.testState.tradeId
-      );
-
       console.log('📊 [DEBUG] State verification results:');
       console.log(`  - Current State: ${state.state}`);
       console.log(`  - Expected State: ${expectedState}`);
-      console.log(`  - Balance: ${balance} USDC`);
       console.log(`  - State Match: ${state.state === expectedState}`);
+
+      // Only try to get balance if the escrow is funded or we expect it to be funded
+      if (state.state === 'FUNDED' || expectedState === 'FUNDED') {
+        console.log('🚀 [DEBUG] Calling blockchainService.getEscrowBalance...');
+        const balance = await this.blockchainService.getEscrowBalance(
+          this.testState.escrowId,
+          this.testState.tradeId
+        );
+        console.log(`  - Balance: ${balance} USDC`);
+      } else {
+        console.log('  - Balance: N/A (escrow not funded yet)');
+      }
 
       this.updateState({ escrowState: state });
       return state.state === expectedState;
