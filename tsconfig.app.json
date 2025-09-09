@@ -28,5 +28,5 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src"],
-  "exclude": ["src/utils/common.ts", "src/utils/YapBayEscrow.ts"]
+  "exclude": ["src/utils/common.ts", "src/utils/YapBayEscrow.ts", "src/contracts/solana/tests.ts"]
 }
