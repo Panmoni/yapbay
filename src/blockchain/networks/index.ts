@@ -49,7 +49,7 @@ export class NetworkRegistry {
   getDefault(): NetworkConfig {
     // Check if we're in a Vite environment
     const isViteEnv = typeof import.meta !== 'undefined' && import.meta.env;
-    
+
     if (isViteEnv) {
       const defaultId = import.meta.env.VITE_DEFAULT_NETWORK;
       if (defaultId && this.networks.has(defaultId)) {
@@ -119,7 +119,7 @@ export function initializeNetworks(): void {
       type: NetworkType.SOLANA,
       name: 'Solana Devnet (Fallback)',
       rpcUrl: 'https://api.devnet.solana.com',
-      programId: 'D7KnbDFa85CwPbN5DzXKfPcKg5KNXRiQQMEoDTP4FRLe',
+      programId: '4PonUp1nPEzDPnRMPjTqufLT3f37QuBJGk1CVnsTXx7x',
       usdcMint: '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU',
       arbitratorAddress: 'GGrXhNVxUZXaA2uMopsa5q23aPmoNvQF14uxqo8qENUr',
       blockExplorerUrl: 'https://explorer.solana.com/?cluster=devnet',
