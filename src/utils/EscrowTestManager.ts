@@ -4,6 +4,7 @@
  */
 
 import { Keypair, PublicKey } from '@solana/web3.js';
+import * as token from '@solana/spl-token';
 import { UnifiedBlockchainService } from '../services/blockchainService.js';
 import { PDADerivation } from '../blockchain/utils/pda.js';
 import {
@@ -112,6 +113,19 @@ export class EscrowTestManager {
     return escrowPDA.toString();
   }
 
+  private deriveAssociatedTokenAccount(walletAddress: string, mintAddress: string): string {
+    // Derive the associated token account address
+    const wallet = new PublicKey(walletAddress);
+    const mint = new PublicKey(mintAddress);
+
+    const [associatedTokenAccount] = PublicKey.findProgramAddressSync(
+      [wallet.toBuffer(), token.TOKEN_PROGRAM_ID.toBuffer(), mint.toBuffer()],
+      token.ASSOCIATED_TOKEN_PROGRAM_ID
+    );
+
+    return associatedTokenAccount.toString();
+  }
+
   private async waitForTransactionConfirmation(
     signature: string,
     waitTimeSeconds: number = 10
@@ -212,10 +226,21 @@ export class EscrowTestManager {
       // Use a known arbitrator address (you can replace this with a real one)
       const arbitratorAddress = '11111111111111111111111111111112'; // System program as placeholder
 
-      // Generate token account addresses (these would be derived in real usage)
-      const sellerTokenAccount = Keypair.generate().publicKey.toString();
-      const buyerTokenAccount = Keypair.generate().publicKey.toString();
-      const arbitratorTokenAccount = Keypair.generate().publicKey.toString();
+      // Derive associated token account addresses for USDC on devnet
+      const usdcMintAddress = '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU'; // Devnet USDC
+
+      const sellerTokenAccount = this.deriveAssociatedTokenAccount(
+        connectedWalletAddress,
+        usdcMintAddress
+      );
+      const buyerTokenAccount = this.deriveAssociatedTokenAccount(
+        buyerWallet.publicKey.toString(),
+        usdcMintAddress
+      );
+      const arbitratorTokenAccount = this.deriveAssociatedTokenAccount(
+        arbitratorAddress,
+        usdcMintAddress
+      );
 
       // Create a dummy seller wallet for the test data structure
       const sellerWallet = Keypair.generate();
@@ -237,6 +262,11 @@ export class EscrowTestManager {
 
       this.updateState({ testData });
       console.log('✅ Test data initialized with connected wallet:', connectedWalletAddress);
+      console.log('🔍 [DEBUG] Derived token account addresses:');
+      console.log('  - Seller Token Account:', sellerTokenAccount);
+      console.log('  - Buyer Token Account:', buyerTokenAccount);
+      console.log('  - Arbitrator Token Account:', arbitratorTokenAccount);
+      console.log('  - USDC Mint:', usdcMintAddress);
     } catch (error) {
       console.error('❌ Failed to initialize test data:', error);
       throw error;
@@ -326,6 +356,18 @@ export class EscrowTestManager {
     console.log('  - Seller Address:', this.testState.testData.sellerWallet.publicKey.toString());
     console.log('  - Seller Token Account:', this.testState.testData.sellerTokenAccount);
     console.log('  - Escrow Address (from state):', this.testState.escrowAddress);
+
+    // Check seller's USDC balance before funding
+    try {
+      const sellerBalance = await this.blockchainService.getWalletBalance();
+      console.log('🔍 [DEBUG] Seller USDC balance before funding:', {
+        balance: sellerBalance,
+        amount: this.testState.testData.amount,
+        sufficient: sellerBalance >= parseInt(this.testState.testData.amount.toString()),
+      });
+    } catch (error) {
+      console.log('🔍 [DEBUG] Failed to get seller balance:', error);
+    }
 
     const params: FundEscrowParams = {
       escrowId: this.testState.escrowId,
