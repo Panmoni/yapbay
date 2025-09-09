@@ -5,6 +5,7 @@
 
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { UnifiedBlockchainService } from '../services/blockchainService.js';
+import { PDADerivation } from '../blockchain/utils/pda.js';
 import {
   TransactionResult,
   EscrowState,
@@ -22,6 +23,7 @@ export interface EscrowTestState {
   currentStep: number;
   escrowId?: number;
   tradeId?: number;
+  escrowAddress?: string;
   transactionResults: TransactionResult[];
   escrowState?: EscrowState;
   error?: string;
@@ -103,6 +105,26 @@ export class EscrowTestManager {
     return Math.floor(Math.random() * 1000000) + 1;
   }
 
+  private deriveEscrowAddress(escrowId: number, tradeId: number): string {
+    // Use the actual program ID from the transaction analysis
+    const programId = new PublicKey('4PonUp1nPEzDPnRMPjTqufLT3f37QuBJGk1CVnsTXx7x');
+    const [escrowPDA] = PDADerivation.deriveEscrowPDA(programId, escrowId, tradeId);
+    return escrowPDA.toString();
+  }
+
+  private async waitForTransactionConfirmation(
+    signature: string,
+    waitTimeSeconds: number = 10
+  ): Promise<void> {
+    console.log('⏳ [DEBUG] Waiting for transaction confirmation...');
+    console.log('  - Signature:', signature);
+    console.log(`  - Wait time: ${waitTimeSeconds} seconds`);
+
+    await new Promise(resolve => setTimeout(resolve, waitTimeSeconds * 1000));
+
+    console.log('✅ [DEBUG] Transaction confirmation wait completed');
+  }
+
   private generateEvidenceHash(evidence: string): string {
     // Simple hash generation for testing - using a simple hash function
     let hash = 0;
@@ -129,23 +151,38 @@ export class EscrowTestManager {
       throw new Error('No escrow ID or trade ID available for state verification');
     }
 
+    console.log('🔍 [DEBUG] Verifying escrow state:');
+    console.log('  - Escrow ID:', this.testState.escrowId);
+    console.log('  - Trade ID:', this.testState.tradeId);
+    console.log('  - Expected State:', expectedState);
+    console.log('  - Escrow Address (from state):', this.testState.escrowAddress);
+
     try {
+      console.log('🚀 [DEBUG] Calling blockchainService.getEscrowState...');
       const state = await this.blockchainService.getEscrowState(
         this.testState.escrowId,
         this.testState.tradeId
       );
+
+      console.log('🚀 [DEBUG] Calling blockchainService.getEscrowBalance...');
       const balance = await this.blockchainService.getEscrowBalance(
         this.testState.escrowId,
         this.testState.tradeId
       );
 
-      console.log(`🔍 Escrow State: ${state.state} (expected: ${expectedState})`);
-      console.log(`💰 Escrow Balance: ${balance} USDC`);
+      console.log('📊 [DEBUG] State verification results:');
+      console.log(`  - Current State: ${state.state}`);
+      console.log(`  - Expected State: ${expectedState}`);
+      console.log(`  - Balance: ${balance} USDC`);
+      console.log(`  - State Match: ${state.state === expectedState}`);
 
       this.updateState({ escrowState: state });
       return state.state === expectedState;
     } catch (error) {
-      console.error('❌ State verification failed:', error);
+      console.error('❌ [DEBUG] State verification failed:', error);
+      console.error('  - Error details:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('  - Escrow ID:', this.testState.escrowId);
+      console.error('  - Trade ID:', this.testState.tradeId);
       return false;
     }
   }
@@ -209,6 +246,14 @@ export class EscrowTestManager {
     const escrowId = this.generateRandomId();
     const tradeId = this.generateRandomId();
 
+    console.log('🔍 [DEBUG] Creating escrow with parameters:');
+    console.log('  - Escrow ID:', escrowId);
+    console.log('  - Trade ID:', tradeId);
+    console.log('  - Amount:', this.testState.testData.amount);
+    console.log('  - Seller Address:', this.testState.testData.sellerWallet.publicKey.toString());
+    console.log('  - Buyer Address:', this.testState.testData.buyerWallet.publicKey.toString());
+    console.log('  - Arbitrator Address:', this.testState.testData.arbitratorAddress);
+
     const params: CreateEscrowParams = {
       escrowId,
       tradeId,
@@ -223,19 +268,38 @@ export class EscrowTestManager {
     };
 
     try {
+      console.log('🚀 [DEBUG] Calling blockchainService.createEscrow...');
       const result = await this.blockchainService.createEscrow(params);
-      await this.logStep('Create Escrow', result);
+
+      console.log('📊 [DEBUG] Create escrow result:', {
+        success: result.success,
+        error: result.error,
+        signature: result.signature,
+        transactionHash: result.transactionHash,
+      });
 
       if (result.success) {
+        console.log('✅ [DEBUG] Escrow created successfully!');
+        console.log('  - Transaction Signature:', result.signature || result.transactionHash);
+
+        // Derive the escrow address using PDA derivation
+        const escrowAddress = this.deriveEscrowAddress(escrowId, tradeId);
+        console.log('  - Derived Escrow Address:', escrowAddress);
+
         this.updateState({
           escrowId,
           tradeId,
+          escrowAddress,
           transactionResults: [...this.testState.transactionResults, result],
         });
+      } else {
+        console.log('❌ [DEBUG] Escrow creation failed:', result.error);
       }
 
+      await this.logStep('Create Escrow', result);
       return result;
     } catch (error) {
+      console.log('💥 [DEBUG] Create escrow exception:', error);
       const errorResult: TransactionResult = {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -250,6 +314,14 @@ export class EscrowTestManager {
       throw new Error('Escrow not created or test data not available');
     }
 
+    console.log('🔍 [DEBUG] Funding escrow with parameters:');
+    console.log('  - Escrow ID:', this.testState.escrowId);
+    console.log('  - Trade ID:', this.testState.tradeId);
+    console.log('  - Amount:', this.testState.testData.amount);
+    console.log('  - Seller Address:', this.testState.testData.sellerWallet.publicKey.toString());
+    console.log('  - Seller Token Account:', this.testState.testData.sellerTokenAccount);
+    console.log('  - Escrow Address (from state):', this.testState.escrowAddress);
+
     const params: FundEscrowParams = {
       escrowId: this.testState.escrowId,
       tradeId: this.testState.tradeId,
@@ -259,17 +331,30 @@ export class EscrowTestManager {
     };
 
     try {
+      console.log('🚀 [DEBUG] Calling blockchainService.fundEscrow...');
       const result = await this.blockchainService.fundEscrow(params);
-      await this.logStep('Fund Escrow', result);
+
+      console.log('📊 [DEBUG] Fund escrow result:', {
+        success: result.success,
+        error: result.error,
+        signature: result.signature,
+        transactionHash: result.transactionHash,
+      });
 
       if (result.success) {
+        console.log('✅ [DEBUG] Escrow funded successfully!');
+        console.log('  - Transaction Signature:', result.signature || result.transactionHash);
         this.updateState({
           transactionResults: [...this.testState.transactionResults, result],
         });
+      } else {
+        console.log('❌ [DEBUG] Escrow funding failed:', result.error);
       }
 
+      await this.logStep('Fund Escrow', result);
       return result;
     } catch (error) {
+      console.log('💥 [DEBUG] Fund escrow exception:', error);
       const errorResult: TransactionResult = {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -510,18 +595,32 @@ export class EscrowTestManager {
       this.updateState({ currentStep: 1 });
 
       // Step 1: Create Escrow
+      console.log('🔄 [DEBUG] Starting Step 1: Create Escrow');
       const createResult = await this.createEscrow();
       if (!createResult.success) {
         throw new Error(`Create escrow failed: ${createResult.error}`);
       }
+
+      // Wait for transaction confirmation
+      if (createResult.signature) {
+        await this.waitForTransactionConfirmation(createResult.signature, 10);
+      }
+
+      console.log('🔄 [DEBUG] Verifying escrow state after creation...');
       await this.verifyState('CREATED');
       this.updateState({ currentStep: 2 });
 
+      // Additional wait for blockchain to process the creation
+      console.log('⏳ [DEBUG] Waiting 5 seconds for blockchain to process escrow creation...');
+      await new Promise(resolve => setTimeout(resolve, 5000));
+
       // Step 2: Fund Escrow
+      console.log('🔄 [DEBUG] Starting Step 2: Fund Escrow');
       const fundResult = await this.fundEscrow();
       if (!fundResult.success) {
         throw new Error(`Fund escrow failed: ${fundResult.error}`);
       }
+      console.log('🔄 [DEBUG] Verifying escrow state after funding...');
       await this.verifyState('FUNDED');
       this.updateState({ currentStep: 3 });
 

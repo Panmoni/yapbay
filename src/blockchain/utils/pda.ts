@@ -15,7 +15,11 @@ export class PDADerivation {
     tradeId: number
   ): [PublicKey, number] {
     return PublicKey.findProgramAddressSync(
-      [Buffer.from('escrow'), Buffer.from(escrowId.toString()), Buffer.from(tradeId.toString())],
+      [
+        Buffer.from('escrow'),
+        Buffer.from(escrowId.toString(16).padStart(16, '0'), 'hex').reverse(), // Convert to 8-byte little-endian
+        Buffer.from(tradeId.toString(16).padStart(16, '0'), 'hex').reverse(), // Convert to 8-byte little-endian
+      ],
       programId
     );
   }
