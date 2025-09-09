@@ -162,9 +162,9 @@ export class SolanaProgram implements SolanaProgramInterface {
           : 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' // Mainnet USDC
       );
 
-      // Build transaction
+      // Build transaction - pass escrowId and tradeId as arguments
       const tx = await program.methods
-        .fundEscrow()
+        .fundEscrow(new BN(params.escrowId), new BN(params.tradeId))
         .accounts({
           seller: seller,
           sellerTokenAccount: sellerTokenAccount,
