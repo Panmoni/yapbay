@@ -51,7 +51,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, Transfer, CloseAccount};
 
-declare_id!("D7KnbDFa85CwPbN5DzXKfPcKg5KNXRiQQMEoDTP4FRLe");
+declare_id!("4PonUp1nPEzDPnRMPjTqufLT3f37QuBJGk1CVnsTXx7x");
 
 mod constants {
     // Maximum amount allowed (100 USDC)
@@ -225,7 +225,7 @@ pub mod localsolana_contracts {
         Ok(())
     }
 
-    pub fn fund_escrow(ctx: Context<FundEscrow>) -> Result<()> {
+    pub fn fund_escrow(ctx: Context<FundEscrow>, _escrow_id: u64, _trade_id: u64) -> Result<()> {
 
         use constants::MAX_U64;
 
@@ -1467,6 +1467,7 @@ pub struct CreateEscrow<'info> {
 }
 
 #[derive(Accounts)]
+#[instruction(_escrow_id: u64, _trade_id: u64)]
 // this is the escrow _token_ account ("vault")
 pub struct FundEscrow<'info> {
     #[account(mut)]
@@ -1474,7 +1475,7 @@ pub struct FundEscrow<'info> {
 
     #[account(
         mut,
-        seeds = [b"escrow", escrow.escrow_id.to_le_bytes().as_ref(), escrow.trade_id.to_le_bytes().as_ref()],
+        seeds = [b"escrow", _escrow_id.to_le_bytes().as_ref(), _trade_id.to_le_bytes().as_ref()],
         // automatic bump calculation
         bump,
         constraint = escrow.seller == seller.key()
