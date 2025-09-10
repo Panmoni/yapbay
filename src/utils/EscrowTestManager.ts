@@ -258,7 +258,7 @@ export class EscrowTestManager {
         sellerTokenAccount,
         buyerTokenAccount,
         arbitratorTokenAccount,
-        amount: '10000000', // 10 USDC (6 decimals)
+        amount: '1000000', // 1 USDC (6 decimals)
       };
 
       this.updateState({ testData });
