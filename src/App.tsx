@@ -46,7 +46,16 @@ function App() {
           // Dispatch global auth state change event after successful login
           dispatchAuthStateChange(primaryWallet.address);
         } catch (err) {
-          console.error('Failed to fetch account:', err);
+          // Check if this is a 404 error for account not found
+          const axiosError = err as { response?: { status?: number } };
+          if (axiosError.response?.status === 404) {
+            // Account doesn't exist yet - this is expected for new users
+            // The API interceptor already logged a user-friendly warning
+            setAccount(null);
+          } else {
+            // Log other errors normally
+            console.error('Failed to fetch account:', err);
+          }
         }
       };
       getUserData();

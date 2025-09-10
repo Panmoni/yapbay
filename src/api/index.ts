@@ -32,9 +32,18 @@ api.interceptors.response.use(
     return response;
   },
   (error: unknown) => {
-    console.error('API Error:', (error as {response?: {status?: number}}).response?.status, 
-      (error as Error).message, 
-      (error as {config?: {url?: string}}).config?.url);
+    const axiosError = error as { response?: { status?: number }; config?: { url?: string } };
+    const status = axiosError.response?.status;
+    const url = axiosError.config?.url;
+
+    // Suppress 404 errors for /accounts/me endpoint (user hasn't created account yet)
+    if (status === 404 && url?.includes('/accounts/me')) {
+      console.warn('Account not found - user needs to create their account first');
+    } else {
+      // Log all other errors normally
+      console.error('API Error:', status, (error as Error).message, url);
+    }
+
     // Handle specific errors like 401 Unauthorized if needed
     return Promise.reject(error);
   }
@@ -204,7 +213,17 @@ export interface TransactionRecord {
   trade_id: number;
   escrow_id?: number;
   transaction_hash: string;
-  transaction_type: 'CREATE_ESCROW' | 'FUND_ESCROW' | 'MARK_FIAT_PAID' | 'RELEASE_ESCROW' | 'CANCEL_ESCROW' | 'DISPUTE_ESCROW' | 'OPEN_DISPUTE' | 'RESPOND_DISPUTE' | 'RESOLVE_DISPUTE' | 'OTHER';
+  transaction_type:
+    | 'CREATE_ESCROW'
+    | 'FUND_ESCROW'
+    | 'MARK_FIAT_PAID'
+    | 'RELEASE_ESCROW'
+    | 'CANCEL_ESCROW'
+    | 'DISPUTE_ESCROW'
+    | 'OPEN_DISPUTE'
+    | 'RESPOND_DISPUTE'
+    | 'RESOLVE_DISPUTE'
+    | 'OTHER';
   from_address: string;
   to_address?: string;
   amount?: string;
@@ -469,7 +488,17 @@ export const recordTransaction = (data: {
   trade_id: number;
   escrow_id?: number;
   transaction_hash: string;
-  transaction_type: 'CREATE_ESCROW' | 'FUND_ESCROW' | 'MARK_FIAT_PAID' | 'RELEASE_ESCROW' | 'CANCEL_ESCROW' | 'DISPUTE_ESCROW' | 'OPEN_DISPUTE' | 'RESPOND_DISPUTE' | 'RESOLVE_DISPUTE' | 'OTHER';
+  transaction_type:
+    | 'CREATE_ESCROW'
+    | 'FUND_ESCROW'
+    | 'MARK_FIAT_PAID'
+    | 'RELEASE_ESCROW'
+    | 'CANCEL_ESCROW'
+    | 'DISPUTE_ESCROW'
+    | 'OPEN_DISPUTE'
+    | 'RESPOND_DISPUTE'
+    | 'RESOLVE_DISPUTE'
+    | 'OTHER';
   from_address: string;
   to_address?: string;
   amount?: string;
@@ -493,7 +522,7 @@ export const recordTransaction = (data: {
  * @param type Optional transaction type filter
  * @returns Promise with array of transaction records
  */
-export const getTradeTransactions = (tradeId: number, type?: string) => 
+export const getTradeTransactions = (tradeId: number, type?: string) =>
   api.get<TransactionRecord[]>(`/transactions/trade/${tradeId}${type ? `?type=${type}` : ''}`);
 
 /**
@@ -501,16 +530,16 @@ export const getTradeTransactions = (tradeId: number, type?: string) =>
  * @param params Optional parameters for filtering and pagination
  * @returns Promise with array of transaction records
  */
-export const getUserTransactions = (params?: { 
-  type?: string; 
-  limit?: number; 
-  offset?: number; 
+export const getUserTransactions = (params?: {
+  type?: string;
+  limit?: number;
+  offset?: number;
 }) => {
   const queryParams = new URLSearchParams();
   if (params?.type) queryParams.append('type', params.type);
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   if (params?.offset) queryParams.append('offset', params.offset.toString());
-  
+
   const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
   return api.get<TransactionRecord[]>(`/transactions/user${queryString}`);
 };
