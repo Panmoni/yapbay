@@ -6,18 +6,6 @@ import { useEffect, useState } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 import { blockchainService, BlockchainService } from '../services/blockchainService.js';
 import { NetworkConfig } from '../blockchain/types/index.js';
-import { Wallet } from '@coral-xyz/anchor';
-
-// Helper function to convert Dynamic.xyz wallet to Anchor-compatible wallet
-function createAnchorWallet(dynamicWallet: unknown): Wallet {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const wallet = dynamicWallet as any; // Dynamic.xyz wallet type
-  return {
-    publicKey: wallet.publicKey,
-    signTransaction: wallet.signTransaction,
-    signAllTransactions: wallet.signAllTransactions,
-  } as Wallet;
-}
 
 export interface UseBlockchainServiceReturn {
   // Service instance
@@ -51,11 +39,13 @@ export function useBlockchainService(): UseBlockchainServiceReturn {
   useEffect(() => {
     if (primaryWallet?.address) {
       blockchainService.setWalletAddress(primaryWallet.address);
-      // Update wallet in Solana program - convert Dynamic.xyz wallet to Anchor format
-      const anchorWallet = createAnchorWallet(primaryWallet);
-      blockchainService.updateWallet(anchorWallet);
+      // Update wallet in Solana program - pass Dynamic.xyz wallet directly
+      blockchainService.updateWallet(primaryWallet);
+      console.log('Updated blockchain service with wallet address:', primaryWallet.address);
     } else {
       blockchainService.setWalletAddress(null);
+      blockchainService.updateWallet(null);
+      console.log('Cleared wallet address from blockchain service');
     }
   }, [primaryWallet?.address, primaryWallet]);
 

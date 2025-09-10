@@ -5,7 +5,7 @@
 
 import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
 import { PublicKey, Connection } from '@solana/web3.js';
-// import { TOKEN_PROGRAM_ID } from '@solana/spl-token';
+import { getAssociatedTokenAddress } from '@solana/spl-token';
 import idl from '../../../contracts/solana/idl.json';
 import type { LocalsolanaContracts } from '../../../contracts/solana/types.js';
 import { PDADerivation } from '../../utils/pda.js';
@@ -50,18 +50,28 @@ export interface SolanaProgramInterface {
   // State queries
   getEscrowState(escrowId: number, tradeId: number): Promise<EscrowState>;
   getEscrowBalance(escrowId: number, tradeId: number): Promise<number>;
+
+  // Wallet balance queries
+  getUsdcBalance(): Promise<number>;
 }
 
 export class SolanaProgram implements SolanaProgramInterface {
   private connection: Connection;
   private programId: PublicKey;
+  private usdcMint: PublicKey;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private dynamicWallet: any; // Dynamic.xyz wallet
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(connection: Connection, programId: PublicKey, dynamicWallet?: any) {
+  constructor(
+    connection: Connection,
+    programId: PublicKey,
+    usdcMint: PublicKey,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dynamicWallet?: any
+  ) {
     this.connection = connection;
     this.programId = programId;
+    this.usdcMint = usdcMint;
     this.dynamicWallet = dynamicWallet;
   }
 
@@ -766,6 +776,56 @@ export class SolanaProgram implements SolanaProgramInterface {
       return parseFloat(tokenAccountInfo.value.amount);
     } catch (error) {
       throw new Error(`Failed to fetch escrow balance: ${this.handleError(error)}`);
+    }
+  }
+
+  async getUsdcBalance(): Promise<number> {
+    try {
+      console.log(`🔍 [DEBUG] SolanaProgram.getUsdcBalance called`, {
+        hasDynamicWallet: !!this.dynamicWallet,
+        walletAddress: this.dynamicWallet?.address,
+        walletKeys: this.dynamicWallet ? Object.keys(this.dynamicWallet) : [],
+      });
+
+      if (!this.dynamicWallet?.address) {
+        throw new Error('Wallet not connected');
+      }
+
+      console.log(`🔍 [DEBUG] Getting USDC balance for wallet: ${this.dynamicWallet.address}`);
+
+      const walletPublicKey = new PublicKey(this.dynamicWallet.address);
+
+      // Get the associated token account for USDC
+      const associatedTokenAddress = await getAssociatedTokenAddress(
+        this.usdcMint,
+        walletPublicKey
+      );
+
+      console.log(`🔍 [DEBUG] Associated token account: ${associatedTokenAddress.toBase58()}`);
+
+      // Get the token account info
+      const tokenAccountInfo = await this.connection.getTokenAccountBalance(associatedTokenAddress);
+
+      if (!tokenAccountInfo.value) {
+        console.log(`🔍 [DEBUG] Token account not found or has no balance`);
+        return 0;
+      }
+
+      const balance = tokenAccountInfo.value.amount;
+      console.log(`🔍 [DEBUG] USDC balance: ${balance} (${tokenAccountInfo.value.uiAmount} USDC)`);
+
+      // Return balance as number (in smallest unit - 6 decimals for USDC)
+      return parseInt(balance);
+    } catch (error) {
+      console.error(`❌ [ERROR] Failed to get USDC balance:`, error);
+
+      // If the token account doesn't exist, return 0 instead of throwing
+      if (error instanceof Error && error.message.includes('could not find account')) {
+        console.log(`🔍 [DEBUG] Token account doesn't exist, returning 0 balance`);
+        return 0;
+      }
+
+      throw new Error(this.handleError(error));
     }
   }
 

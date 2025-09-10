@@ -66,10 +66,15 @@ export class UnifiedBlockchainService implements BlockchainService {
   }
 
   private initializeSolanaProgram(): void {
-    if (this.currentNetwork.type === NetworkType.SOLANA && this.currentNetwork.programId) {
+    if (
+      this.currentNetwork.type === NetworkType.SOLANA &&
+      this.currentNetwork.programId &&
+      this.currentNetwork.usdcMint
+    ) {
       const connection = new Connection(this.currentNetwork.rpcUrl, 'confirmed');
       const programId = new PublicKey(this.currentNetwork.programId);
-      this.solanaProgram = new SolanaProgram(connection, programId);
+      const usdcMint = new PublicKey(this.currentNetwork.usdcMint);
+      this.solanaProgram = new SolanaProgram(connection, programId, usdcMint);
     }
   }
 
@@ -90,8 +95,37 @@ export class UnifiedBlockchainService implements BlockchainService {
   // Update wallet in Solana program when Dynamic.xyz wallet changes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateWallet(wallet: any): void {
+    console.log('🔍 [DEBUG] UnifiedBlockchainService.updateWallet called', {
+      hasWallet: !!wallet,
+      walletAddress: wallet?.address,
+      hasSolanaProgram: !!this.solanaProgram,
+      networkType: this.currentNetwork.type,
+      hasProgramId: !!this.currentNetwork.programId,
+      hasUsdcMint: !!this.currentNetwork.usdcMint,
+    });
+
     if (this.solanaProgram) {
       this.solanaProgram.updateWallet(wallet);
+      console.log('🔍 [DEBUG] Updated existing SolanaProgram with wallet');
+    } else if (
+      wallet &&
+      this.currentNetwork.type === NetworkType.SOLANA &&
+      this.currentNetwork.programId &&
+      this.currentNetwork.usdcMint
+    ) {
+      // Reinitialize Solana program with wallet if it wasn't initialized before
+      const connection = new Connection(this.currentNetwork.rpcUrl, 'confirmed');
+      const programId = new PublicKey(this.currentNetwork.programId);
+      const usdcMint = new PublicKey(this.currentNetwork.usdcMint);
+      this.solanaProgram = new SolanaProgram(connection, programId, usdcMint, wallet);
+      console.log('🔍 [DEBUG] Created new SolanaProgram with wallet');
+    } else {
+      console.log('🔍 [DEBUG] Cannot update wallet - missing requirements', {
+        hasWallet: !!wallet,
+        isSolanaNetwork: this.currentNetwork.type === NetworkType.SOLANA,
+        hasProgramId: !!this.currentNetwork.programId,
+        hasUsdcMint: !!this.currentNetwork.usdcMint,
+      });
     }
   }
 
@@ -100,9 +134,11 @@ export class UnifiedBlockchainService implements BlockchainService {
       throw new Error('Wallet not connected');
     }
 
-    // This would query the blockchain for the wallet's USDC balance
-    // Implementation depends on the current network type
-    throw new Error('Wallet balance query not implemented yet');
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
+    }
+
+    return this.solanaProgram.getUsdcBalance();
   }
 
   // Escrow Operations (Solana devnet only for now)
