@@ -182,6 +182,7 @@ export class EscrowTestManager {
       console.log(`  - Current State: ${state.state}`);
       console.log(`  - Expected State: ${expectedState}`);
       console.log(`  - State Match: ${state.state === expectedState}`);
+      console.log('🔍 [DEBUG] Full state object:', JSON.stringify(state, null, 2));
 
       // Only try to get balance if the escrow is funded or we expect it to be funded
       if (state.state === 'FUNDED' || expectedState === 'FUNDED') {
@@ -667,6 +668,10 @@ export class EscrowTestManager {
       if (!fundResult.success) {
         throw new Error(`Fund escrow failed: ${fundResult.error}`);
       }
+      // Wait a bit for the blockchain to process the funding transaction
+      console.log('⏳ [DEBUG] Waiting 3 seconds for blockchain to process funding...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
       console.log('🔄 [DEBUG] Verifying escrow state after funding...');
       await this.verifyState('FUNDED');
       this.updateState({ currentStep: 3 });
