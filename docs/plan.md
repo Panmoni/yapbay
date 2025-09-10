@@ -2,68 +2,20 @@
 
 ## Integrate Solana as SDK
 
-### structures and functions
+### action API updates
 
-5. Account Structures
-   You'll need the account structures for:
-   Escrow - Main escrow state account
-   EscrowTokenAccount - Token vault account
-   BuyerBondAccount / SellerBondAccount - Dispute bond accounts
-6. Instruction Builders
-   Create functions to build transactions for each instruction:
-   createEscrow
-   fundEscrow
-   markFiatPaid
-   releaseEscrow
-   cancelEscrow
-   openDisputeWithBond
-   respondToDisputeWithBond
-   resolveDisputeWithExplanation
-   defaultJudgment
-   autoCancel
+### frontend work post API updates
 
-### PDA Derivation Functions
-
-derive PDAs for:
-
-```
-// Escrow state account
-const [escrowPda] = PublicKey.findProgramAddressSync(
-[Buffer.from("escrow"), escrowId.toBuffer(), tradeId.toBuffer()],
-programId
-);
-
-// Escrow token account
-const [escrowTokenPda] = PublicKey.findProgramAddressSync(
-[Buffer.from("escrow_token"), escrowPda.toBuffer()],
-programId
-);
-
-// Bond accounts
-const [buyerBondPda] = PublicKey.findProgramAddressSync(
-[Buffer.from("buyer_bond"), escrowPda.toBuffer()],
-programId
-);
-```
-
-### RPC Connection Setup
-
-### Error Handling
-
-Map your custom error codes from the Rust program to user-friendly messages.
-
-### other frontend todo
-
-- Header has celo stuff to force right network.
+- update public /status page, draw from network test, less vertical margin between sections src/pages/Status.tsx
 - update .env.production to roughly match .env
-- src/config/index.ts update for new env vars
-- test dynamic wallet connect ability
 
-## deploy once API is running
+## Work thru the trade flow and fix bugs.
 
-- increment versions
+## Post-MVP
 
-## Next Stage
+### src/config/index.ts
+
+- Get the new env vars in here and draw from them for solana stuff
 
 ### Add payment methods
 
@@ -108,7 +60,28 @@ strategic friction [https://read.first1000.co/p/positive-friction](https://read.
 - Can we use mobileofferlist, desktopoffertabe and offerpagination in other listings pages?
 - make sure RPC is efficient, maybe cache some of them.. run it through a redis/valkey?
 
-## IDL Issues Ref
+## Ref
+
+### inspect escrows etc
+
+❯ spl-token balance --address 9v8jzPTzKDPF9JXKtMrkdMbZqCFG8nVj8w7LrU5Q1XsP --url devnet
+10.1
+
+solana account 8rGJiZqS8e2AhnvmjBnssd9iBuNYSkfewGZR8JQwJMof --url devnet --output json
+
+node scripts/decode-escrow-simple.js 8rGJiZqS8e2AhnvmjBnssd9iBuNYSkfewGZR8JQwJMof --url devnet
+
+### Get latest blockhash
+
+curl -X POST https://distinguished-chaotic-bird.solana-devnet.quiknode.pro/483d675967ac17c1970a9b07fdba88abe17d421e/ \
+ -H "Content-Type: application/json" \
+ -d '{
+"jsonrpc": "2.0",
+"id": 1,
+"method": "getLatestBlockhash"
+}'
+
+### IDL Issues Ref
 
 - https://solana.stackexchange.com/questions/14342/why-does-typescript-throw-a-warning-for-resolvedaccounts-for-my-pda-in-my-anchor
 - https://solana.stackexchange.com/questions/16070/typescript-type-error-with-multiple-accounts-in-program-struct
