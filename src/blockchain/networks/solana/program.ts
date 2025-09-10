@@ -734,6 +734,11 @@ export class SolanaProgram implements SolanaProgramInterface {
       // Fetch account data
       const escrowAccount = await program.account.escrow.fetch(escrowPDA);
 
+      // Debug: Log the raw state value
+      console.log('🔍 [DEBUG] Raw escrow state from Anchor:', escrowAccount.state);
+      console.log('🔍 [DEBUG] State type:', typeof escrowAccount.state);
+      console.log('🔍 [DEBUG] Mapped state:', this.mapEscrowState(escrowAccount.state));
+
       return {
         id: escrowAccount.escrowId.toNumber(),
         tradeId: escrowAccount.tradeId.toNumber(),
@@ -766,24 +771,47 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   // Helper Methods
   private mapEscrowState(
-    state: number
+    state: number | string
   ): 'CREATED' | 'FUNDED' | 'RELEASED' | 'CANCELLED' | 'DISPUTED' | 'RESOLVED' {
     // Map the Solana program state to our interface
-    switch (state) {
-      case 0:
-        return 'CREATED';
-      case 1:
-        return 'FUNDED';
-      case 2:
-        return 'RELEASED';
-      case 3:
-        return 'CANCELLED';
-      case 4:
-        return 'DISPUTED';
-      case 5:
-        return 'RESOLVED';
-      default:
-        return 'CREATED';
+    // Handle both numeric and string states from Anchor
+    if (typeof state === 'string') {
+      switch (state) {
+        case 'Created':
+          return 'CREATED';
+        case 'Funded':
+          return 'FUNDED';
+        case 'Released':
+          return 'RELEASED';
+        case 'Cancelled':
+          return 'CANCELLED';
+        case 'Disputed':
+          return 'DISPUTED';
+        case 'Resolved':
+          return 'RESOLVED';
+        default:
+          console.log('🔍 [DEBUG] Unknown string state:', state);
+          return 'CREATED';
+      }
+    } else {
+      // Handle numeric states
+      switch (state) {
+        case 0:
+          return 'CREATED';
+        case 1:
+          return 'FUNDED';
+        case 2:
+          return 'RELEASED';
+        case 3:
+          return 'CANCELLED';
+        case 4:
+          return 'DISPUTED';
+        case 5:
+          return 'RESOLVED';
+        default:
+          console.log('🔍 [DEBUG] Unknown numeric state:', state);
+          return 'CREATED';
+      }
     }
   }
 
