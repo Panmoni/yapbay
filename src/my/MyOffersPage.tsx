@@ -78,7 +78,7 @@ function MyOffersPage({ account }: MyOffersPageProps) {
       try {
         // Get all offers and filter by the current user's account ID
         const response = await getOffers();
-        let userOffers = response.data.filter(
+        let userOffers = response.data.offers.filter(
           (offer: Offer) => offer.creator_account_id === account.id
         );
 
