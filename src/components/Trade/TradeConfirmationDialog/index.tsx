@@ -243,14 +243,14 @@ const TradeConfirmationDialog = ({
               {offer.offer_type === 'BUY' ? (
                 <p>
                   <strong>Note:</strong> As the seller, you will be prompted to create the on-chain
-                  escrow account and to pay for it in CELO. Please ensure you have sufficient{' '}
+                  escrow account and to pay for it in SOL. Please ensure you have sufficient{' '}
                   <a
-                    href="https://faucet.celo.org/alfajores"
+                    href="https://faucet.solana.com/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center"
                   >
-                    CELO
+                    devnet SOL
                     <ExternalLink className="ml-1 h-3 w-3" />
                   </a>{' '}
                   and{' '}
@@ -260,7 +260,7 @@ const TradeConfirmationDialog = ({
                     rel="noopener noreferrer"
                     className="inline-flex items-center"
                   >
-                    USDC
+                    devnet USDC
                     <ExternalLink className="ml-1 h-3 w-3" />
                   </a>
                   .
@@ -308,7 +308,7 @@ function useSellerUsdcBalance(address: string | undefined, open: boolean, amount
     let cancelled = false;
     setLoading(true);
     setError(null);
-  
+
     const fetchBalance = async () => {
       try {
         let chainId: number | undefined = undefined;
@@ -324,9 +324,9 @@ function useSellerUsdcBalance(address: string | undefined, open: boolean, amount
         if (!cancelled) setLoading(false);
       }
     };
-  
+
     fetchBalance();
-  
+
     return () => {
       cancelled = true;
     };
