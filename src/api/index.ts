@@ -209,6 +209,12 @@ interface GetOfferResponse {
   offer: Offer;
 }
 
+// Define the update offer response structure
+interface UpdateOfferResponse {
+  network: string;
+  offer: Offer;
+}
+
 export const getOffers = (params?: { type?: string; token?: string; owner?: string }) =>
   api.get<OffersResponse>('/offers', { params });
 
@@ -219,7 +225,26 @@ export const getOfferById = (
 export const updateOffer = (
   id: number,
   data: Partial<Omit<Offer, 'id' | 'creator_account_id' | 'created_at' | 'updated_at'>>
-) => api.put<Offer>(`/offers/${id}`, data); // Return full Offer object
+) => {
+  console.log('[updateOffer] Base API call - id:', id);
+  console.log('[updateOffer] Data being sent:', data);
+  console.log('[updateOffer] Current headers:', api.defaults.headers.common);
+
+  return api
+    .put<UpdateOfferResponse>(`/offers/${id}`, data)
+    .then(response => {
+      console.log('[updateOffer] Response status:', response.status);
+      console.log('[updateOffer] Response data:', response.data);
+      return response;
+    })
+    .catch(error => {
+      console.error('[updateOffer] API error:', error);
+      console.error('[updateOffer] Error response:', error.response);
+      console.error('[updateOffer] Error response data:', error.response?.data);
+      console.error('[updateOffer] Error response status:', error.response?.status);
+      throw error;
+    });
+};
 
 export const deleteOffer = (
   id: number // Use number ID to match actual API

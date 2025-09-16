@@ -49,13 +49,21 @@ function EditOfferPage() {
         const offerData = response.data.offer;
 
         // Set form data from the fetched offer
+        console.log('[EditOfferPage] Fetched offer data:', offerData);
+        console.log('[EditOfferPage] Data types:', {
+          min_amount: typeof offerData.min_amount,
+          max_amount: typeof offerData.max_amount,
+          total_available_amount: typeof offerData.total_available_amount,
+          rate_adjustment: typeof offerData.rate_adjustment,
+        });
+
         setFormData({
           offer_type: offerData.offer_type,
           token: offerData.token,
-          min_amount: offerData.min_amount,
-          max_amount: offerData.max_amount,
-          total_available_amount: offerData.total_available_amount,
-          rate_adjustment: offerData.rate_adjustment,
+          min_amount: Number(offerData.min_amount),
+          max_amount: Number(offerData.max_amount),
+          total_available_amount: Number(offerData.total_available_amount),
+          rate_adjustment: Number(offerData.rate_adjustment),
           terms: offerData.terms,
           escrow_deposit_time_limit: offerData.escrow_deposit_time_limit,
           fiat_payment_time_limit: offerData.fiat_payment_time_limit,
@@ -104,7 +112,16 @@ function EditOfferPage() {
     if (!id) return;
 
     try {
-      await updateOffer(parseInt(id), formData);
+      console.log('[EditOfferPage] Submitting form data:', formData);
+      console.log('[EditOfferPage] Form data types:', {
+        min_amount: typeof formData.min_amount,
+        max_amount: typeof formData.max_amount,
+        total_available_amount: typeof formData.total_available_amount,
+        rate_adjustment: typeof formData.rate_adjustment,
+      });
+      console.log('[EditOfferPage] Offer ID:', id);
+      const response = await updateOffer(parseInt(id), formData);
+      console.log('[EditOfferPage] Update successful, response:', response);
       setSuccess('Offer updated successfully');
 
       // Clear success message after 3 seconds and navigate back to offer detail
