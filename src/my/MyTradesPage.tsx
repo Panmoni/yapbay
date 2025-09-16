@@ -55,7 +55,13 @@ function MyTradesPage({ account }: MyTradesPageProps) {
       setLoading(true);
       try {
         const response = await getMyTrades();
-        let sortedTrades = response.data;
+        console.log('[MyTradesPage] Raw response:', response);
+        console.log('[MyTradesPage] Response data:', response.data);
+        console.log('[MyTradesPage] Response data type:', typeof response.data);
+        console.log('[MyTradesPage] Response data is array:', Array.isArray(response.data));
+        console.log('[MyTradesPage] Trades from response.data.trades:', response.data.trades);
+
+        let sortedTrades = response.data.trades;
 
         // Apply status filter if not ALL
         if (filter !== 'ALL') {

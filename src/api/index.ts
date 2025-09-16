@@ -215,6 +215,12 @@ interface UpdateOfferResponse {
   offer: Offer;
 }
 
+// Define the trades response structure
+interface TradesResponse {
+  network: string;
+  trades: Trade[];
+}
+
 export const getOffers = (params?: { type?: string; token?: string; owner?: string }) =>
   api.get<OffersResponse>('/offers', { params });
 
@@ -291,7 +297,29 @@ export const createTrade = (data: TradeCreateData) => api.post<Trade>('/trades',
 export const getTrades = (params?: { status?: string; user?: string }) =>
   api.get<Trade[]>('/trades', { params });
 
-export const getMyTrades = () => api.get<Trade[]>('/my/trades');
+export const getMyTrades = () => {
+  console.log('[getMyTrades] Making API call to /trades/my');
+  console.log('[getMyTrades] Current headers:', api.defaults.headers.common);
+
+  return api
+    .get<TradesResponse>('/trades/my')
+    .then(response => {
+      console.log('[getMyTrades] Response status:', response.status);
+      console.log('[getMyTrades] Response data:', response.data);
+      console.log('[getMyTrades] Response data type:', typeof response.data);
+      console.log('[getMyTrades] Response data is array:', Array.isArray(response.data));
+      console.log('[getMyTrades] Trades array:', response.data.trades);
+      console.log('[getMyTrades] Trades array type:', typeof response.data.trades);
+      console.log('[getMyTrades] Trades array is array:', Array.isArray(response.data.trades));
+      return response;
+    })
+    .catch(error => {
+      console.error('[getMyTrades] API error:', error);
+      console.error('[getMyTrades] Error response:', error.response);
+      console.error('[getMyTrades] Error response data:', error.response?.data);
+      throw error;
+    });
+};
 
 export const getTradeById = (
   id: number // Use number ID to match actual API

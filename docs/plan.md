@@ -1,11 +1,6 @@
 # YapBay Frontend Development Plan
 
-src/types/index.ts
-src/blockchain/types/index.ts
-
-- update .env.production to roughly match .env
-
-## Work thru the trade flow & fix
+## Work thru trade flow & fix bugs
 
 ## Post-MVP
 
