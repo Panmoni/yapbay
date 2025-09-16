@@ -118,8 +118,14 @@ export const createOffer = (
   data: Partial<Omit<Offer, 'id' | 'creator_account_id' | 'created_at' | 'updated_at'>>
 ) => api.post<Offer>('/offers', data); // Return full Offer object
 
+// Define the actual API response structure
+interface OffersResponse {
+  network: string;
+  offers: Offer[];
+}
+
 export const getOffers = (params?: { type?: string; token?: string; owner?: string }) =>
-  api.get<Offer[]>('/offers', { params });
+  api.get<OffersResponse>('/offers', { params });
 
 export const getOfferById = (
   id: number // Use number ID to match actual API

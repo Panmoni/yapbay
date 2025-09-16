@@ -71,7 +71,19 @@ function HomePage() {
       setLoading(true);
       try {
         const response = await getOffers();
-        const sortedOffers = response.data.sort(
+
+        // Handle the new API response structure: {network: string, offers: Offer[]}
+        const offersData = response.data.offers || [];
+
+        // Validate that offers is an array before sorting
+        if (!Array.isArray(offersData)) {
+          console.error('[HomePage] Invalid offers data structure:', offersData);
+          setError('Invalid response format from server');
+          setOffers([]);
+          return;
+        }
+
+        const sortedOffers = offersData.sort(
           (a: Offer, b: Offer) =>
             new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
         );
@@ -84,6 +96,7 @@ function HomePage() {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
         console.error('[HomePage] Fetch failed:', err);
         setError(`Failed to load offers: ${errorMessage}`);
+        setOffers([]); // Ensure offers is set to empty array on error
       } finally {
         setLoading(false);
       }
@@ -187,10 +200,11 @@ function HomePage() {
               </div>
             )}
 
-            {!loading && !error && filteredOffers.length === 0 ? (
+            {!loading && !error && offers.length === 0 ? (
               <NoOffers />
             ) : (
-              !loading && (
+              !loading &&
+              !error && (
                 <>
                   {/* Mobile view */}
                   <MobileOfferList

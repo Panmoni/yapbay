@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const NoOffers: React.FC = () => {
   return (
@@ -8,11 +8,14 @@ const NoOffers: React.FC = () => {
 
       <div className="px-6 py-2 mb-6">
         <p className="text-lg text-neutral-700 mb-3">
-          There are no offers available at this time, but you can be the first!
+          There are no offers available on Solana Devnet at this time, but you can be the first!
         </p>
 
         <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-6">
-          <Link to="/create-offer" className="bg-primary-700 hover:bg-primary-800 text-white px-6 py-2 rounded-md font-medium transition-colors">
+          <Link
+            to="/create-offer"
+            className="bg-primary-700 hover:bg-primary-800 text-white px-6 py-2 rounded-md font-medium transition-colors"
+          >
             Create Your Offer
           </Link>
 
@@ -29,7 +32,8 @@ const NoOffers: React.FC = () => {
 
       <div className="mt-4 p-3">
         <p className="text-neutral-700 italic">
-          <span className="text-primary-800 font-medium">¿Hablas Español?</span> Con gusto te ayudamos en Español también.
+          <span className="text-primary-800 font-medium">¿Hablas Español?</span> Con gusto te
+          ayudamos en Español también.
         </p>
         <a
           href="https://t.me/Panmoni/804"

@@ -6,8 +6,6 @@ There are 2 types and 2 utils dirs?
 
 ### frontend work post API updates
 
-- clear extraneous debug messages from console
-
 - update public /status page, draw from network test, less vertical margin between sections src/pages/Status.tsx
 - update .env.production to roughly match .env
 
