@@ -1,5 +1,14 @@
 import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { config } from '../config';
+import type {
+  Account,
+  Offer,
+  Trade,
+  Escrow,
+  PricesResponse,
+  TransactionRecord,
+  HealthResponse,
+} from '../types';
 
 // Use the API URL from the config file
 const API_URL = config.apiUrl;
@@ -60,223 +69,29 @@ export const setAuthToken = (token: string | null) => {
   }
 };
 
-// --- Define Types (Mirroring Solana example and src/types/index.ts) ---
-// Note: Using types from src/types/index.ts is generally preferred to avoid duplication.
-// If these types diverge from src/types/index.ts, consider consolidating them.
-export interface Account {
-  id: number;
-  wallet_address: string;
-  username: string;
-  email: string;
-  telegram_username?: string;
-  telegram_id?: number;
-  profile_photo_url?: string;
-  phone_country_code?: string;
-  phone_number?: string;
-  available_from?: string;
-  available_to?: string;
-  timezone?: string;
-  created_at: string;
-  updated_at: string;
-}
+// Function to set the network context for multi-network support
+export const setNetworkId = (networkId: number | null) => {
+  if (networkId) {
+    api.defaults.headers.common['X-Network-ID'] = networkId.toString();
+  } else {
+    delete api.defaults.headers.common['X-Network-ID'];
+  }
+};
 
-export interface Offer {
-  id: number;
-  creator_account_id: number;
-  offer_type: 'BUY' | 'SELL';
-  token: string;
-  min_amount: number;
-  max_amount: number;
-  total_available_amount: number;
-  rate_adjustment: number;
-  terms: string;
-  escrow_deposit_time_limit: { minutes: number } | string; // Support both object and string formats
-  fiat_payment_time_limit: { minutes: number } | string; // Support both object and string formats
-  fiat_currency: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Trade {
-  id: number;
-  leg1_offer_id: number;
-  leg2_offer_id?: number | null;
-  overall_status: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'DISPUTED';
-  from_fiat_currency: string;
-  destination_fiat_currency: string;
-  from_bank?: string | null;
-  destination_bank?: string | null;
-  created_at: string;
-  updated_at: string;
-
-  leg1_state?:
-    | 'CREATED'
-    | 'FUNDED'
-    | 'FIAT_PAID'
-    | 'RELEASED'
-    | 'CANCELLED'
-    | 'DISPUTED'
-    | 'RESOLVED'
-    | 'AWAITING_FIAT_PAYMENT'
-    | 'PENDING_CRYPTO_RELEASE'
-    | 'COMPLETED'; // Added missing states from schema + reordered slightly
-  leg1_seller_account_id?: number;
-  leg1_buyer_account_id?: number | null;
-  leg1_crypto_token?: string;
-  leg1_crypto_amount?: string;
-  leg1_fiat_amount?: string | null;
-  leg1_fiat_currency?: string;
-  leg1_escrow_address?: string | null;
-  leg1_created_at?: string;
-  leg1_escrow_deposit_deadline?: string | null;
-  leg1_fiat_payment_deadline?: string | null;
-  leg1_fiat_paid_at?: string | null;
-  leg1_released_at?: string | null;
-  leg1_cancelled_at?: string | null;
-  leg1_cancelled_by?: string | null;
-  leg1_dispute_id?: number | null;
-  leg1_escrow_onchain_id?: string | null; // Added new field
-
-  leg2_state?: string | null;
-  leg2_seller_account_id?: number | null;
-  leg2_buyer_account_id?: number | null;
-  leg2_crypto_token?: string | null;
-  leg2_crypto_amount?: string | null;
-  leg2_fiat_amount?: string | null;
-  leg2_fiat_currency?: string | null;
-  leg2_escrow_address?: string | null;
-  leg2_created_at?: string | null;
-  leg2_escrow_deposit_deadline?: string | null;
-  leg2_fiat_payment_deadline?: string | null;
-  leg2_fiat_paid_at?: string | null;
-  leg2_released_at?: string | null;
-  leg2_cancelled_at?: string | null;
-  leg2_cancelled_by?: string | null;
-  leg2_dispute_id?: number | null;
-  leg2_escrow_onchain_id?: string | null; // Added new field
-}
-
-export interface Escrow {
-  id: number;
-  trade_id: number;
-  escrow_address: string;
-  seller_address: string;
-  buyer_address: string;
-  arbitrator_address: string;
-  token_type: string;
-  amount: string;
-  state: 'CREATED' | 'FUNDED' | 'RELEASED' | 'CANCELLED' | 'DISPUTED' | 'RESOLVED';
-  sequential: boolean;
-  sequential_escrow_address: string | null;
-  onchain_escrow_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PriceData {
-  price: string;
-  timestamp: number;
-}
-
-export interface PricesResponse {
-  status: string;
-  data: {
-    USDC: {
-      USD: PriceData;
-      COP: PriceData;
-      EUR: PriceData;
-      NGN: PriceData;
-      VES: PriceData;
-    };
-  };
-}
-
-export interface Dispute {
-  id: number;
-  trade_id: number;
-  escrow_address: string;
-  initiator_address: string;
-  initiator_evidence_hash: string | null;
-  responder_address: string | null;
-  responder_evidence_hash: string | null;
-  resolution_hash: string | null;
-  bond_amount: string;
-  status: 'OPENED' | 'RESPONDED' | 'RESOLVED' | 'DEFAULTED';
-  initiated_at: string;
-  responded_at: string | null;
-  resolved_at: string | null;
-  winner_address: string | null;
-}
-
-export interface TransactionRecord {
-  id: number;
-  trade_id: number;
-  escrow_id?: number;
-  transaction_hash: string;
-  transaction_type:
-    | 'CREATE_ESCROW'
-    | 'FUND_ESCROW'
-    | 'MARK_FIAT_PAID'
-    | 'RELEASE_ESCROW'
-    | 'CANCEL_ESCROW'
-    | 'DISPUTE_ESCROW'
-    | 'OPEN_DISPUTE'
-    | 'RESPOND_DISPUTE'
-    | 'RESOLVE_DISPUTE'
-    | 'OTHER';
-  from_address: string;
-  to_address?: string;
-  amount?: string;
-  token_type?: string;
-  status: 'PENDING' | 'SUCCESS' | 'FAILED';
-  block_number?: number;
-  gas_used?: string;
-  error_message?: string;
-  created_at: string;
-  metadata?: Record<string, string>;
-}
-
-export interface NetworkStatus {
-  id: number;
-  name: string;
-  chainId: number;
-  rpcUrl: string;
-  wsUrl: string;
-  contractAddress: string;
-  isTestnet: boolean;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-  status: string;
-  error: string | null;
-  providerChainId: number;
-  providerName: string;
-}
-
-export interface ApiVersion {
-  version: string;
-  gitCommitHash: string;
-  gitCommitDate: string;
-  gitBranch: string;
-  buildDate: string;
-  isDirty: boolean;
-}
-
-export interface HealthResponse {
-  status: string;
-  timestamp: string;
-  userWallet: string;
-  dbStatus: string;
-  apiVersion: ApiVersion;
-  contractVersion: string;
-  networks: NetworkStatus[];
-  summary: {
-    totalNetworks: number;
-    activeNetworks: number;
-    connectedNetworks: number;
-    errorNetworks: number;
-  };
-}
+// --- Re-export types for backward compatibility ---
+export type {
+  Account,
+  Offer,
+  Trade,
+  Escrow,
+  PriceData,
+  PricesResponse,
+  Dispute,
+  TransactionRecord,
+  NetworkStatus,
+  ApiVersion,
+  HealthResponse,
+} from '../types';
 
 // --- API Functions ---
 
@@ -286,7 +101,7 @@ export const createAccount = (
 ) => api.post<Account>('/accounts', data); // Return full Account object
 
 export const getAccountById = (
-  id: string // Use string ID if Celo API uses it
+  id: number // Use number ID to match actual API
 ) => api.get<Account>(`/accounts/${id}`);
 
 export const getAccount = () =>
@@ -294,7 +109,7 @@ export const getAccount = () =>
   api.get<Account>('/accounts/me');
 
 export const updateAccount = (
-  id: string,
+  id: number,
   data: Partial<Omit<Account, 'id' | 'created_at' | 'updated_at' | 'wallet_address'>>
 ) => api.put<Account>(`/accounts/${id}`, data); // Return full Account object
 
@@ -307,16 +122,16 @@ export const getOffers = (params?: { type?: string; token?: string; owner?: stri
   api.get<Offer[]>('/offers', { params });
 
 export const getOfferById = (
-  id: string // Use string ID if Celo API uses it
+  id: number // Use number ID to match actual API
 ) => api.get<Offer>(`/offers/${id}`);
 
 export const updateOffer = (
-  id: string,
+  id: number,
   data: Partial<Omit<Offer, 'id' | 'creator_account_id' | 'created_at' | 'updated_at'>>
 ) => api.put<Offer>(`/offers/${id}`, data); // Return full Offer object
 
 export const deleteOffer = (
-  id: string // Use string ID if Celo API uses it
+  id: number // Use number ID to match actual API
 ) => api.delete<{ message: string }>(`/offers/${id}`);
 
 // Trades API
@@ -332,15 +147,15 @@ export const getTrades = (params?: { status?: string; user?: string }) =>
 export const getMyTrades = () => api.get<Trade[]>('/my/trades');
 
 export const getTradeById = (
-  id: string // Use string ID if Celo API uses it
+  id: number // Use number ID to match actual API
 ) => api.get<Trade>(`/trades/${id}`);
 
 // Define TradeUpdateData if different from Partial<Trade>
 type TradeUpdateData = Partial<Pick<Trade, 'overall_status'>>;
-export const updateTrade = (id: string, data: TradeUpdateData) =>
+export const updateTrade = (id: number, data: TradeUpdateData) =>
   api.put<Trade>(`/trades/${id}`, data); // Return full Trade object
 
-export const markFiatPaid = (id: number | string) =>
+export const markFiatPaid = (id: number) =>
   api.put<{ id: number }>(`/trades/${id}`, { fiat_paid: true });
 
 // Escrow API
@@ -353,31 +168,43 @@ export interface EscrowResponse {
  * Records an escrow that was created on the blockchain
  * @param data Object containing escrow recording parameters
  * @param data.trade_id Trade ID (must be an integer)
- * @param data.transaction_hash Transaction hash of the blockchain transaction
- * @param data.escrow_id Escrow ID (must be a number as a string)
+ * @param data.transaction_hash Transaction hash of the blockchain transaction (EVM)
+ * @param data.signature Transaction signature (Solana)
+ * @param data.escrow_id Escrow ID (must be a number)
  * @param data.seller Seller's wallet address
  * @param data.buyer Buyer's wallet address
  * @param data.amount Crypto amount (supports decimal values, e.g. 22.22)
  * @param data.sequential Optional: Whether this is a sequential escrow
  * @param data.sequential_escrow_address Optional: Address of the sequential escrow
+ * @param data.program_id Optional: Solana program ID
+ * @param data.escrow_pda Optional: Solana PDA address
+ * @param data.escrow_token_account Optional: Solana token account
+ * @param data.trade_onchain_id Optional: Solana trade ID
  * @returns Promise with escrow recording response
  */
 export const recordEscrow = (data: {
   trade_id: number;
-  transaction_hash: string;
-  escrow_id: string;
+  transaction_hash?: string; // EVM
+  signature?: string; // Solana
+  escrow_id: number;
   seller: string;
   buyer: string;
   amount: number;
   sequential?: boolean;
   sequential_escrow_address?: string;
+  // Solana-specific fields
+  program_id?: string;
+  escrow_pda?: string;
+  escrow_token_account?: string;
+  trade_onchain_id?: string;
 }) =>
   api.post<{
     success: boolean;
-    escrowId: string; // Blockchain escrow ID (uint256 as string)
+    escrowId: number; // Blockchain escrow ID
     escrowDbId: number; // Database primary key for the escrow record
     txHash: string;
-    blockNumber: number | bigint; // Block number can be large
+    networkFamily: string;
+    blockExplorerUrl: string;
   }>('/escrows/record', data);
 
 /**
@@ -473,7 +300,7 @@ export const disputeEscrow = (data: {
 }) => api.post<EscrowResponse>('/escrows/dispute', data);
 
 // Add this function to handle marking trades as paid
-export const markTradeFiatPaid = (tradeId: number | string) => {
+export const markTradeFiatPaid = (tradeId: number) => {
   return api.post<{ message: string }>(`/escrows/mark-fiat-paid`, {
     trade_id: tradeId,
   });
