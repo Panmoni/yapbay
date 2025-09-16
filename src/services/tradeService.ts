@@ -122,7 +122,7 @@ export const createTradeEscrow = async ({
     await recordEscrow({
       trade_id: trade.id,
       transaction_hash: txResult.txHash,
-      escrow_id: txResult.escrowId,
+      escrow_id: parseInt(txResult.escrowId),
       seller: sellerAddress,
       buyer: buyerAddress,
       amount: parseFloat(trade.leg1_crypto_amount || '0'),
@@ -781,7 +781,7 @@ export const refreshTrade = async (
   setTrade: (trade: Trade) => void
 ): Promise<void> => {
   try {
-    const updatedTrade = await getTradeById(tradeId.toString());
+    const updatedTrade = await getTradeById(tradeId);
     setTrade(updatedTrade.data);
   } catch (err) {
     console.error('Error refreshing trade:', err);
