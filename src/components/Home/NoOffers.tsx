@@ -14,7 +14,7 @@ const NoOffers: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-center items-center gap-4 mt-6">
           <Link
             to="/create-offer"
-            className="bg-primary-700 hover:bg-primary-800 text-white px-6 py-2 rounded-md font-medium transition-colors"
+            className="bg-primary-700 hover:bg-primary-800 !text-white px-6 py-2 rounded-md font-medium transition-colors"
           >
             Create Your Offer
           </Link>
