@@ -73,12 +73,12 @@ function OfferDetailPage() {
       setLoading(true);
       try {
         // Fetch offer details
-        const offerResponse = await getOfferById(id);
+        const offerResponse = await getOfferById(parseInt(id));
         const offerData = offerResponse.data;
         setOffer(offerData);
 
         // Fetch creator details
-        const creatorResponse = await getAccountById(offerData.creator_account_id.toString());
+        const creatorResponse = await getAccountById(offerData.creator_account_id);
         setCreator(creatorResponse.data);
 
         setError(null);

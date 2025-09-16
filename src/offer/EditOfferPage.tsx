@@ -45,7 +45,7 @@ function EditOfferPage() {
 
       setLoading(true);
       try {
-        const response = await getOfferById(id);
+        const response = await getOfferById(parseInt(id));
         const offerData = response.data;
 
         // Set form data from the fetched offer
@@ -104,7 +104,7 @@ function EditOfferPage() {
     if (!id) return;
 
     try {
-      await updateOffer(id, formData);
+      await updateOffer(parseInt(id), formData);
       setSuccess('Offer updated successfully');
 
       // Clear success message after 3 seconds and navigate back to offer detail
