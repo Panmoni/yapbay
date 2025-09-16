@@ -70,11 +70,68 @@ export const setAuthToken = (token: string | null) => {
 };
 
 // Function to set the network context for multi-network support
-export const setNetworkId = (networkId: number | null) => {
-  if (networkId) {
-    api.defaults.headers.common['X-Network-ID'] = networkId.toString();
+export const setNetworkName = (networkName: string | null) => {
+  if (networkName) {
+    api.defaults.headers.common['X-Network-Name'] = networkName;
   } else {
-    delete api.defaults.headers.common['X-Network-ID'];
+    delete api.defaults.headers.common['X-Network-Name'];
+  }
+};
+
+// Legacy function for backward compatibility (deprecated)
+export const setNetworkId = (networkId: number | null) => {
+  console.warn('setNetworkId is deprecated. Use setNetworkName with string values instead.');
+  if (networkId) {
+    // Map numeric IDs to network names
+    const networkName =
+      networkId === 3
+        ? 'solana-devnet'
+        : networkId === 1
+        ? 'celo-alfajores'
+        : networkId === 42220
+        ? 'celo-mainnet'
+        : null;
+    if (networkName) {
+      setNetworkName(networkName);
+    }
+  } else {
+    setNetworkName(null);
+  }
+};
+
+/**
+ * Executes an API call with temporary network context
+ * @param networkName The network name to use for this specific call
+ * @param apiCall The API function to execute
+ * @returns Promise with the API response
+ */
+export const withNetworkContext = async <T>(
+  networkName: string,
+  apiCall: () => Promise<T>
+): Promise<T> => {
+  // Store the original network name
+  const originalNetworkName = api.defaults.headers.common['X-Network-Name'];
+
+  console.log(`[withNetworkContext] Setting network context to ${networkName}`);
+
+  try {
+    // Set the network context for this call
+    api.defaults.headers.common['X-Network-Name'] = networkName;
+
+    // Execute the API call
+    const result = await apiCall();
+    console.log(`[withNetworkContext] API call completed successfully`);
+    return result;
+  } finally {
+    // Restore the original network context
+    if (originalNetworkName) {
+      api.defaults.headers.common['X-Network-Name'] = originalNetworkName;
+    } else {
+      delete api.defaults.headers.common['X-Network-Name'];
+    }
+    console.log(
+      `[withNetworkContext] Restored network context to ${originalNetworkName || 'none'}`
+    );
   }
 };
 
@@ -116,12 +173,34 @@ export const updateAccount = (
 // Offers API
 export const createOffer = (
   data: Partial<Omit<Offer, 'id' | 'creator_account_id' | 'created_at' | 'updated_at'>>
-) => api.post<Offer>('/offers', data); // Return full Offer object
+) => {
+  console.log('[createOffer] Base API call - data:', data);
+  console.log('[createOffer] Current headers:', api.defaults.headers.common);
+
+  return api
+    .post<CreateOfferResponse>('/offers', data)
+    .then(response => {
+      console.log('[createOffer] Response status:', response.status);
+      console.log('[createOffer] Response data:', response.data);
+      return response;
+    })
+    .catch(error => {
+      console.error('[createOffer] API error:', error);
+      console.error('[createOffer] Error response:', error.response);
+      throw error;
+    });
+};
 
 // Define the actual API response structure
 interface OffersResponse {
   network: string;
   offers: Offer[];
+}
+
+// Define the create offer response structure
+interface CreateOfferResponse {
+  network: string;
+  offer: Offer;
 }
 
 export const getOffers = (params?: { type?: string; token?: string; owner?: string }) =>
@@ -139,6 +218,37 @@ export const updateOffer = (
 export const deleteOffer = (
   id: number // Use number ID to match actual API
 ) => api.delete<{ message: string }>(`/offers/${id}`);
+
+// Network-aware offer API functions
+export const createOfferWithNetwork = (
+  networkName: string,
+  data: Partial<Omit<Offer, 'id' | 'creator_account_id' | 'created_at' | 'updated_at'>>
+) => {
+  console.log('[createOfferWithNetwork] Creating offer with network:', networkName);
+  console.log('[createOfferWithNetwork] Offer data:', data);
+
+  return withNetworkContext(networkName, () => {
+    console.log('[createOfferWithNetwork] Inside withNetworkContext, calling createOffer');
+    return createOffer(data);
+  });
+};
+
+export const getOffersWithNetwork = (
+  networkName: string,
+  params?: { type?: string; token?: string; owner?: string }
+) => withNetworkContext(networkName, () => getOffers(params));
+
+export const getOfferByIdWithNetwork = (networkName: string, id: number) =>
+  withNetworkContext(networkName, () => getOfferById(id));
+
+export const updateOfferWithNetwork = (
+  networkName: string,
+  id: number,
+  data: Partial<Omit<Offer, 'id' | 'creator_account_id' | 'created_at' | 'updated_at'>>
+) => withNetworkContext(networkName, () => updateOffer(id, data));
+
+export const deleteOfferWithNetwork = (networkName: string, id: number) =>
+  withNetworkContext(networkName, () => deleteOffer(id));
 
 // Trades API
 // Define TradeCreateData if different from Partial<Trade>
