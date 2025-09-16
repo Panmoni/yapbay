@@ -203,12 +203,18 @@ interface CreateOfferResponse {
   offer: Offer;
 }
 
+// Define the get offer response structure
+interface GetOfferResponse {
+  network: string;
+  offer: Offer;
+}
+
 export const getOffers = (params?: { type?: string; token?: string; owner?: string }) =>
   api.get<OffersResponse>('/offers', { params });
 
 export const getOfferById = (
   id: number // Use number ID to match actual API
-) => api.get<Offer>(`/offers/${id}`);
+) => api.get<GetOfferResponse>(`/offers/${id}`);
 
 export const updateOffer = (
   id: number,

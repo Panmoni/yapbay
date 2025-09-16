@@ -46,7 +46,7 @@ function EditOfferPage() {
       setLoading(true);
       try {
         const response = await getOfferById(parseInt(id));
-        const offerData = response.data;
+        const offerData = response.data.offer;
 
         // Set form data from the fetched offer
         setFormData({

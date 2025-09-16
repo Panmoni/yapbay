@@ -1,17 +1,15 @@
 # YapBay Frontend Development Plan
 
-There are 2 types and 2 utils dirs?
+src/types/index.ts
+src/blockchain/types/index.ts
 
-## Integrate Solana as SDK
-
-### frontend work post API updates
-
-- update public /status page, draw from network test, less vertical margin between sections src/pages/Status.tsx
 - update .env.production to roughly match .env
 
-## Work thru the trade flow and fix bugs.
+## Work thru the trade flow & fix
 
 ## Post-MVP
+
+review the network awareness/wrapper stuff to ensure it is extensible
 
 ### src/config/index.ts
 

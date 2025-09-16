@@ -74,7 +74,7 @@ function OfferDetailPage() {
       try {
         // Fetch offer details
         const offerResponse = await getOfferById(parseInt(id));
-        const offerData = offerResponse.data;
+        const offerData = offerResponse.data.offer;
         setOffer(offerData);
 
         // Fetch creator details

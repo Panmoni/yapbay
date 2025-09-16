@@ -40,10 +40,10 @@ export function useTradeDetails(tradeId: number | null): UseTradeDetailsResult {
         // Fetch related offer
         if (tradeData.leg1_offer_id) {
           const offerResponse = await getOfferById(tradeData.leg1_offer_id);
-          setOffer(offerResponse.data);
+          setOffer(offerResponse.data.offer);
 
           // Fetch creator account
-          const creatorResponse = await getAccountById(offerResponse.data.creator_account_id);
+          const creatorResponse = await getAccountById(offerResponse.data.offer.creator_account_id);
           setCreator(creatorResponse.data);
 
           // Fetch buyer account
