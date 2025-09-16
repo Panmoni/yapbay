@@ -32,15 +32,15 @@ const IntroMessageNotLoggedIn = () => {
             </h2>
             <p className="text-neutral-600 mb-4 text-sm sm:text-base">
               Trade USDC on YapBay directly with other users anywhere in the world. Buy and sell
-              using any fiat payment method with our on-chain escrow system. Test on Celo Mainnet
-              with CELO and USDC. To test on the Celo Alfajores testnet, get {''}
+              using any fiat payment method with our on-chain escrow system. Test on Solana Devnet
+              with devnet SOL and USDC. Get {''}
               <a
-                href="https://faucet.celo.org/alfajores/"
+                href="https://faucet.solana.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary-600 underline"
               >
-                testnet CELO (Alfajores)
+                Devnet SOL
               </a>{' '}
               and{' '}
               <a
@@ -49,9 +49,9 @@ const IntroMessageNotLoggedIn = () => {
                 rel="noopener noreferrer"
                 className="text-primary-600 underline"
               >
-                Celo Alfajores USDC
+                Solana Devnet USDC
               </a>
-              . Get support in{' '}
+              . Access support in{' '}
               <a
                 href="https://t.me/Panmoni/288"
                 target="_blank"
