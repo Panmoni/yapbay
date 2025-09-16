@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
-import { createOffer, getAccount, Account, Offer } from '@/api';
+import { getAccount, Account, Offer } from '@/api';
+import { useSolanaDevnetOffers } from '@/hooks/useNetworkAwareAPI';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,7 @@ interface CreateOfferPageProps {
 function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
   const [internalAccount, setInternalAccount] = useState<Account | null>(null);
   const { primaryWallet } = useDynamicContext();
+  const { createOffer } = useSolanaDevnetOffers();
 
   useEffect(() => {
     const fetchAccount = async () => {
@@ -114,8 +116,26 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
         fiat_currency: formData.fiat_currency,
       };
 
+      // Use network-aware API call (automatically uses Solana devnet)
       const response = await createOffer(data);
-      setSuccess(`Offer created successfully with ID: ${response.data.id}.`);
+
+      // Debug: Log the response structure
+      console.log('CreateOffer API Response:', response);
+
+      // Extract the offer ID from the response
+      // The API returns: { data: { network: "solana-devnet", offer: { id: 2, ... } } }
+      const offerData = response.data?.offer;
+      const offerId = offerData?.id;
+      console.log('Extracted offer ID:', offerId);
+      console.log('Full offer data:', offerData);
+
+      if (!offerId) {
+        console.error('Failed to extract offer ID from response');
+        setError('Failed to create offer - no ID returned');
+        return;
+      }
+
+      setSuccess(`Offer created successfully with ID: ${offerId}.`);
 
       // Reset form
       setFormData({
@@ -184,6 +204,19 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
               <AlertDescription className="text-red-700">{error}</AlertDescription>
             </Alert>
           )}
+
+          {/* Network Indicator */}
+          <Alert className="mb-6 bg-blue-50 border-blue-200">
+            <AlertDescription className="text-blue-700">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">Network:</span>
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-mono">
+                  Solana Devnet
+                </span>
+                <span className="text-sm text-blue-600">(Network: solana-devnet)</span>
+              </div>
+            </AlertDescription>
+          </Alert>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1">
