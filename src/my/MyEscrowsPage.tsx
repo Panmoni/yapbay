@@ -60,11 +60,6 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       setLoading(true);
       try {
         const response = await getMyEscrows();
-        console.log('[MyEscrowsPage] Raw response:', response);
-        console.log('[MyEscrowsPage] Response data:', response.data);
-        console.log('[MyEscrowsPage] Response data type:', typeof response.data);
-        console.log('[MyEscrowsPage] Response data is array:', Array.isArray(response.data));
-
         let escrows = response.data.map(escrow => ({
           ...escrow,
           // Generate a unique key that guarantees uniqueness

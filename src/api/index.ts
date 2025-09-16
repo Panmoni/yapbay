@@ -298,25 +298,14 @@ export const getTrades = (params?: { status?: string; user?: string }) =>
   api.get<Trade[]>('/trades', { params });
 
 export const getMyTrades = () => {
-  console.log('[getMyTrades] Making API call to /trades/my');
-  console.log('[getMyTrades] Current headers:', api.defaults.headers.common);
-
   return api
     .get<TradesResponse>('/trades/my')
     .then(response => {
-      console.log('[getMyTrades] Response status:', response.status);
-      console.log('[getMyTrades] Response data:', response.data);
-      console.log('[getMyTrades] Response data type:', typeof response.data);
-      console.log('[getMyTrades] Response data is array:', Array.isArray(response.data));
-      console.log('[getMyTrades] Trades array:', response.data.trades);
-      console.log('[getMyTrades] Trades array type:', typeof response.data.trades);
-      console.log('[getMyTrades] Trades array is array:', Array.isArray(response.data.trades));
+      console.log('[getMyTrades] API response:', response.data);
       return response;
     })
     .catch(error => {
       console.error('[getMyTrades] API error:', error);
-      console.error('[getMyTrades] Error response:', error.response);
-      console.error('[getMyTrades] Error response data:', error.response?.data);
       throw error;
     });
 };
@@ -405,22 +394,14 @@ export const fundEscrow = (data: {
 export const getEscrow = (tradeId: number) => api.get<Escrow>(`/escrows/${tradeId}`);
 
 export const getMyEscrows = () => {
-  console.log('[getMyEscrows] Making API call to /escrows/my');
-  console.log('[getMyEscrows] Current headers:', api.defaults.headers.common);
-
   return api
     .get<Escrow[]>('/escrows/my')
     .then(response => {
-      console.log('[getMyEscrows] Response status:', response.status);
-      console.log('[getMyEscrows] Response data:', response.data);
-      console.log('[getMyEscrows] Response data type:', typeof response.data);
-      console.log('[getMyEscrows] Response data is array:', Array.isArray(response.data));
+      console.log('[getMyEscrows] API response:', response.data);
       return response;
     })
     .catch(error => {
       console.error('[getMyEscrows] API error:', error);
-      console.error('[getMyEscrows] Error response:', error.response);
-      console.error('[getMyEscrows] Error response data:', error.response?.data);
       throw error;
     });
 };

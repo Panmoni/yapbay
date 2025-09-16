@@ -2,6 +2,8 @@
 
 ## Work thru trade flow & fix bugs
 
+all of the my pages seem to work however I think for txs and escrow there will be an adjustment to the data format to include the network.
+
 ## Post-MVP
 
 review the network awareness/wrapper stuff to ensure it is extensible
