@@ -95,18 +95,8 @@ export class UnifiedBlockchainService implements BlockchainService {
   // Update wallet in Solana program when Dynamic.xyz wallet changes
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateWallet(wallet: any): void {
-    console.log('🔍 [DEBUG] UnifiedBlockchainService.updateWallet called', {
-      hasWallet: !!wallet,
-      walletAddress: wallet?.address,
-      hasSolanaProgram: !!this.solanaProgram,
-      networkType: this.currentNetwork.type,
-      hasProgramId: !!this.currentNetwork.programId,
-      hasUsdcMint: !!this.currentNetwork.usdcMint,
-    });
-
     if (this.solanaProgram) {
       this.solanaProgram.updateWallet(wallet);
-      console.log('🔍 [DEBUG] Updated existing SolanaProgram with wallet');
     } else if (
       wallet &&
       this.currentNetwork.type === NetworkType.SOLANA &&
@@ -118,14 +108,6 @@ export class UnifiedBlockchainService implements BlockchainService {
       const programId = new PublicKey(this.currentNetwork.programId);
       const usdcMint = new PublicKey(this.currentNetwork.usdcMint);
       this.solanaProgram = new SolanaProgram(connection, programId, usdcMint, wallet);
-      console.log('🔍 [DEBUG] Created new SolanaProgram with wallet');
-    } else {
-      console.log('🔍 [DEBUG] Cannot update wallet - missing requirements', {
-        hasWallet: !!wallet,
-        isSolanaNetwork: this.currentNetwork.type === NetworkType.SOLANA,
-        hasProgramId: !!this.currentNetwork.programId,
-        hasUsdcMint: !!this.currentNetwork.usdcMint,
-      });
     }
   }
 

@@ -41,13 +41,11 @@ export function useBlockchainService(): UseBlockchainServiceReturn {
       blockchainService.setWalletAddress(primaryWallet.address);
       // Update wallet in Solana program - pass Dynamic.xyz wallet directly
       blockchainService.updateWallet(primaryWallet);
-      console.log('Updated blockchain service with wallet address:', primaryWallet.address);
     } else {
       blockchainService.setWalletAddress(null);
       blockchainService.updateWallet(null);
-      console.log('Cleared wallet address from blockchain service');
     }
-  }, [primaryWallet?.address, primaryWallet]);
+  }, [primaryWallet?.address]);
 
   // Clear error when wallet connects
   useEffect(() => {

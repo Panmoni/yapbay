@@ -53,30 +53,17 @@ function Header({ isLoggedIn, account }: HeaderProps) {
   // Fetch USDC balance when wallet is connected or network changes
   useEffect(() => {
     const fetchUsdcBalance = async () => {
-      console.log('🔍 [DEBUG] Header: fetchUsdcBalance called', {
-        isConnected,
-        hasPrimaryWallet: !!primaryWallet,
-        walletAddress: primaryWallet?.address,
-        blockchainServiceWalletAddress: blockchainService.getWalletAddress(),
-      });
-
       if (isConnected && primaryWallet?.address) {
         try {
-          console.log('🔍 [DEBUG] Header: Attempting to get wallet balance...');
           const balance = await blockchainService.getWalletBalance();
           // USDC has 6 decimals
           const formattedBalance = (balance / 1_000_000).toFixed(2);
-          console.log('🔍 [DEBUG] Header: Balance retrieved successfully:', {
-            balance,
-            formattedBalance,
-          });
           setUsdcBalance(formattedBalance);
         } catch (error) {
           console.error('Error fetching USDC balance:', error);
           setUsdcBalance('Error');
         }
       } else {
-        console.log('🔍 [DEBUG] Header: Wallet not connected, showing connect message');
         setUsdcBalance('Connect wallet');
       }
     };

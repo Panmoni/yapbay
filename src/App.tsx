@@ -32,8 +32,6 @@ function App() {
     if (primaryWallet) {
       const token = getAuthToken();
       if (token) {
-        // console.log("JWT Token:", token);
-        console.log('JWT Token found after wallet connect!');
         setAuthToken(token);
       } else {
         console.error('No JWT token found after wallet connect!');
@@ -66,7 +64,7 @@ function App() {
       // Dispatch event for logout as well
       dispatchAuthStateChange(undefined);
     }
-  }, [primaryWallet]);
+  }, [primaryWallet?.address]);
 
   return (
     <Router>

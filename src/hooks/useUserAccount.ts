@@ -25,12 +25,6 @@ export const useUserAccount = (
         try {
           const accountResponse = await getAccount();
           const hasUsername = !!accountResponse.data.username;
-          console.log(
-            '[useUserAccount] User has username:',
-            hasUsername,
-            'Username:',
-            accountResponse.data.username
-          );
           setHasUsername(hasUsername);
 
           // Store the current user's account ID
@@ -43,26 +37,16 @@ export const useUserAccount = (
           // Check if it's an Axios error with a 404 status
           const axiosError = err as { response?: { status: number } };
           const isNotFound = axiosError.response && axiosError.response.status === 404;
-          console.log('[useUserAccount] Is 404 error:', isNotFound);
 
           // Set hasUsername to false if it's a 404 error (no account exists)
           setHasUsername(isNotFound ? false : null);
-
-          // Debug current state
-          console.log(
-            '[useUserAccount] Current state - primaryWallet:',
-            !!primaryWallet,
-            'hasUsername:',
-            isNotFound ? false : null
-          );
         }
       } else {
-        console.log('[useUserAccount] No wallet connected');
         setCurrentUserAccountId(null);
       }
     };
     checkUsername();
-  }, [primaryWallet]);
+  }, [primaryWallet?.address]);
 
   return {
     hasUsername,

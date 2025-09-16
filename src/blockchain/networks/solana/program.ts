@@ -158,26 +158,12 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async fundEscrow(params: FundEscrowParams): Promise<TransactionResult> {
     try {
-      console.log('🔍 [DEBUG] fundEscrow called with params:', {
-        escrowId: params.escrowId,
-        tradeId: params.tradeId,
-        amount: params.amount,
-        sellerAddress: params.sellerAddress,
-        sellerTokenAccount: params.sellerTokenAccount,
-      });
-
       // Get provider and program with Dynamic.xyz wallet
       const { provider, program } = await this.getProviderAndProgram();
 
       // Convert addresses to PublicKeys
       const seller = new PublicKey(params.sellerAddress);
       const sellerTokenAccount = new PublicKey(params.sellerTokenAccount);
-
-      console.log('🔍 [DEBUG] Derived addresses:', {
-        seller: seller.toBase58(),
-        sellerTokenAccount: sellerTokenAccount.toBase58(),
-        programId: this.programId.toBase58(),
-      });
 
       // Get USDC mint from network config
       const usdcMint = new PublicKey(
@@ -186,55 +172,7 @@ export class SolanaProgram implements SolanaProgramInterface {
           : 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' // Mainnet USDC
       );
 
-      console.log('🔍 [DEBUG] USDC mint address:', usdcMint.toBase58());
-
-      // Derive escrow and escrow token PDAs for debugging
-      const [escrowPDA] = PDADerivation.deriveEscrowPDA(
-        this.programId,
-        params.escrowId,
-        params.tradeId
-      );
-      const [escrowTokenPDA] = PDADerivation.deriveEscrowTokenPDA(this.programId, escrowPDA);
-
-      console.log('🔍 [DEBUG] Derived PDAs:', {
-        escrowPDA: escrowPDA.toBase58(),
-        escrowTokenPDA: escrowTokenPDA.toBase58(),
-      });
-
-      // Check account balances before transaction
-      try {
-        const sellerBalance = await this.connection.getTokenAccountBalance(sellerTokenAccount);
-        console.log('🔍 [DEBUG] Seller token account balance:', {
-          amount: sellerBalance.value.amount,
-          uiAmount: sellerBalance.value.uiAmount,
-          decimals: sellerBalance.value.decimals,
-        });
-      } catch (error) {
-        console.log('🔍 [DEBUG] Failed to get seller balance:', error);
-      }
-
-      // Check if escrow account exists
-      try {
-        const escrowAccount = await this.connection.getAccountInfo(escrowPDA);
-        console.log('🔍 [DEBUG] Escrow account exists:', !!escrowAccount);
-        if (escrowAccount) {
-          console.log('🔍 [DEBUG] Escrow account owner:', escrowAccount.owner.toBase58());
-          console.log('🔍 [DEBUG] Escrow account data length:', escrowAccount.data.length);
-        }
-      } catch (error) {
-        console.log('🔍 [DEBUG] Failed to check escrow account:', error);
-      }
-
-      // Check if escrow token account exists (should not exist yet)
-      try {
-        const escrowTokenAccount = await this.connection.getAccountInfo(escrowTokenPDA);
-        console.log('🔍 [DEBUG] Escrow token account exists:', !!escrowTokenAccount);
-      } catch (error) {
-        console.log('🔍 [DEBUG] Escrow token account does not exist (expected):', error);
-      }
-
       // Build transaction - pass escrowId and tradeId as arguments
-      console.log('🔍 [DEBUG] Building fundEscrow transaction...');
       const tx = await program.methods
         .fundEscrow(new BN(params.escrowId), new BN(params.tradeId))
         .accounts({
@@ -247,26 +185,8 @@ export class SolanaProgram implements SolanaProgramInterface {
         })
         .transaction();
 
-      console.log('🔍 [DEBUG] Transaction built successfully');
-      console.log('🔍 [DEBUG] Transaction details:', {
-        recentBlockhash: tx.recentBlockhash,
-        feePayer: tx.feePayer?.toBase58(),
-        instructions: tx.instructions.length,
-      });
-
-      // Log instruction details
-      tx.instructions.forEach((ix, index) => {
-        console.log(`🔍 [DEBUG] Instruction ${index}:`, {
-          programId: ix.programId.toBase58(),
-          keys: ix.keys.length,
-          dataLength: ix.data.length,
-        });
-      });
-
       // Send transaction using Dynamic.xyz wallet
-      console.log('🔍 [DEBUG] Sending transaction...');
       const signature = await provider.sendAndConfirm(tx);
-      console.log('🔍 [DEBUG] Transaction sent successfully:', signature);
 
       return {
         success: true,
@@ -274,12 +194,7 @@ export class SolanaProgram implements SolanaProgramInterface {
         slot: await this.connection.getSlot(),
       };
     } catch (error) {
-      console.error('❌ [DEBUG] fundEscrow error:', error);
-      console.error('❌ [DEBUG] Error details:', {
-        name: error instanceof Error ? error.name : 'Unknown',
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
+      console.error('❌ [ERROR] fundEscrow error:', error);
 
       return {
         success: false,
@@ -744,11 +659,6 @@ export class SolanaProgram implements SolanaProgramInterface {
       // Fetch account data
       const escrowAccount = await program.account.escrow.fetch(escrowPDA);
 
-      // Debug: Log the raw state value
-      console.log('🔍 [DEBUG] Raw escrow state from Anchor:', escrowAccount.state);
-      console.log('🔍 [DEBUG] State type:', typeof escrowAccount.state);
-      console.log('🔍 [DEBUG] Mapped state:', this.mapEscrowState(escrowAccount.state));
-
       return {
         id: escrowAccount.escrowId.toNumber(),
         tradeId: escrowAccount.tradeId.toNumber(),
@@ -781,17 +691,9 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async getUsdcBalance(): Promise<number> {
     try {
-      console.log(`🔍 [DEBUG] SolanaProgram.getUsdcBalance called`, {
-        hasDynamicWallet: !!this.dynamicWallet,
-        walletAddress: this.dynamicWallet?.address,
-        walletKeys: this.dynamicWallet ? Object.keys(this.dynamicWallet) : [],
-      });
-
       if (!this.dynamicWallet?.address) {
         throw new Error('Wallet not connected');
       }
-
-      console.log(`🔍 [DEBUG] Getting USDC balance for wallet: ${this.dynamicWallet.address}`);
 
       const walletPublicKey = new PublicKey(this.dynamicWallet.address);
 
@@ -801,18 +703,14 @@ export class SolanaProgram implements SolanaProgramInterface {
         walletPublicKey
       );
 
-      console.log(`🔍 [DEBUG] Associated token account: ${associatedTokenAddress.toBase58()}`);
-
       // Get the token account info
       const tokenAccountInfo = await this.connection.getTokenAccountBalance(associatedTokenAddress);
 
       if (!tokenAccountInfo.value) {
-        console.log(`🔍 [DEBUG] Token account not found or has no balance`);
         return 0;
       }
 
       const balance = tokenAccountInfo.value.amount;
-      console.log(`🔍 [DEBUG] USDC balance: ${balance} (${tokenAccountInfo.value.uiAmount} USDC)`);
 
       // Return balance as number (in smallest unit - 6 decimals for USDC)
       return parseInt(balance);
@@ -821,7 +719,6 @@ export class SolanaProgram implements SolanaProgramInterface {
 
       // If the token account doesn't exist, return 0 instead of throwing
       if (error instanceof Error && error.message.includes('could not find account')) {
-        console.log(`🔍 [DEBUG] Token account doesn't exist, returning 0 balance`);
         return 0;
       }
 
@@ -850,7 +747,6 @@ export class SolanaProgram implements SolanaProgramInterface {
         case 'Resolved':
           return 'RESOLVED';
         default:
-          console.log('🔍 [DEBUG] Unknown string state:', state);
           return 'CREATED';
       }
     } else {
@@ -869,7 +765,6 @@ export class SolanaProgram implements SolanaProgramInterface {
         case 5:
           return 'RESOLVED';
         default:
-          console.log('🔍 [DEBUG] Unknown numeric state:', state);
           return 'CREATED';
       }
     }

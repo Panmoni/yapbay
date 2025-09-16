@@ -1,10 +1,12 @@
 # YapBay Frontend Development Plan
 
+There are 2 types and 2 utils dirs?
+
 ## Integrate Solana as SDK
 
-### action API updates
-
 ### frontend work post API updates
+
+- clear extraneous debug messages from console
 
 - update public /status page, draw from network test, less vertical margin between sections src/pages/Status.tsx
 - update .env.production to roughly match .env
@@ -16,6 +18,7 @@
 ### src/config/index.ts
 
 - Get the new env vars in here and draw from them for solana stuff
+- update docs for new env vars
 
 ### Add payment methods
 
