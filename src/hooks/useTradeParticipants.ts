@@ -42,7 +42,7 @@ export function useTradeParticipants(trade: Trade | null) {
 
         // Ensure we're not fetching the current user's account as counterparty
         if (counterpartyAccountId && counterpartyAccountId !== currentAccount.id) {
-          const counterpartyResponse = await getAccountById(counterpartyAccountId.toString());
+          const counterpartyResponse = await getAccountById(counterpartyAccountId);
           setCounterparty(counterpartyResponse.data);
           // console.log(`[DEBUG] useTradeParticipants - Fetched counterparty with ID: ${counterpartyAccountId}`, counterpartyResponse.data);
         } else {

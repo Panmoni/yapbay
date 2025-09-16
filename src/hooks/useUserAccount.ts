@@ -89,7 +89,7 @@ export const fetchCreatorNames = async (
     if (primaryWallet) {
       const namePromises = uniqueCreatorIds.map(async (id: number) => {
         try {
-          const accountResponse = await getAccountById(id.toString());
+          const accountResponse = await getAccountById(id);
           const account = accountResponse.data;
           return { id, username: account.username || account.wallet_address };
         } catch (err) {

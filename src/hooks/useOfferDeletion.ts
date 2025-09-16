@@ -25,7 +25,7 @@ export function useOfferDeletion({ setOffersState, onSuccess, onError }: UseOffe
   const handleDeleteOffer = async (offerId: number) => {
     setIsDeleting(true);
     try {
-      await deleteOffer(offerId.toString());
+      await deleteOffer(offerId);
       // Only update state if setOffersState is provided
       if (setOffersState) {
         setOffersState(prevOffers => prevOffers.filter(offer => offer.id !== offerId));
