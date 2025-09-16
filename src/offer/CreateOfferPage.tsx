@@ -205,19 +205,6 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
             </Alert>
           )}
 
-          {/* Network Indicator */}
-          <Alert className="mb-6 bg-blue-50 border-blue-200">
-            <AlertDescription className="text-blue-700">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Network:</span>
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-mono">
-                  Solana Devnet
-                </span>
-                <span className="text-sm text-blue-600">(Network: solana-devnet)</span>
-              </div>
-            </AlertDescription>
-          </Alert>
-
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-1">
               <label
@@ -235,6 +222,20 @@ function CreateOfferPage({ account: propAccount }: CreateOfferPageProps) {
                 disabled
               />
               <p className="text-xs text-neutral-500">This is your account identifier</p>
+            </div>
+
+            <div className="space-y-1">
+              <label htmlFor="network" className="block text-sm font-medium text-neutral-700">
+                Network
+              </label>
+              <Input
+                id="network"
+                type="text"
+                value="Solana Devnet"
+                className="border-neutral-300 focus:border-primary-500 focus:ring-primary-500"
+                disabled
+              />
+              <p className="text-xs text-neutral-500">(Network: solana-devnet)</p>
             </div>
 
             <div className="space-y-1">
