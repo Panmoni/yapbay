@@ -38,7 +38,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
   );
   const [priceError, setPriceError] = useState<string | null>(null);
   const [usdcBalance, setUsdcBalance] = useState<string>('Loading...');
-  const [currentNetwork, setCurrentNetwork] = useState<number | null>(null);
+  const [currentNetwork, setCurrentNetwork] = useState<number | string | null>(null);
 
   const fetchPrices = useCallback(async () => {
     try {
@@ -80,7 +80,7 @@ function Header({ isLoggedIn, account }: HeaderProps) {
     return () => clearInterval(interval);
   }, [fetchPrices]);
 
-  // Listen for network changes
+  // Listen for network changes (EVM chains only)
   useWalletConnectorEvent(primaryWallet?.connector, 'chainChange', chainInfo => {
     const networkId =
       typeof chainInfo.chain === 'string'
@@ -102,23 +102,53 @@ function Header({ isLoggedIn, account }: HeaderProps) {
     }
   });
 
+  // Handle Solana wallet connection (Solana doesn't use chain change events)
+  useEffect(() => {
+    if (primaryWallet?.connector && isConnected) {
+      // Check if this is a Solana wallet
+      const isSolanaWallet =
+        primaryWallet.connector.name.toLowerCase().includes('solana') ||
+        primaryWallet.connector.name.toLowerCase().includes('phantom') ||
+        primaryWallet.connector.name.toLowerCase().includes('solflare');
+
+      if (isSolanaWallet) {
+        // For Solana wallets, we assume devnet for now (display only, no global network setting)
+        setCurrentNetwork('solana-devnet');
+        console.log('Solana wallet detected, setting display network to solana-devnet');
+      }
+    }
+  }, [primaryWallet?.connector, isConnected]);
+
   // Get initial network when wallet connects
   useEffect(() => {
     const getCurrentNetwork = async () => {
       if (primaryWallet?.connector) {
         try {
-          const networkId = await getNetwork(primaryWallet.connector);
-          if (typeof networkId === 'number') {
-            setCurrentNetwork(networkId);
-            console.log('Initial network detected:', {
-              networkId,
-              networkName:
-                networkId === 42220
-                  ? 'Celo Mainnet'
-                  : networkId === 44787
-                  ? 'Celo Alfajores'
-                  : 'Unknown Network',
-            });
+          // Check if this is a Solana wallet first
+          const isSolanaWallet =
+            primaryWallet.connector.name.toLowerCase().includes('solana') ||
+            primaryWallet.connector.name.toLowerCase().includes('phantom') ||
+            primaryWallet.connector.name.toLowerCase().includes('solflare');
+
+          if (isSolanaWallet) {
+            // For Solana wallets, set to devnet (display only)
+            setCurrentNetwork('solana-devnet');
+            console.log('Initial Solana network detected: solana-devnet - display only');
+          } else {
+            // For EVM wallets, get the actual network
+            const networkId = await getNetwork(primaryWallet.connector);
+            if (typeof networkId === 'number') {
+              setCurrentNetwork(networkId);
+              console.log('Initial network detected:', {
+                networkId,
+                networkName:
+                  networkId === 42220
+                    ? 'Celo Mainnet'
+                    : networkId === 44787
+                    ? 'Celo Alfajores'
+                    : 'Unknown Network',
+              });
+            }
           }
         } catch (error) {
           console.error('Error getting initial network:', error);
