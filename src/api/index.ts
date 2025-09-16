@@ -404,7 +404,26 @@ export const fundEscrow = (data: {
 
 export const getEscrow = (tradeId: number) => api.get<Escrow>(`/escrows/${tradeId}`);
 
-export const getMyEscrows = () => api.get<Escrow[]>('/my/escrows');
+export const getMyEscrows = () => {
+  console.log('[getMyEscrows] Making API call to /escrows/my');
+  console.log('[getMyEscrows] Current headers:', api.defaults.headers.common);
+
+  return api
+    .get<Escrow[]>('/escrows/my')
+    .then(response => {
+      console.log('[getMyEscrows] Response status:', response.status);
+      console.log('[getMyEscrows] Response data:', response.data);
+      console.log('[getMyEscrows] Response data type:', typeof response.data);
+      console.log('[getMyEscrows] Response data is array:', Array.isArray(response.data));
+      return response;
+    })
+    .catch(error => {
+      console.error('[getMyEscrows] API error:', error);
+      console.error('[getMyEscrows] Error response:', error.response);
+      console.error('[getMyEscrows] Error response data:', error.response?.data);
+      throw error;
+    });
+};
 
 /**
  * Releases an escrow and transfers funds to the buyer
