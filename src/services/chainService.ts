@@ -11,6 +11,7 @@ export const createEscrowTransaction = async (
   wallet: any,
   params: {
     tradeId: number;
+    escrowId: number; // Accept pre-generated escrow ID
     buyer: string;
     amount: number;
     sequential?: boolean;
@@ -21,6 +22,7 @@ export const createEscrowTransaction = async (
   try {
     console.log('[DEBUG] Creating Solana escrow with parameters:', {
       tradeId: params.tradeId,
+      escrowId: params.escrowId,
       buyer: params.buyer,
       amount: params.amount,
       sequential: params.sequential || false,
@@ -32,7 +34,7 @@ export const createEscrowTransaction = async (
 
     // Create escrow using UnifiedBlockchainService
     const result = await blockchainService.createEscrow({
-      escrowId: Math.floor(Math.random() * 1000000), // Generate random escrow ID
+      escrowId: params.escrowId, // Use the pre-generated escrow ID
       tradeId: params.tradeId,
       sellerAddress: wallet.address,
       buyerAddress: params.buyer,
@@ -47,9 +49,11 @@ export const createEscrowTransaction = async (
     console.log('[DEBUG] Solana escrow created:', result);
 
     return {
-      escrowId: Math.floor(Math.random() * 1000000).toString(), // Generate escrow ID since TransactionResult doesn't have it
+      escrowId: params.escrowId.toString(), // Return the same escrow ID that was passed in
       txHash: result.transactionHash || result.signature || '',
       blockNumber: BigInt(result.slot || result.blockNumber || 0),
+      // Include the full result for debugging
+      fullResult: result,
     };
   } catch (error) {
     console.error('[ERROR] Failed to create Solana escrow:', error);
@@ -114,17 +118,26 @@ export const approveTokenSpending = async (
  */
 export const fundEscrowTransaction = async (
   wallet: any,
-  escrowId: string | number
+  escrowId: string | number,
+  tradeData?: { id: number; leg1_crypto_amount: string }
 ): Promise<{ txHash: string; blockNumber: bigint }> => {
   try {
     console.log(`[DEBUG] Funding Solana escrow with ID: ${escrowId}`);
 
+    // Use trade data if available, otherwise fall back to defaults
+    const tradeId = tradeData?.id || 0;
+    const amount = tradeData?.leg1_crypto_amount
+      ? (parseFloat(tradeData.leg1_crypto_amount) * 1000000).toString() // Convert to USDC units (6 decimals)
+      : '1000000'; // Default 1 USDC
+
+    // For now, we'll use an empty seller token account and let the blockchain service handle it
+    // In a real implementation, we'd derive the associated token account
     const result = await blockchainService.fundEscrow({
       escrowId: Number(escrowId),
-      tradeId: 0, // We'll need to get this from the escrow data
-      amount: '1000000', // Default amount - should be derived from escrow
+      tradeId: tradeId,
+      amount: amount,
       sellerAddress: wallet.address,
-      sellerTokenAccount: '', // We'll need to derive this
+      sellerTokenAccount: '', // The blockchain service should derive this
     });
 
     console.log('[DEBUG] Solana escrow funded:', result);
@@ -149,13 +162,14 @@ export const fundEscrowTransaction = async (
  */
 export const checkAndFundEscrow = async (
   wallet: any,
-  escrowId: string | number
+  escrowId: string | number,
+  tradeData?: { id: number; leg1_crypto_amount: string }
 ): Promise<string> => {
   try {
     console.log(`[DEBUG] Checking and funding Solana escrow ${escrowId}`);
 
     // In Solana, we don't need to check allowance, just fund directly
-    const result = await fundEscrowTransaction(wallet, escrowId);
+    const result = await fundEscrowTransaction(wallet, escrowId, tradeData);
     return result.txHash;
   } catch (error) {
     console.error(`[ERROR] Failed to check and fund Solana escrow ${escrowId}:`, error);
