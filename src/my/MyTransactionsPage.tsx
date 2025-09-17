@@ -75,6 +75,16 @@ const getExplorerUrl = (txHash: string) => {
   return `${config.blockExplorerUrl}/tx/${txHash}`;
 };
 
+const getNetworkDisplayName = (networkId: string): string => {
+  const networkNames: Record<string, string> = {
+    'solana-devnet': 'Solana Devnet',
+    'solana-mainnet': 'Solana Mainnet',
+    'celo-alfajores': 'Celo Alfajores',
+    'celo-mainnet': 'Celo Mainnet',
+  };
+  return networkNames[networkId] || networkId;
+};
+
 function MyTransactionsPage({ account }: MyTransactionsPageProps) {
   const { primaryWallet } = useDynamicContext();
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
@@ -100,6 +110,12 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
           limit,
           offset: (page - 1) * limit,
         });
+
+        // Log the complete API response data
+        console.log('MyTransactionsPage API Response:', response);
+        console.log('MyTransactionsPage Response Data:', response.data);
+        console.log('MyTransactionsPage Transactions Count:', response.data?.length);
+        console.log('MyTransactionsPage Network Field Sample:', response.data?.[0]?.network);
 
         // Handle the response data
         setTransactions(response.data);
@@ -273,6 +289,10 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                           <span>{tx.amount ? `${tx.amount} ${tx.token_type || 'USDC'}` : '-'}</span>
                         </div>
                         <div className="col-span-2 mt-2">
+                          <span className="text-neutral-500 block mb-1">Network:</span>
+                          <span>{tx.network ? getNetworkDisplayName(tx.network) : '-'}</span>
+                        </div>
+                        <div className="col-span-2 mt-2">
                           <span className="text-neutral-500 block mb-1">Transaction:</span>
                           <a
                             href={getExplorerUrl(tx.transaction_hash)}
@@ -300,6 +320,7 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                         <TableHead className="text-primary-700 font-medium">From</TableHead>
                         <TableHead className="text-primary-700 font-medium">To</TableHead>
                         <TableHead className="text-primary-700 font-medium">Amount</TableHead>
+                        <TableHead className="text-primary-700 font-medium">Network</TableHead>
                         <TableHead className="text-primary-700 font-medium">Status</TableHead>
                         <TableHead className="text-primary-700 font-medium">Time</TableHead>
                         <TableHead className="text-primary-700 font-medium">Transaction</TableHead>
@@ -324,6 +345,9 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                           </TableCell>
                           <TableCell>
                             {tx.amount ? `${tx.amount} ${tx.token_type || 'USDC'}` : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {tx.network ? getNetworkDisplayName(tx.network) : '-'}
                           </TableCell>
                           <TableCell>
                             <span

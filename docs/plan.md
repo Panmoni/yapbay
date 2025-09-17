@@ -1,12 +1,22 @@
 # YapBay Frontend Development Plan
 
-## Work thru trade flow & fix bugs
+sanity check on what is being recorded to mathesar for escrows, transactions
 
-- NEXT: get full trade page working
+my transactions explorer link
 
-## My Txs & Escrows
+@MyTransactionsPage.tsx The explorer link is broken
 
-- all of the my pages seem to work however I think for txs and escrow there will be an adjustment to the data format to include the network.
+It just renders this:
+
+http://tx/4c4hY46NH8wXqr1r4PCXTehKn47VqLLSdigzndXNYPtAMFYo7cfyTW2ZMsFVADS5n7W6Aot7NqWGT9Ywfbfq4Bbs
+
+show network on my txs and escrows pages?
+
+- NEXT: get full trade page working, test out the blockchain flow, list of transactions, etc
+
+- acct1 see transactions and escrows they did not create
+
+- my escrows amounts are wrong but my transactions gets it right.
 
 ## Post-MVP
 
@@ -53,6 +63,7 @@ strategic friction [https://read.first1000.co/p/positive-friction](https://read.
 8. MyTradesPage lag to update",Deploy YapBay to Celo Mainnet
 9. refactor: useUserAccount for Account Page?
 10. will events be more reliable as its own process?
+11. scour the blockchain stuff to see about types stuff that needs to moved into the appropriate types file so types are centralized
 
 - implement cancel escrow/trade
 - test mobile layout
@@ -63,6 +74,10 @@ strategic friction [https://read.first1000.co/p/positive-friction](https://read.
 ## Ref
 
 Fee flag is now enabled
+
+### inspect a transaction
+
+solana confirm -v 4Qb8Eerb3vxz2NBKioifaqgoM6M7nZdvpwyRzqcjXEaCTsHh1mDYW9kPd94JzqaEEjgFP58c6tgKgoNWyw6HdBnn
 
 ### inspect escrows etc
 

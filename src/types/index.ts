@@ -179,6 +179,7 @@ export interface TransactionRecord {
   gas_used?: string;
   error_message?: string;
   created_at: string;
+  network?: string;
   metadata?: Record<string, string>;
 }
 
