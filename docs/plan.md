@@ -4,13 +4,13 @@
 
 ## on next escrow creation
 
-when trades auto cancel the trades.cancelled field is not being updated: check if this is fixed
+when trades auto cancel the trades.cancelled field is not being updated: check if this is fixed (api)
 
-Check if deposit_deadline and fiat_deadline are being added upon escrow creation.
+Check if deposit_deadline and fiat_deadline are being added upon escrow creation. (api?)
 
-See if trade_id gets recorded for real escrow created event
+See if trade_id gets recorded for real escrow created event (api)
 
-see if solana transactions are being recorded as signatures, slot, and the correct network_family field.
+see if solana transactions are being recorded as signatures, slot, and the correct network_family field. (frontend)
 
 ## fund escrow failures
 

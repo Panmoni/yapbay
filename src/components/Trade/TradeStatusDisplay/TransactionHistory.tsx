@@ -54,6 +54,17 @@ const formatAddress = (address: string): string => {
   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 };
 
+// Helper function to get transaction identifier (hash or signature)
+const getTransactionId = (tx: TransactionRecord): string => {
+  return tx.signature || tx.transaction_hash || '';
+};
+
+// Helper function to format transaction identifier for display
+const formatTransactionId = (tx: TransactionRecord): string => {
+  const txId = getTransactionId(tx);
+  return formatAddress(txId);
+};
+
 export const TransactionHistory = ({ tradeId, className = '' }: TransactionHistoryProps) => {
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -89,6 +100,8 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
   }, [fetchTransactions]);
 
   const getExplorerUrl = (txHash: string) => {
+    // Return '#' if no transaction hash provided
+    if (!txHash) return '#';
     interface ExtendedConfig {
       apiUrl: string;
       dynamicSdkId: string;
@@ -201,14 +214,14 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
                         )}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                        {tx.transaction_hash ? (
+                        {getTransactionId(tx) ? (
                           <a
-                            href={getExplorerUrl(tx.transaction_hash)}
+                            href={getExplorerUrl(getTransactionId(tx))}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center text-blue-600 hover:text-blue-800"
                           >
-                            <span>{formatAddress(tx.transaction_hash)}</span>
+                            <span>{formatTransactionId(tx)}</span>
                             <ExternalLink size={12} className="ml-1" />
                           </a>
                         ) : (

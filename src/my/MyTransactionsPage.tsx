@@ -71,7 +71,21 @@ const formatAddress = (address: string): string => {
   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 };
 
+// Helper function to get transaction identifier (hash or signature)
+const getTransactionId = (tx: TransactionRecord): string => {
+  return tx.signature || tx.transaction_hash || '';
+};
+
+// Helper function to format transaction identifier for display
+const formatTransactionId = (tx: TransactionRecord): string => {
+  const txId = getTransactionId(tx);
+  return formatAddress(txId);
+};
+
 const getExplorerUrl = (txHash: string, networkId?: string) => {
+  // Return '#' if no transaction hash provided
+  if (!txHash) return '#';
+
   // Get the network-specific explorer URL
   let explorerUrl: string;
 
@@ -319,12 +333,12 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                         <div className="col-span-2 mt-2">
                           <span className="text-neutral-500 block mb-1">Transaction:</span>
                           <a
-                            href={getExplorerUrl(tx.transaction_hash, tx.network)}
+                            href={getExplorerUrl(getTransactionId(tx), tx.network)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center text-blue-600 hover:text-blue-800"
                           >
-                            {formatAddress(tx.transaction_hash)}
+                            {formatTransactionId(tx)}
                             <ExternalLink size={14} className="ml-1" />
                           </a>
                         </div>
@@ -387,12 +401,12 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                           </TableCell>
                           <TableCell>
                             <a
-                              href={getExplorerUrl(tx.transaction_hash, tx.network)}
+                              href={getExplorerUrl(getTransactionId(tx), tx.network)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center text-blue-600 hover:text-blue-800"
                             >
-                              {formatAddress(tx.transaction_hash)}
+                              {formatTransactionId(tx)}
                               <ExternalLink size={14} className="ml-1" />
                             </a>
                           </TableCell>
