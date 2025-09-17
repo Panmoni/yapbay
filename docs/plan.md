@@ -2,15 +2,7 @@
 
 sanity check on what is being recorded to mathesar for escrows, transactions
 
-my transactions explorer link
-
-@MyTransactionsPage.tsx The explorer link is broken
-
-It just renders this:
-
-http://tx/4c4hY46NH8wXqr1r4PCXTehKn47VqLLSdigzndXNYPtAMFYo7cfyTW2ZMsFVADS5n7W6Aot7NqWGT9Ywfbfq4Bbs
-
-show network on my txs and escrows pages?
+show network on my escrows pages?
 
 - NEXT: get full trade page working, test out the blockchain flow, list of transactions, etc
 

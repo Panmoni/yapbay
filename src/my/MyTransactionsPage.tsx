@@ -4,6 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ExternalLink } from 'lucide-react';
 import { config } from '../config';
 import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+import { networkRegistry } from '../blockchain/networks';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Container from '@/components/Shared/Container';
@@ -70,9 +71,32 @@ const formatAddress = (address: string): string => {
   return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 };
 
-const getExplorerUrl = (txHash: string) => {
-  // Use the blockExplorerUrl from config which defaults to Alfajores testnet
-  return `${config.blockExplorerUrl}/tx/${txHash}`;
+const getExplorerUrl = (txHash: string, networkId?: string) => {
+  // Get the network-specific explorer URL
+  let explorerUrl: string;
+
+  if (networkId) {
+    const network = networkRegistry.get(networkId);
+    if (network) {
+      explorerUrl = network.blockExplorerUrl;
+    } else {
+      // Fallback to default network explorer
+      explorerUrl = config.networks.testnet.blockExplorerUrl || 'https://alfajores.celoscan.io';
+    }
+  } else {
+    // Fallback to default network explorer
+    explorerUrl = config.networks.testnet.blockExplorerUrl || 'https://alfajores.celoscan.io';
+  }
+
+  // Handle Solana explorer URLs that have query parameters
+  if (explorerUrl.includes('?')) {
+    // Split the URL and query parameters
+    const [baseUrl, queryParams] = explorerUrl.split('?');
+    return `${baseUrl}/tx/${txHash}?${queryParams}`;
+  } else {
+    // Regular URL without query parameters
+    return `${explorerUrl}/tx/${txHash}`;
+  }
 };
 
 const getNetworkDisplayName = (networkId: string): string => {
@@ -295,7 +319,7 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                         <div className="col-span-2 mt-2">
                           <span className="text-neutral-500 block mb-1">Transaction:</span>
                           <a
-                            href={getExplorerUrl(tx.transaction_hash)}
+                            href={getExplorerUrl(tx.transaction_hash, tx.network)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center text-blue-600 hover:text-blue-800"
@@ -363,7 +387,7 @@ function MyTransactionsPage({ account }: MyTransactionsPageProps) {
                           </TableCell>
                           <TableCell>
                             <a
-                              href={getExplorerUrl(tx.transaction_hash)}
+                              href={getExplorerUrl(tx.transaction_hash, tx.network)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center text-blue-600 hover:text-blue-800"
