@@ -46,7 +46,7 @@ export const useUserAccount = (
       }
     };
     checkUsername();
-  }, [primaryWallet?.address]);
+  }, [primaryWallet, primaryWallet?.address]);
 
   return {
     hasUsername,

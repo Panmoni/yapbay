@@ -64,7 +64,7 @@ function App() {
       // Dispatch event for logout as well
       dispatchAuthStateChange(undefined);
     }
-  }, [primaryWallet?.address]);
+  }, [primaryWallet, primaryWallet?.address]);
 
   return (
     <Router>

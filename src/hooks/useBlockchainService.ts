@@ -45,7 +45,7 @@ export function useBlockchainService(): UseBlockchainServiceReturn {
       blockchainService.setWalletAddress(null);
       blockchainService.updateWallet(null);
     }
-  }, [primaryWallet?.address]);
+  }, [primaryWallet, primaryWallet?.address]);
 
   // Clear error when wallet connects
   useEffect(() => {
