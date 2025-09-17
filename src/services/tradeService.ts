@@ -7,6 +7,7 @@ import {
   getTradeById,
   recordTransaction,
 } from '../api';
+import { buildTransactionData } from '../utils/transactionUtils.js';
 
 // Custom interface for create trade request that matches API expectations
 interface CreateTradeRequest {
@@ -245,24 +246,25 @@ export const createTradeEscrow = async ({
     const leg1CryptoAmount = trade.leg1_crypto_amount || '0';
     const leg1CryptoToken = trade.leg1_crypto_token || 'USDC';
 
-    // Record the transaction
-    await recordTransaction({
+    // Record the transaction using the utility function for correct field mapping
+    const transactionData = buildTransactionData({
       trade_id: trade.id,
       escrow_id: escrowId, // Use the pre-generated ID
-      transaction_hash: txResult.txHash,
+      signature: txResult.txHash, // Use txHash as signature for Solana
       transaction_type: 'CREATE_ESCROW',
       from_address: sellerAddress,
       to_address: recordEscrowData.escrow_pda, // Use the escrow PDA as the destination
       amount: leg1CryptoAmount,
       token_type: leg1CryptoToken,
       status: 'SUCCESS',
-      block_number: Number(txResult.blockNumber),
+      slot: Number(txResult.blockNumber), // Use blockNumber as slot for Solana
       metadata: {
         escrow_id: escrowId.toString(),
         seller: sellerAddress,
         buyer: buyerAddress,
       },
     });
+    await recordTransaction(transactionData);
 
     // Show success message
     toast.success('Escrow created successfully!', {
@@ -328,23 +330,24 @@ export const createAndFundTradeEscrow = async ({
         // Derive the escrow PDA to use as to_address
         const solanaAddresses = deriveSolanaAddresses(trade.id, parseInt(escrowResult.escrowId));
 
-        await recordTransaction({
+        const transactionData = buildTransactionData({
           trade_id: trade.id,
           escrow_id: escrowResult.escrowId ? parseInt(escrowResult.escrowId) : 0,
-          transaction_hash: String(txResult.txHash),
+          signature: String(txResult.txHash), // Use txHash as signature for Solana
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
           to_address: solanaAddresses.escrow_pda, // Use the escrow PDA as the destination
           amount: trade.leg1_crypto_amount || '0',
           token_type: trade.leg1_crypto_token || 'USDC',
           status: 'SUCCESS',
-          block_number: txResult.blockNumber ? Number(txResult.blockNumber) : undefined,
+          slot: txResult.blockNumber ? Number(txResult.blockNumber) : undefined, // Use blockNumber as slot for Solana
           metadata: {
             escrow_id: escrowResult.escrowId || '0',
             seller: sellerAddress,
             buyer: buyerAddress,
           },
         });
+        await recordTransaction(transactionData);
       } catch (recordError) {
         // Log the error but don't fail the entire transaction
         console.error(
@@ -353,18 +356,22 @@ export const createAndFundTradeEscrow = async ({
         );
 
         // Store transaction in localStorage as fallback
-        storeTransactionLocally({
+        const localTransactionData = {
           trade_id: trade.id,
           escrow_id: escrowResult.escrowId ? parseInt(escrowResult.escrowId) : 0,
-          transaction_hash: String(txResult.txHash),
+          transaction_hash: String(txResult.txHash), // Keep as transaction_hash for localStorage compatibility
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
           to_address: '',
           amount: trade.leg1_crypto_amount || '0',
           token_type: trade.leg1_crypto_token || 'USDC',
           block_number: txResult.blockNumber ? Number(txResult.blockNumber) : undefined,
-          timestamp: new Date().toISOString(),
-        });
+          network_family: 'solana' as const,
+          metadata: {
+            timestamp: new Date().toISOString(),
+          },
+        };
+        storeTransactionLocally(localTransactionData);
 
         // Show a warning to the user
         toast.warning(
@@ -400,14 +407,17 @@ export const createAndFundTradeEscrow = async ({
 const storeTransactionLocally = (transactionData: {
   trade_id: number;
   escrow_id?: number;
-  transaction_hash: string;
+  transaction_hash?: string;
+  signature?: string;
   transaction_type: string;
   from_address: string;
   to_address?: string;
   amount?: string;
   token_type?: string;
   block_number?: number;
-  timestamp: string;
+  slot?: number;
+  network_family?: 'evm' | 'solana';
+  metadata?: Record<string, string>;
 }) => {
   try {
     // Get existing pending transactions or initialize empty array
@@ -494,19 +504,20 @@ const retryPendingTransactions = async () => {
 
       try {
         // Attempt to record the transaction
-        await recordTransaction({
+        const transactionData = buildTransactionData({
           trade_id: transaction.trade_id,
           escrow_id: transaction.escrow_id,
-          transaction_hash: transaction.transaction_hash,
+          signature: transaction.transaction_hash, // Use transaction_hash as signature for Solana
           transaction_type: transaction.transaction_type,
           from_address: transaction.from_address,
           to_address: transaction.to_address || '',
           amount: transaction.amount,
           token_type: transaction.token_type,
           status: 'SUCCESS',
-          block_number: transaction.block_number,
+          slot: transaction.block_number, // Use block_number as slot for Solana
           metadata: transaction.metadata || {},
         });
+        await recordTransaction(transactionData);
 
         // If successful, mark for removal
         successfulTransactions.push(i);
@@ -576,10 +587,10 @@ export const markTradeFiatPaid = async ({
         const result = await markFiatPaidTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
 
         // Record the transaction details via the recordTransaction API
-        await recordTransaction({
+        const transactionData = buildTransactionData({
           trade_id: trade.id,
           escrow_id: Number(trade.leg1_escrow_onchain_id),
-          transaction_hash: result,
+          signature: result, // Use result as signature for Solana
           transaction_type: 'MARK_FIAT_PAID',
           from_address: primaryWallet.address || '',
           status: 'SUCCESS',
@@ -587,6 +598,7 @@ export const markTradeFiatPaid = async ({
             buyer: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
           },
         });
+        await recordTransaction(transactionData);
 
         // Call the backend API to update the trade status
         await markFiatPaid(trade.id);
@@ -669,18 +681,19 @@ export const releaseTradeCrypto = async ({
     const txResult = await releaseEscrowTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
 
     // Record the transaction details via the recordTransaction API
-    await recordTransaction({
+    const transactionData = buildTransactionData({
       trade_id: trade.id,
       escrow_id: Number(trade.leg1_escrow_onchain_id),
-      transaction_hash: txResult.txHash,
+      signature: txResult.txHash, // Use txHash as signature for Solana
       transaction_type: 'RELEASE_ESCROW',
       from_address: primaryWallet.address,
       to_address: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
       amount: trade.leg1_crypto_amount,
       token_type: trade.leg1_crypto_token,
       status: 'SUCCESS',
-      block_number: Number(txResult.blockNumber),
+      slot: Number(txResult.blockNumber), // Use blockNumber as slot for Solana
     });
+    await recordTransaction(transactionData);
 
     toast.success('Crypto released successfully!');
   } catch (error: unknown) {
@@ -746,19 +759,20 @@ export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams)
       );
 
       // Record the transaction details via the recordTransaction API
-      await recordTransaction({
+      const transactionData = buildTransactionData({
         trade_id: trade.id,
         escrow_id: Number(trade.leg1_escrow_onchain_id),
-        transaction_hash: txResult.txHash,
+        signature: txResult.txHash, // Use txHash as signature for Solana
         transaction_type: 'DISPUTE_ESCROW',
         from_address: primaryWallet.address,
         status: 'SUCCESS',
-        block_number: Number(txResult.blockNumber),
+        slot: Number(txResult.blockNumber), // Use blockNumber as slot for Solana
         metadata: {
           disputing_party: primaryWallet.address,
           evidence_hash: evidenceHash,
         },
       });
+      await recordTransaction(transactionData);
 
       toast.success('Trade disputed successfully');
     } catch (error: unknown) {
@@ -835,19 +849,20 @@ export const cancelTrade = async ({ trade, primaryWallet }: CancelTradeParams): 
         const txResult = await cancelEscrowTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
 
         // Record the transaction details via the recordTransaction API
-        await recordTransaction({
+        const transactionData = buildTransactionData({
           trade_id: trade.id,
           escrow_id: Number(trade.leg1_escrow_onchain_id),
-          transaction_hash: String(txResult.txHash),
+          signature: String(txResult.txHash), // Use txHash as signature for Solana
           transaction_type: 'CANCEL_ESCROW',
           from_address: primaryWallet.address,
           status: 'SUCCESS',
-          block_number: Number(txResult.blockNumber),
+          slot: Number(txResult.blockNumber), // Use blockNumber as slot for Solana
           metadata: {
             seller: trade.leg1_seller_account_id ? trade.leg1_seller_account_id.toString() : '',
             authority: primaryWallet.address,
           },
         });
+        await recordTransaction(transactionData);
 
         toast.success('Trade cancelled successfully');
       } catch (error: unknown) {

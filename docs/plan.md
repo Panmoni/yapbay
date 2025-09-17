@@ -1,10 +1,131 @@
 # YapBay Frontend Development Plan
 
-sanity check on what is being recorded to mathesar for escrows, transactions
-
 - NEXT: get full trade page working, test out the blockchain flow, list of transactions, etc
 
-- my escrows amounts are wrong but my transactions gets it right.
+## on next escrow creation
+
+when trades auto cancel the trades.cancelled field is not being updated: check if this is fixed
+
+Check if deposit_deadline and fiat_deadline are being added upon escrow creation.
+
+See if trade_id gets recorded for real escrow created event
+
+see if solana transactions are being recorded as signatures, slot, and the correct network_family field.
+
+## fund escrow failures
+
+suspect we also have to initilize the token account for the escrow pda?
+
+check to see how tests.ts does it
+
+is the escrow_token_account that is being stored via /escrows/record actually correct?
+
+once we know the solana escrow address, update trade.leg1_escrow_address
+
+\[DEBUG] Solana escrow funded:
+{success: false, error: 'Invalid public key input'}
+error
+:
+"Invalid public key input"
+success
+:
+false
+\[\[Prototype]]
+:
+Object
+date-fns.js?v=c5acba84:2862 Uncaught RangeError: Invalid time value
+at TradeDetailsCard (TradeDetailsCard.tsx:59:14)
+TradeDetailsCard @ TradeDetailsCard.tsx:59
+E @ inpage.js:166
+_ @ inpage.js:166
+J @ inpage.js:166
+postMessage
+d @ inpage.js:166
+v @ inpage.js:166
+refreshTrade @ tradeService.ts:903
+await in refreshTrade
+(anonymous) @ TradePage.tsx:61
+createEscrow @ useTradeActions.ts:83
+await in createEscrow
+handleAction @ index.tsx:129
+onClick @ renderActionButtons.tsx:41
+date-fns.js?v=c5acba84:2862 Uncaught RangeError: Invalid time value
+at TradeDetailsCard (TradeDetailsCard.tsx:59:14)
+TradeDetailsCard @ TradeDetailsCard.tsx:59
+E @ inpage.js:166
+_ @ inpage.js:166
+J @ inpage.js:166
+postMessage
+d @ inpage.js:166
+v @ inpage.js:166
+refreshTrade @ tradeService.ts:903
+await in refreshTrade
+(anonymous) @ TradePage.tsx:61
+createEscrow @ useTradeActions.ts:83
+await in createEscrow
+handleAction @ index.tsx:129
+onClick @ renderActionButtons.tsx:41
+inpage.js:166 The above error occurred in the <TradeDetailsCard> component:
+
+    at TradeDetailsCard (http://localhost:5173/src/components/Trade/TradeDetailsCard.tsx:33:29)
+    at div
+    at TradePage (http://localhost:5173/src/TradePage.tsx?t=1758138711349:56:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=c5acba84:5904:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=c5acba84:6635:3)
+    at div
+    at Container (http://localhost:5173/src/components/Shared/Container.tsx:24:22)
+    at main
+    at div
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=c5acba84:6578:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=c5acba84:8830:3)
+    at App (http://localhost:5173/src/App.tsx?t=1758137458500:49:29)
+    at ErrorBoundaryExclude (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:75561:28)
+    at SocialRedirectContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:63116:40)
+    at PhantomRedirectContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:75771:41)
+    at ConnectWithOtpProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:74089:33)
+    at UserFieldEditorContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:60374:41)
+    at WalletGroupContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:58955:37)
+    at SendBalanceContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:57265:37)
+    at AccessDeniedContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:39628:38)
+    at OnrampContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:52795:32)
+    at DynamicBridgeWidgetContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:75385:45)
+    at DynamicWidgetContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:55856:39)
+    at PasskeyContextProviderWithBrowser (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:54553:44)
+    at PasskeyContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:54653:33)
+    at VerificationProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:39744:31)
+    at WalletContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:43040:32)
+    at AccountExistsContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:39655:39)
+    at CaptchaContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:8245:33)
+    at ViewContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:7174:30)
+    at LoadingContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:61727:33)
+    at ThemeContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:39935:31)
+    at WalletBookContextProvider (http://localhost:5173/node_modules/.vite/deps/chunk-QFC474OQ.js?v=c5acba84:30608:36)
+    at I18nextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:7910:5)
+    at InnerDynamicContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:76513:11)
+    at WidgetRegistryContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:75420:40)
+    at IpConfigurationContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:48617:41)
+    at FieldsStateProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:43231:30)
+    at UserWalletsProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:39676:30)
+    at ErrorContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:7138:31)
+    at ErrorBoundaryReporter (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:75520:5)
+    at ErrorBoundary (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:75551:9)
+    at ReinitializeContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:75808:38)
+    at DynamicContextProvider (http://localhost:5173/node_modules/.vite/deps/@dynamic-labs_sdk-react-core.js?v=c5acba84:77057:82)
+
+React will try to recreate this component tree from scratch using the error boundary you provided, ErrorBoundaryExclude.
+E @ inpage.js:166
+\_ @ inpage.js:166
+J @ inpage.js:166
+postMessage
+d @ inpage.js:166
+v @ inpage.js:166
+refreshTrade @ tradeService.ts:903
+await in refreshTrade
+(anonymous) @ TradePage.tsx:61
+createEscrow @ useTradeActions.ts:83
+await in createEscrow
+handleAction @ index.tsx:129
+onClick @ renderActionButtons.tsx:41
 
 ## Post-MVP
 

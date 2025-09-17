@@ -489,7 +489,8 @@ export const markTradeFiatPaid = (tradeId: number) => {
 export const recordTransaction = (data: {
   trade_id: number;
   escrow_id?: number;
-  transaction_hash: string;
+  transaction_hash?: string; // EVM only
+  signature?: string; // Solana only
   transaction_type:
     | 'CREATE_ESCROW'
     | 'FUND_ESCROW'
@@ -505,16 +506,20 @@ export const recordTransaction = (data: {
   to_address?: string;
   amount?: string;
   token_type?: string;
-  block_number?: number;
+  block_number?: number; // EVM only
+  slot?: number; // Solana only
   status?: 'PENDING' | 'SUCCESS' | 'FAILED';
+  network_family?: 'evm' | 'solana';
   metadata?: Record<string, string>;
 }) => {
   console.log('[recordTransaction] Sending data to API:', data);
   return api.post<{
     success: boolean;
     transactionId: number;
-    txHash: string;
+    txHash?: string;
+    signature?: string;
     blockNumber?: number;
+    slot?: number;
   }>('/transactions/', data);
 };
 

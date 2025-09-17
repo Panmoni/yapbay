@@ -8,6 +8,7 @@ import {
 } from '../utils/pendingTransactions';
 import { blockchainService } from './blockchainService.js';
 import { Connection } from '@solana/web3.js';
+import { buildTransactionData } from '../utils/transactionUtils.js';
 
 let verificationInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -150,21 +151,22 @@ async function processConfirmedTransaction(
   tx: PendingTransaction
 ): Promise<void> {
   try {
-    // Record the transaction in our backend
-    await recordTransaction({
+    // Build transaction data using the utility function to ensure correct field mapping
+    const transactionData = buildTransactionData({
       trade_id: tx.tradeId,
-      transaction_hash: transactionStatus.txHash,
+      signature: transactionStatus.txHash, // Use txHash as signature for Solana
       transaction_type: tx.type,
-      status: 'SUCCESS',
-      block_number: transactionStatus.slot, // Use slot number for Solana
-      // Add required from_address property
       from_address: '0x0000000000000000000000000000000000000000', // Not applicable for Solana
-      // Add empty metadata to satisfy type requirements
+      slot: transactionStatus.slot,
+      status: 'SUCCESS',
       metadata: {
         verified_by: 'solana_transaction_verification_service',
         slot: transactionStatus.slot?.toString() || '0',
       },
     });
+
+    // Record the transaction in our backend
+    await recordTransaction(transactionData);
 
     console.log(
       `[TransactionVerification] Recorded Solana transaction ${tx.txHash} for trade ${tx.tradeId}`

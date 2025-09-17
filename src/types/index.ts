@@ -159,7 +159,8 @@ export interface TransactionRecord {
   id: number;
   trade_id: number;
   escrow_id?: number;
-  transaction_hash: string;
+  transaction_hash?: string; // EVM only
+  signature?: string; // Solana only
   transaction_type:
     | 'CREATE_ESCROW'
     | 'FUND_ESCROW'
@@ -176,11 +177,13 @@ export interface TransactionRecord {
   amount?: string;
   token_type?: string;
   status: 'PENDING' | 'SUCCESS' | 'FAILED';
-  block_number?: number;
+  block_number?: number; // EVM only
+  slot?: number; // Solana only
   gas_used?: string;
   error_message?: string;
   created_at: string;
   network?: string;
+  network_family?: 'evm' | 'solana';
   metadata?: Record<string, string>;
 }
 
