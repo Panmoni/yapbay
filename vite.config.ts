@@ -36,5 +36,8 @@ export default defineConfig({
     host: '0.0.0.0', // Listen on all available network interfaces
     // ngrok
     // allowedHosts: ['6c3b-2a01-4ff-f0-c8d4-00-1.ngrok-free.app']
+    watch: {
+      ignored: ['**/docs/**', '**/node_modules/**'],
+    },
   },
 });
