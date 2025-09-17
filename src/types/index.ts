@@ -115,6 +115,7 @@ export interface Escrow {
   escrow_onchain_id?: string;
   trade_onchain_id?: string;
   network_id?: number;
+  network?: string;
   created_at: string;
   updated_at: string;
 }

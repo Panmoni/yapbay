@@ -40,6 +40,16 @@ interface MyEscrowsPageProps {
   account: Account | null;
 }
 
+const getNetworkDisplayName = (networkId: string): string => {
+  const networkNames: Record<string, string> = {
+    'solana-devnet': 'Solana Devnet',
+    'solana-mainnet': 'Solana Mainnet',
+    'celo-alfajores': 'Celo Alfajores',
+    'celo-mainnet': 'Celo Mainnet',
+  };
+  return networkNames[networkId] || networkId;
+};
+
 function MyEscrowsPage({ account }: MyEscrowsPageProps) {
   const { primaryWallet } = useDynamicContext();
   const [myEscrows, setMyEscrows] = useState<ExtendedEscrow[]>([]);
@@ -60,6 +70,13 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
       setLoading(true);
       try {
         const response = await getMyEscrows();
+
+        // Log the complete API response data
+        console.log('MyEscrowsPage API Response:', response);
+        console.log('MyEscrowsPage Response Data:', response.data);
+        console.log('MyEscrowsPage Escrows Count:', response.data?.length);
+        console.log('MyEscrowsPage Network Field Sample:', response.data?.[0]?.network);
+
         let escrows = response.data.map(escrow => ({
           ...escrow,
           // Generate a unique key that guarantees uniqueness
@@ -281,6 +298,11 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                       </div>
 
                       <div className="mobile-card-view-row">
+                        <span className="mobile-card-view-label">Network</span>
+                        <span>{escrow.network ? getNetworkDisplayName(escrow.network) : '-'}</span>
+                      </div>
+
+                      <div className="mobile-card-view-row">
                         <span className="mobile-card-view-label">Created</span>
                         <span className="text-neutral-500 text-sm">
                           {formatDistanceToNow(new Date(escrow.created_at))} ago
@@ -312,6 +334,7 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                       <TableHead className="text-primary-700 font-medium">Role</TableHead>
                       <TableHead className="text-primary-700 font-medium">Token</TableHead>
                       <TableHead className="text-primary-700 font-medium">Amount</TableHead>
+                      <TableHead className="text-primary-700 font-medium">Network</TableHead>
                       <TableHead className="text-primary-700 font-medium">State</TableHead>
                       <TableHead className="text-primary-700 font-medium">Created</TableHead>
                       <TableHead className="text-primary-700 font-medium">Actions</TableHead>
@@ -339,6 +362,9 @@ function MyEscrowsPage({ account }: MyEscrowsPageProps) {
                         </TableCell>
                         <TableCell>{escrow.token_type}</TableCell>
                         <TableCell>{escrow.amount}</TableCell>
+                        <TableCell>
+                          {escrow.network ? getNetworkDisplayName(escrow.network) : '-'}
+                        </TableCell>
                         <TableCell>
                           <span
                             className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(

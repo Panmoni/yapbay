@@ -2,11 +2,7 @@
 
 sanity check on what is being recorded to mathesar for escrows, transactions
 
-show network on my escrows pages?
-
 - NEXT: get full trade page working, test out the blockchain flow, list of transactions, etc
-
-- acct1 see transactions and escrows they did not create
 
 - my escrows amounts are wrong but my transactions gets it right.
 
