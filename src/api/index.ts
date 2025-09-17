@@ -515,7 +515,7 @@ export const recordTransaction = (data: {
     transactionId: number;
     txHash: string;
     blockNumber?: number;
-  }>('/transactions/record', data);
+  }>('/transactions/', data);
 };
 
 /**
