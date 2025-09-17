@@ -36,10 +36,9 @@ export function useTradeDetails(tradeId: number | null): UseTradeDetailsResult {
         const tradeResponse = await getTradeById(tradeId);
         console.log('[useTradeDetails] getTradeById response:', tradeResponse);
         console.log('[useTradeDetails] response.data:', tradeResponse.data);
-        console.log('[useTradeDetails] response.data.trade:', tradeResponse.data.trade);
 
-        // Handle potential new API response structure with network wrapper
-        const tradeData = tradeResponse.data.trade || tradeResponse.data;
+        // The API returns { data: Trade } directly
+        const tradeData = tradeResponse.data;
         console.log('[useTradeDetails] extracted tradeData:', tradeData);
         setTrade(tradeData);
 
@@ -60,15 +59,15 @@ export function useTradeDetails(tradeId: number | null): UseTradeDetailsResult {
           console.log('[useTradeDetails] getAccountById response:', creatorResponse);
           console.log('[useTradeDetails] creator response.data:', creatorResponse.data);
 
-          // Handle potential new API response structure with network wrapper
-          const creatorData = creatorResponse.data.account || creatorResponse.data;
+          // The API returns { data: Account } directly
+          const creatorData = creatorResponse.data;
           console.log('[useTradeDetails] extracted creatorData:', creatorData);
           setCreator(creatorData);
 
           // Fetch buyer account
           if (tradeData.leg1_buyer_account_id) {
             const buyerResponse = await getAccountById(tradeData.leg1_buyer_account_id);
-            const buyerData = buyerResponse.data.account || buyerResponse.data;
+            const buyerData = buyerResponse.data;
             setBuyerAccount(buyerData);
             // console.log('[DEBUG] Fetched buyer account:', buyerData);
           }
@@ -76,7 +75,7 @@ export function useTradeDetails(tradeId: number | null): UseTradeDetailsResult {
           // Fetch seller account
           if (tradeData.leg1_seller_account_id) {
             const sellerResponse = await getAccountById(tradeData.leg1_seller_account_id);
-            const sellerData = sellerResponse.data.account || sellerResponse.data;
+            const sellerData = sellerResponse.data;
             setSellerAccount(sellerData);
             // console.log('[DEBUG] Fetched seller account:', sellerData);
           }

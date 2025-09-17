@@ -19,7 +19,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
   // Calculate price from crypto and fiat amounts
   const price =
     trade.leg1_fiat_amount && trade.leg1_crypto_amount
-      ? parseFloat(trade.leg1_fiat_amount) / parseFloat(trade.leg1_crypto_amount)
+      ? parseFloat(trade.leg1_fiat_amount) / trade.leg1_crypto_amount
       : 0;
 
   // Added state for collapsible section
@@ -43,7 +43,11 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
   return (
     <Card className="border border-neutral-200 shadow-sm p-4">
       <CardHeader>
-        <h1 className="text-2xl font-bold text-primary-800">{`${action === 'buying' ? 'Buying' : 'Selling'} ${formatNumber(parseFloat(trade.leg1_crypto_amount || '0'))} ${token} for ${trade.leg1_fiat_amount ? formatNumber(parseFloat(trade.leg1_fiat_amount)) : 'N/A'} ${trade.from_fiat_currency} (Trade #${formatNumber(trade.id)})`}</h1>
+        <h1 className="text-2xl font-bold text-primary-800">{`${
+          action === 'buying' ? 'Buying' : 'Selling'
+        } ${formatNumber(trade.leg1_crypto_amount || 0)} ${token} for ${
+          trade.leg1_fiat_amount ? formatNumber(parseFloat(trade.leg1_fiat_amount)) : 'N/A'
+        } ${trade.from_fiat_currency} (Trade #${formatNumber(trade.id)})`}</h1>
         <p className="text-neutral-500">
           Created{' '}
           {new Date(trade.created_at).toLocaleString('en-US', {
@@ -61,16 +65,13 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
         </p>
       </CardHeader>
       <CardContent>
-        <Collapsible
-          open={isDetailsOpen}
-          onOpenChange={setIsDetailsOpen}
-          className="w-full"
-        >
+        <Collapsible open={isDetailsOpen} onOpenChange={setIsDetailsOpen} className="w-full">
           <div className="text-lg mb-4">
             <p>
-              You are <strong>{action}</strong>{' '}
-              {formatNumber(parseFloat(trade.leg1_crypto_amount || '0'))} {token} {''}
-              for {trade.leg1_fiat_amount
+              You are <strong>{action}</strong> {formatNumber(trade.leg1_crypto_amount || 0)}{' '}
+              {token} {''}
+              for{' '}
+              {trade.leg1_fiat_amount
                 ? formatNumber(parseFloat(trade.leg1_fiat_amount))
                 : 'N/A'}{' '}
               {trade.from_fiat_currency} {''} at {formatNumber(price)} {trade.from_fiat_currency}/
@@ -99,9 +100,9 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
               )}
             </p>
             <CollapsibleTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="mt-2 flex items-center text-neutral-600 hover:text-neutral-800"
               >
                 {isDetailsOpen ? (
@@ -118,7 +119,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
               </Button>
             </CollapsibleTrigger>
           </div>
-          
+
           <CollapsibleContent>
             <div className="mt-2 text-neutral-600">
               {otherParty && (

@@ -1,5 +1,7 @@
 # YapBay Frontend Development Plan
 
+currently fixing lint and build errors in correct solana transaction recordgit st
+
 - NEXT: get full trade page working, test out the blockchain flow, list of transactions, etc
 
 ## on next escrow creation

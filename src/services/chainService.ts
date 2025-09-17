@@ -119,7 +119,7 @@ export const approveTokenSpending = async (
 export const fundEscrowTransaction = async (
   wallet: any,
   escrowId: string | number,
-  tradeData?: { id: number; leg1_crypto_amount: string }
+  tradeData?: { id: number; leg1_crypto_amount: number }
 ): Promise<{ txHash: string; blockNumber: bigint }> => {
   try {
     console.log(`[DEBUG] Funding Solana escrow with ID: ${escrowId}`);
@@ -127,7 +127,7 @@ export const fundEscrowTransaction = async (
     // Use trade data if available, otherwise fall back to defaults
     const tradeId = tradeData?.id || 0;
     const amount = tradeData?.leg1_crypto_amount
-      ? (parseFloat(tradeData.leg1_crypto_amount) * 1000000).toString() // Convert to USDC units (6 decimals)
+      ? (tradeData.leg1_crypto_amount * 1000000).toString() // Convert to USDC units (6 decimals)
       : '1000000'; // Default 1 USDC
 
     // For now, we'll use an empty seller token account and let the blockchain service handle it
@@ -163,7 +163,7 @@ export const fundEscrowTransaction = async (
 export const checkAndFundEscrow = async (
   wallet: any,
   escrowId: string | number,
-  tradeData?: { id: number; leg1_crypto_amount: string }
+  tradeData?: { id: number; leg1_crypto_amount: number }
 ): Promise<string> => {
   try {
     console.log(`[DEBUG] Checking and funding Solana escrow ${escrowId}`);

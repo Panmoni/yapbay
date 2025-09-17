@@ -213,7 +213,7 @@ export const createTradeEscrow = async ({
       tradeId: trade.id,
       escrowId: escrowId, // Pass the pre-generated ID
       buyer: buyerAddress,
-      amount: parseFloat(trade.leg1_crypto_amount || '0'),
+      amount: trade.leg1_crypto_amount || 0,
       sequential: false,
       sequentialEscrowAddress: undefined,
       arbitrator: undefined, // Solana program handles arbitrator internally
@@ -229,7 +229,7 @@ export const createTradeEscrow = async ({
       escrow_id: escrowId, // Use the pre-generated ID
       seller: sellerAddress,
       buyer: buyerAddress,
-      amount: parseFloat(trade.leg1_crypto_amount || '0'),
+      amount: trade.leg1_crypto_amount || 0,
       sequential: false,
       sequential_escrow_address: '11111111111111111111111111111111', // System Program address for non-sequential escrows
       // Add Solana-specific fields - derive actual addresses using config and PDA utilities
@@ -243,7 +243,7 @@ export const createTradeEscrow = async ({
     await recordEscrow(recordEscrowData);
 
     // Add null checks and default values for all potentially undefined string values
-    const leg1CryptoAmount = trade.leg1_crypto_amount || '0';
+    const leg1CryptoAmount = trade.leg1_crypto_amount || 0;
     const leg1CryptoToken = trade.leg1_crypto_token || 'USDC';
 
     // Record the transaction using the utility function for correct field mapping
@@ -254,7 +254,7 @@ export const createTradeEscrow = async ({
       transaction_type: 'CREATE_ESCROW',
       from_address: sellerAddress,
       to_address: recordEscrowData.escrow_pda, // Use the escrow PDA as the destination
-      amount: leg1CryptoAmount,
+      amount: leg1CryptoAmount.toString(),
       token_type: leg1CryptoToken,
       status: 'SUCCESS',
       slot: Number(txResult.blockNumber), // Use blockNumber as slot for Solana
@@ -317,7 +317,7 @@ export const createAndFundTradeEscrow = async ({
     // Type assertion since leg1_crypto_amount should never be undefined for a valid trade
     fundResult = await checkAndFundEscrow(primaryWallet, escrowResult.escrowId, {
       id: trade.id,
-      leg1_crypto_amount: trade.leg1_crypto_amount || '0',
+      leg1_crypto_amount: trade.leg1_crypto_amount || 0,
     });
 
     // Convert result to expected format
@@ -337,7 +337,7 @@ export const createAndFundTradeEscrow = async ({
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
           to_address: solanaAddresses.escrow_pda, // Use the escrow PDA as the destination
-          amount: trade.leg1_crypto_amount || '0',
+          amount: (trade.leg1_crypto_amount || 0).toString(),
           token_type: trade.leg1_crypto_token || 'USDC',
           status: 'SUCCESS',
           slot: txResult.blockNumber ? Number(txResult.blockNumber) : undefined, // Use blockNumber as slot for Solana
@@ -363,7 +363,7 @@ export const createAndFundTradeEscrow = async ({
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
           to_address: '',
-          amount: trade.leg1_crypto_amount || '0',
+          amount: (trade.leg1_crypto_amount || 0).toString(),
           token_type: trade.leg1_crypto_token || 'USDC',
           block_number: txResult.blockNumber ? Number(txResult.blockNumber) : undefined,
           network_family: 'solana' as const,
@@ -688,7 +688,7 @@ export const releaseTradeCrypto = async ({
       transaction_type: 'RELEASE_ESCROW',
       from_address: primaryWallet.address,
       to_address: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
-      amount: trade.leg1_crypto_amount,
+      amount: trade.leg1_crypto_amount?.toString(),
       token_type: trade.leg1_crypto_token,
       status: 'SUCCESS',
       slot: Number(txResult.blockNumber), // Use blockNumber as slot for Solana

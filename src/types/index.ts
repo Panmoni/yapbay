@@ -61,7 +61,7 @@ export interface Trade {
   leg1_seller_account_id?: number;
   leg1_buyer_account_id?: number | null;
   leg1_crypto_token?: string;
-  leg1_crypto_amount?: string;
+  leg1_crypto_amount?: number;
   leg1_fiat_amount?: string | null;
   leg1_fiat_currency?: string;
   leg1_escrow_address?: string | null;
@@ -202,6 +202,11 @@ export interface NetworkStatus {
   error: string | null;
   providerChainId: number;
   providerName: string;
+  networkFamily?: string;
+  blockExplorerUrl?: string;
+  programId?: string;
+  arbitratorAddress?: string;
+  usdcMint?: string;
 }
 
 export interface ApiVersion {
@@ -226,5 +231,16 @@ export interface HealthResponse {
     activeNetworks: number;
     connectedNetworks: number;
     errorNetworks: number;
+    solanaNetworks: number;
+  };
+  database: {
+    status: string;
+    counts: {
+      accounts: number;
+      escrows: number;
+      offers: number;
+      trades: number;
+      transactions: number;
+    };
   };
 }
