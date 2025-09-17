@@ -48,6 +48,17 @@ const TradeConfirmationDialog = ({
     handleConfirm,
   } = useTradeConfirmation(isOpen, offer, onConfirm);
 
+  // Debug: Log fiat amount when TradeConfirmationDialog loads
+  React.useEffect(() => {
+    if (isOpen && fiatAmount > 0) {
+      console.log('[TradeConfirmationDialog] fiatAmount:', fiatAmount);
+      console.log(
+        '[TradeConfirmationDialog] fiatAmount rounded to 2 decimals:',
+        Math.round(fiatAmount * 100) / 100
+      );
+    }
+  }, [isOpen, fiatAmount]);
+
   const { primaryWallet } = useDynamicContext();
 
   // Determine if the current user will be the seller in this trade

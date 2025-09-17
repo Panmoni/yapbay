@@ -68,14 +68,17 @@ export const confirmTrade = (
   // Pass the amount as a decimal string directly
   const formattedAmount = numAmount.toString();
 
+  // Round fiat amount to 2 decimal places for fiat currency
+  const roundedFiatAmount = Math.round(fiatAmount * 100) / 100;
+
   // Log the data being sent (using API parameter names)
   console.log('Initiating trade with data:', {
     leg1_offer_id: offer.id,
     leg1_crypto_amount: formattedAmount,
-    leg1_fiat_amount: fiatAmount,
+    leg1_fiat_amount: roundedFiatAmount,
   });
 
   // Call onConfirm with parameters matching the updated prop signature
-  onConfirm(offer.id, formattedAmount, fiatAmount);
+  onConfirm(offer.id, formattedAmount, roundedFiatAmount);
   return true;
 };

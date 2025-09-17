@@ -57,8 +57,8 @@ export const startTrade = async ({
 
     const tradeData = {
       leg1_offer_id: offerId,
-      leg1_crypto_amount: amount,
-      leg1_fiat_amount: fiatAmount.toString(),
+      leg1_crypto_amount: parseFloat(amount), // Convert string to number as API expects
+      leg1_fiat_amount: fiatAmount, // Already rounded to 2 decimal places
       from_fiat_currency: offer.fiat_currency,
       destination_fiat_currency: offer.fiat_currency,
     };
