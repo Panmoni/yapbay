@@ -34,30 +34,51 @@ export function useTradeDetails(tradeId: number | null): UseTradeDetailsResult {
       try {
         // Fetch trade details
         const tradeResponse = await getTradeById(tradeId);
-        const tradeData = tradeResponse.data;
+        console.log('[useTradeDetails] getTradeById response:', tradeResponse);
+        console.log('[useTradeDetails] response.data:', tradeResponse.data);
+        console.log('[useTradeDetails] response.data.trade:', tradeResponse.data.trade);
+
+        // Handle potential new API response structure with network wrapper
+        const tradeData = tradeResponse.data.trade || tradeResponse.data;
+        console.log('[useTradeDetails] extracted tradeData:', tradeData);
         setTrade(tradeData);
 
         // Fetch related offer
         if (tradeData.leg1_offer_id) {
           const offerResponse = await getOfferById(tradeData.leg1_offer_id);
-          setOffer(offerResponse.data.offer);
+          console.log('[useTradeDetails] getOfferById response:', offerResponse);
+          console.log('[useTradeDetails] offer response.data:', offerResponse.data);
+          console.log('[useTradeDetails] offer response.data.offer:', offerResponse.data.offer);
+
+          // Handle potential new API response structure with network wrapper
+          const offerData = offerResponse.data.offer || offerResponse.data;
+          console.log('[useTradeDetails] extracted offerData:', offerData);
+          setOffer(offerData);
 
           // Fetch creator account
-          const creatorResponse = await getAccountById(offerResponse.data.offer.creator_account_id);
-          setCreator(creatorResponse.data);
+          const creatorResponse = await getAccountById(offerData.creator_account_id);
+          console.log('[useTradeDetails] getAccountById response:', creatorResponse);
+          console.log('[useTradeDetails] creator response.data:', creatorResponse.data);
+
+          // Handle potential new API response structure with network wrapper
+          const creatorData = creatorResponse.data.account || creatorResponse.data;
+          console.log('[useTradeDetails] extracted creatorData:', creatorData);
+          setCreator(creatorData);
 
           // Fetch buyer account
           if (tradeData.leg1_buyer_account_id) {
             const buyerResponse = await getAccountById(tradeData.leg1_buyer_account_id);
-            setBuyerAccount(buyerResponse.data);
-            // console.log('[DEBUG] Fetched buyer account:', buyerResponse.data);
+            const buyerData = buyerResponse.data.account || buyerResponse.data;
+            setBuyerAccount(buyerData);
+            // console.log('[DEBUG] Fetched buyer account:', buyerData);
           }
 
           // Fetch seller account
           if (tradeData.leg1_seller_account_id) {
             const sellerResponse = await getAccountById(tradeData.leg1_seller_account_id);
-            setSellerAccount(sellerResponse.data);
-            // console.log('[DEBUG] Fetched seller account:', sellerResponse.data);
+            const sellerData = sellerResponse.data.account || sellerResponse.data;
+            setSellerAccount(sellerData);
+            // console.log('[DEBUG] Fetched seller account:', sellerData);
           }
 
           // console.log(`Trade state: ${tradeData.leg1_state}`);

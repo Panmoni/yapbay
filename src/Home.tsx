@@ -124,6 +124,9 @@ function HomePage() {
       offer,
       primaryWallet,
       onSuccess: tradeId => {
+        console.log('[Home] Trade creation success, tradeId:', tradeId);
+        console.log('[Home] tradeId type:', typeof tradeId);
+        console.log('[Home] tradeId value:', tradeId);
         setIsDialogOpen(false);
         navigate(`/trade/${tradeId}`);
       },

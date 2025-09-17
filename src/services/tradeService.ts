@@ -64,7 +64,14 @@ export const startTrade = async ({
     };
 
     const tradeResponse = await createTrade(tradeData);
-    const tradeId = tradeResponse.data.id;
+    console.log('[TradeService] createTrade response:', tradeResponse);
+    console.log('[TradeService] response.data:', tradeResponse.data);
+    console.log('[TradeService] response.data.id:', tradeResponse.data.id);
+    console.log('[TradeService] response.data.trade:', tradeResponse.data.trade);
+
+    // Handle potential new API response structure with network wrapper
+    const tradeId = tradeResponse.data.trade?.id || tradeResponse.data.id;
+    console.log('[TradeService] extracted tradeId:', tradeId);
 
     if (primaryWallet) {
       // MVP: Escrow creation moved to TradePage to happen manually by user action
