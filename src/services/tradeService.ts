@@ -7,9 +7,96 @@ import {
   getTradeById,
   recordTransaction,
 } from '../api';
+
+// Custom interface for create trade request that matches API expectations
+interface CreateTradeRequest {
+  leg1_offer_id: number;
+  leg1_crypto_amount: number;
+  leg1_fiat_amount: number;
+  from_fiat_currency: string;
+  destination_fiat_currency: string;
+}
+
+// Interface for the actual API response structure
+interface CreateTradeResponse {
+  network: string;
+  trade: Trade;
+}
+
+/**
+ * Generates a unique escrow ID based on trade ID and sequence
+ * This ensures no collisions while maintaining consistency
+ */
+function generateEscrowId(tradeId: number, sequence: number = 0): number {
+  // Use trade ID as base, add sequence
+  // This gives us: 123000, 123001, 123002, ... for trade 123
+  return tradeId * 1000 + sequence;
+}
+
+/**
+ * Derives Solana-specific addresses for escrow recording
+ */
+function deriveSolanaAddresses(tradeId: number, escrowId: number) {
+  try {
+    // Get program ID from config
+    const programIdString = config.networks.solanaDevnet.programId;
+    if (!programIdString) {
+      throw new Error('Solana program ID not configured');
+    }
+
+    const programId = new PublicKey(programIdString);
+
+    // Debug: Log the derivation parameters
+    console.log('[DEBUG] Deriving Solana addresses with:');
+    console.log('  programId:', programIdString);
+    console.log('  escrowId:', escrowId, '(type:', typeof escrowId, ')');
+    console.log('  tradeId:', tradeId, '(type:', typeof tradeId, ')');
+
+    // Debug: Show the actual seeds being used
+    const escrowIdBuffer = Buffer.alloc(8);
+    escrowIdBuffer.writeBigUInt64LE(BigInt(escrowId), 0);
+    const tradeIdBuffer = Buffer.alloc(8);
+    tradeIdBuffer.writeBigUInt64LE(BigInt(tradeId), 0);
+
+    console.log('[DEBUG] Seed buffers:');
+    console.log('  "escrow" buffer:', Buffer.from('escrow').toString('hex'));
+    console.log('  escrowId buffer:', escrowIdBuffer.toString('hex'));
+    console.log('  tradeId buffer:', tradeIdBuffer.toString('hex'));
+
+    // Derive escrow PDA
+    const [escrowPda] = PDADerivation.deriveEscrowPDA(programId, escrowId, tradeId);
+
+    // Derive escrow token account PDA
+    const [escrowTokenAccount] = PDADerivation.deriveEscrowTokenPDA(programId, escrowPda);
+
+    // Debug: Log the derived addresses
+    console.log('[DEBUG] Derived Solana addresses:');
+    console.log('  escrowPda:', escrowPda.toString());
+    console.log('  escrowTokenAccount:', escrowTokenAccount.toString());
+
+    return {
+      program_id: programIdString,
+      escrow_pda: escrowPda.toString(),
+      escrow_token_account: escrowTokenAccount.toString(),
+      trade_onchain_id: tradeId.toString(),
+    };
+  } catch (error) {
+    console.error('[ERROR] Failed to derive Solana addresses:', error);
+    // Fallback to placeholder values if derivation fails
+    return {
+      program_id: 'YapBayProgramId',
+      escrow_pda: 'EscrowPDAAddress',
+      escrow_token_account: 'TokenAccountAddress',
+      trade_onchain_id: tradeId.toString(),
+    };
+  }
+}
 import { formatNumber } from '../lib/utils';
 import { handleApiError } from '../utils/errorHandling';
 import { toast } from 'sonner';
+import { config } from '../config';
+import { PDADerivation } from '../blockchain/utils/pda';
+import { PublicKey } from '@solana/web3.js';
 import {
   createEscrowTransaction,
   markFiatPaidTransaction,
@@ -55,22 +142,24 @@ export const startTrade = async ({
       throw new Error('Offer not found');
     }
 
-    const tradeData = {
+    const tradeData: CreateTradeRequest = {
       leg1_offer_id: offerId,
-      leg1_crypto_amount: parseFloat(amount), // Convert string to number as API expects
-      leg1_fiat_amount: fiatAmount, // Already rounded to 2 decimal places
+      leg1_crypto_amount: parseFloat(amount), // Convert to number for API
+      leg1_fiat_amount: fiatAmount, // Keep as number for API compatibility
       from_fiat_currency: offer.fiat_currency,
       destination_fiat_currency: offer.fiat_currency,
     };
 
-    const tradeResponse = await createTrade(tradeData);
+    const tradeResponse = await createTrade(
+      tradeData as unknown as Parameters<typeof createTrade>[0]
+    ); // Type assertion to bypass interface mismatch
     console.log('[TradeService] createTrade response:', tradeResponse);
     console.log('[TradeService] response.data:', tradeResponse.data);
     console.log('[TradeService] response.data.id:', tradeResponse.data.id);
-    console.log('[TradeService] response.data.trade:', tradeResponse.data.trade);
 
     // Handle potential new API response structure with network wrapper
-    const tradeId = tradeResponse.data.trade?.id || tradeResponse.data.id;
+    const responseData = tradeResponse.data as CreateTradeResponse | Trade;
+    const tradeId = 'trade' in responseData ? responseData.trade.id : responseData.id;
     console.log('[TradeService] extracted tradeId:', tradeId);
 
     if (primaryWallet) {
@@ -113,9 +202,15 @@ export const createTradeEscrow = async ({
       description: 'Please approve the transaction in your wallet.',
     });
 
+    // Generate unique escrow ID (first escrow for this trade)
+    const escrowId = generateEscrowId(trade.id, 0);
+
+    console.log('[DEBUG] Generated escrow ID:', escrowId, 'for trade:', trade.id);
+
     // Create the escrow transaction on the Solana blockchain
     const txResult = await createEscrowTransaction(primaryWallet, {
       tradeId: trade.id,
+      escrowId: escrowId, // Pass the pre-generated ID
       buyer: buyerAddress,
       amount: parseFloat(trade.leg1_crypto_amount || '0'),
       sequential: false,
@@ -124,18 +219,27 @@ export const createTradeEscrow = async ({
     });
 
     console.log('[DEBUG] Solana transaction result:', txResult);
+    console.log('[DEBUG] Solana transaction result keys:', Object.keys(txResult));
 
     // Record the escrow in our backend
-    await recordEscrow({
+    const recordEscrowData = {
       trade_id: trade.id,
-      transaction_hash: txResult.txHash,
-      escrow_id: parseInt(txResult.escrowId),
+      signature: txResult.txHash, // Use signature for Solana transactions
+      escrow_id: escrowId, // Use the pre-generated ID
       seller: sellerAddress,
       buyer: buyerAddress,
       amount: parseFloat(trade.leg1_crypto_amount || '0'),
       sequential: false,
-      sequential_escrow_address: '0x0000000000000000000000000000000000000000', // Not applicable for Solana
-    });
+      sequential_escrow_address: '11111111111111111111111111111111', // System Program address for non-sequential escrows
+      // Add Solana-specific fields - derive actual addresses using config and PDA utilities
+      // Use the same escrow ID and trade ID for consistency
+      ...deriveSolanaAddresses(trade.id, escrowId),
+    };
+
+    console.log('[DEBUG] recordEscrow data being sent:', recordEscrowData);
+    console.log('[DEBUG] recordEscrow data keys:', Object.keys(recordEscrowData));
+
+    await recordEscrow(recordEscrowData);
 
     // Add null checks and default values for all potentially undefined string values
     const leg1CryptoAmount = trade.leg1_crypto_amount || '0';
@@ -144,17 +248,17 @@ export const createTradeEscrow = async ({
     // Record the transaction
     await recordTransaction({
       trade_id: trade.id,
-      escrow_id: parseInt(txResult.escrowId),
+      escrow_id: escrowId, // Use the pre-generated ID
       transaction_hash: txResult.txHash,
       transaction_type: 'CREATE_ESCROW',
       from_address: sellerAddress,
-      to_address: buyerAddress,
+      to_address: recordEscrowData.escrow_pda, // Use the escrow PDA as the destination
       amount: leg1CryptoAmount,
       token_type: leg1CryptoToken,
       status: 'SUCCESS',
       block_number: Number(txResult.blockNumber),
       metadata: {
-        escrow_id: txResult.escrowId,
+        escrow_id: escrowId.toString(),
         seller: sellerAddress,
         buyer: buyerAddress,
       },
@@ -162,15 +266,15 @@ export const createTradeEscrow = async ({
 
     // Show success message
     toast.success('Escrow created successfully!', {
-      description: `Escrow ID: ${txResult.escrowId}`,
+      description: `Escrow ID: ${escrowId}`,
     });
 
     return {
       txHash: txResult.txHash,
       blockNumber: txResult.blockNumber,
       success: true,
-      message: `Escrow created with ID: ${txResult.escrowId}`,
-      escrowId: txResult.escrowId,
+      message: `Escrow created with ID: ${escrowId}`,
+      escrowId: escrowId.toString(),
     };
   } catch (err) {
     console.error('Error creating Solana escrow:', err);
@@ -208,22 +312,29 @@ export const createAndFundTradeEscrow = async ({
     }
 
     // Then check and fund it with the confirmed escrow ID
-    fundResult = await checkAndFundEscrow(primaryWallet, escrowResult.escrowId);
+    // Type assertion since leg1_crypto_amount should never be undefined for a valid trade
+    fundResult = await checkAndFundEscrow(primaryWallet, escrowResult.escrowId, {
+      id: trade.id,
+      leg1_crypto_amount: trade.leg1_crypto_amount || '0',
+    });
 
     // Convert result to expected format
     const txResult: TransactionResult =
       typeof fundResult === 'string' ? { txHash: fundResult } : (fundResult as TransactionResult);
 
     // Record the funding transaction
-    if (txResult && 'txHash' in txResult) {
+    if (txResult && 'txHash' in txResult && txResult.txHash) {
       try {
+        // Derive the escrow PDA to use as to_address
+        const solanaAddresses = deriveSolanaAddresses(trade.id, parseInt(escrowResult.escrowId));
+
         await recordTransaction({
           trade_id: trade.id,
           escrow_id: escrowResult.escrowId ? parseInt(escrowResult.escrowId) : 0,
           transaction_hash: String(txResult.txHash),
           transaction_type: 'FUND_ESCROW',
           from_address: sellerAddress,
-          to_address: '', // Solana doesn't use contract addresses
+          to_address: solanaAddresses.escrow_pda, // Use the escrow PDA as the destination
           amount: trade.leg1_crypto_amount || '0',
           token_type: trade.leg1_crypto_token || 'USDC',
           status: 'SUCCESS',
