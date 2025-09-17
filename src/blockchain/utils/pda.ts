@@ -14,11 +14,18 @@ export class PDADerivation {
     escrowId: number,
     tradeId: number
   ): [PublicKey, number] {
+    // Convert to proper u64 little-endian buffers (8 bytes each)
+    const escrowIdBuffer = Buffer.alloc(8);
+    escrowIdBuffer.writeBigUInt64LE(BigInt(escrowId), 0);
+
+    const tradeIdBuffer = Buffer.alloc(8);
+    tradeIdBuffer.writeBigUInt64LE(BigInt(tradeId), 0);
+
     return PublicKey.findProgramAddressSync(
       [
-        Buffer.from('escrow'),
-        Buffer.from(escrowId.toString(16).padStart(16, '0'), 'hex').reverse(), // Convert to 8-byte little-endian
-        Buffer.from(tradeId.toString(16).padStart(16, '0'), 'hex').reverse(), // Convert to 8-byte little-endian
+        Buffer.from('escrow'), // "escrow" as ASCII bytes
+        escrowIdBuffer, // u64 little-endian
+        tradeIdBuffer, // u64 little-endian
       ],
       programId
     );
