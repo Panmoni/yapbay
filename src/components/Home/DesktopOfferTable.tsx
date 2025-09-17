@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui/too
 import OfferActionButtons from '@/components/Offer/OfferActionButtons';
 import TradeConfirmationDialog from '@/components/Trade/TradeConfirmationDialog';
 import { abbreviateWallet, formatRate } from '../../utils/stringUtils';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
 interface DesktopOfferTableProps {
   filteredOffers: Offer[];
@@ -43,6 +44,7 @@ const DesktopOfferTable: React.FC<DesktopOfferTableProps> = ({
   onOpenChange,
   onConfirmTrade,
 }) => {
+  const { setShowAuthFlow } = useDynamicContext();
   return (
     <div className="hidden md:block overflow-x-auto">
       <Table>
@@ -147,7 +149,10 @@ const DesktopOfferTable: React.FC<DesktopOfferTableProps> = ({
                     />
                   )
                 ) : (
-                  <Button className="bg-neutral-400 hover:bg-neutral-500 text-black border-none text-sm px-3 py-1 h-8 cursor-not-allowed">
+                  <Button
+                    onClick={() => setShowAuthFlow(true)}
+                    className="bg-primary-600 hover:bg-primary-700 text-white border-none text-sm px-3 py-1 h-8"
+                  >
                     Connect Wallet to Trade
                   </Button>
                 )}

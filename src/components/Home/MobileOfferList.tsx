@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../../components/ui/too
 import OfferActionButtons from '@/components/Offer/OfferActionButtons';
 import TradeConfirmationDialog from '@/components/Trade/TradeConfirmationDialog';
 import { abbreviateWallet, formatRate } from '../../utils/stringUtils';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
 interface MobileOfferListProps {
   filteredOffers: Offer[];
@@ -35,6 +36,7 @@ const MobileOfferList: React.FC<MobileOfferListProps> = ({
   onOpenChange,
   onConfirmTrade,
 }) => {
+  const { setShowAuthFlow } = useDynamicContext();
   return (
     <div className="md:hidden p-4 space-y-4">
       {filteredOffers.map(offer => (
@@ -144,7 +146,10 @@ const MobileOfferList: React.FC<MobileOfferListProps> = ({
                 />
               )
             ) : (
-              <Button className="bg-neutral-400 hover:bg-neutral-500 text-black w-full flex justify-center cursor-not-allowed">
+              <Button
+                onClick={() => setShowAuthFlow(true)}
+                className="bg-primary-600 hover:bg-primary-700 text-white w-full flex justify-center"
+              >
                 Connect Wallet to Trade
               </Button>
             )}

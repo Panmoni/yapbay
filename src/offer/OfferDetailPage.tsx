@@ -42,7 +42,7 @@ import { useOfferDeletion } from '@/hooks/useOfferDeletion'; // Import the hook
 function OfferDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { primaryWallet } = useDynamicContext();
+  const { primaryWallet, setShowAuthFlow } = useDynamicContext();
   const [offer, setOffer] = useState<Offer | null>(null);
   const [creator, setCreator] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
@@ -329,8 +329,8 @@ function OfferDetailPage() {
               </Button>
             ) : (
               <Button
-                className="bg-neutral-400 hover:bg-neutral-500 text-white w-full sm:w-auto cursor-not-allowed"
-                disabled
+                onClick={() => setShowAuthFlow(true)}
+                className="bg-primary-600 hover:bg-primary-700 text-white w-full sm:w-auto"
               >
                 Connect Wallet to Trade
               </Button>
