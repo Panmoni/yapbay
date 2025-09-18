@@ -10,7 +10,15 @@ import { PublicKey } from '@solana/web3.js';
  */
 const deriveUsdcTokenAccount = async (walletAddress: string): Promise<string> => {
   const walletPublicKey = new PublicKey(walletAddress);
-  const usdcMintAddress = '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU'; // Devnet USDC
+
+  // Get the current network configuration to determine the correct USDC mint
+  const currentNetwork = blockchainService.getCurrentNetwork();
+
+  // Determine USDC mint address based on network (same logic as program.ts)
+  const usdcMintAddress = currentNetwork.rpcUrl.includes('devnet')
+    ? '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU' // Devnet USDC
+    : 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'; // Mainnet USDC
+
   const usdcMint = new PublicKey(usdcMintAddress);
 
   const tokenAccount = await getAssociatedTokenAddress(usdcMint, walletPublicKey);
