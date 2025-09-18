@@ -216,12 +216,14 @@ function TradePage() {
 
   // Add a debug log to track trade state changes
   useEffect(() => {
-    if (trade) {
+    if (trade && trade.id) {
       console.log(`[TradePage] Current trade state for trade ${tradeId}:`, {
         id: trade.id,
         state: trade.leg1_state,
         created_at: trade.created_at,
       });
+    } else if (trade) {
+      console.warn(`[TradePage] Trade object exists but missing id property:`, trade);
     }
   }, [trade, tradeId]);
 

@@ -18,6 +18,12 @@ export const getAvailableActions = ({
   lastLogTime,
   setLastLogTime,
 }: GetAvailableActionsProps): TradeAction[] => {
+  // Early exit if trade is invalid or missing required properties
+  if (!trade || !trade.id) {
+    console.warn('getAvailableActions: Invalid trade object', trade);
+    return [];
+  }
+
   // Early exit for terminal states
   const terminalStates = ['COMPLETED', 'CANCELLED'];
   if (terminalStates.includes(trade.leg1_state ?? '')) {

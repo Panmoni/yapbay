@@ -915,7 +915,9 @@ export const refreshTrade = async (
 ): Promise<void> => {
   try {
     const updatedTrade = await getTradeById(tradeId);
-    setTrade(updatedTrade.data);
+    // Handle potential new API response structure with network wrapper
+    const tradeData = updatedTrade.data.trade || updatedTrade.data;
+    setTrade(tradeData);
   } catch (err) {
     console.error('Error refreshing trade:', err);
     const errorMessage = handleApiError(err, 'Failed to refresh trade data');

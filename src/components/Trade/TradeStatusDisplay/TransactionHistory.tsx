@@ -74,6 +74,14 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const fetchTransactions = useCallback(async () => {
+    // Validate tradeId before making API call
+    if (!tradeId || tradeId === 0 || isNaN(tradeId)) {
+      console.warn('Invalid tradeId for transaction fetch:', tradeId);
+      setError('Invalid trade ID');
+      setLoading(false);
+      return;
+    }
+
     try {
       setIsRefreshing(true);
       setError(null);

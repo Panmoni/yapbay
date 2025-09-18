@@ -4,7 +4,7 @@
 
 ## on next escrow creation
 
-when trades auto cancel the trades.cancelled field is not being updated: check if this is fixed (api)
+when trades auto cancel the trades.cancelled field is not being updated: check if this is fixed (api) trade 15
 
 Check if deposit_deadline and fiat_deadline are being added upon escrow creation. (api?)
 
