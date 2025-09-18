@@ -1,5 +1,22 @@
 import { blockchainService } from './blockchainService.js';
 import { BN } from '@coral-xyz/anchor';
+import { getAssociatedTokenAddress } from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
+
+/**
+ * Helper function to derive the associated token account for a wallet and USDC mint
+ * @param walletAddress The wallet's public key address
+ * @returns The associated token account address as a string
+ */
+const deriveUsdcTokenAccount = async (walletAddress: string): Promise<string> => {
+  const walletPublicKey = new PublicKey(walletAddress);
+  const usdcMintAddress = '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU'; // Devnet USDC
+  const usdcMint = new PublicKey(usdcMintAddress);
+
+  const tokenAccount = await getAssociatedTokenAddress(usdcMint, walletPublicKey);
+
+  return tokenAccount.toString();
+};
 
 /**
  * Creates an escrow transaction on the Solana blockchain
@@ -130,14 +147,16 @@ export const fundEscrowTransaction = async (
       ? (tradeData.leg1_crypto_amount * 1000000).toString() // Convert to USDC units (6 decimals)
       : '1000000'; // Default 1 USDC
 
-    // For now, we'll use an empty seller token account and let the blockchain service handle it
-    // In a real implementation, we'd derive the associated token account
+    // Derive the seller's associated token account for USDC
+    const sellerTokenAccount = await deriveUsdcTokenAccount(wallet.address);
+    console.log(`[DEBUG] Derived seller token account: ${sellerTokenAccount}`);
+
     const result = await blockchainService.fundEscrow({
       escrowId: Number(escrowId),
       tradeId: tradeId,
       amount: amount,
       sellerAddress: wallet.address,
-      sellerTokenAccount: '', // The blockchain service should derive this
+      sellerTokenAccount: sellerTokenAccount,
     });
 
     console.log('[DEBUG] Solana escrow funded:', result);
@@ -354,12 +373,15 @@ export const cancelEscrowTransaction = async (
 
     console.log(`[DEBUG] Cancelling Solana escrow with ID: ${escrowId}`);
 
+    // Derive the seller's associated token account for USDC
+    const sellerTokenAccount = await deriveUsdcTokenAccount(wallet.address);
+
     const result = await blockchainService.cancelEscrow({
       escrowId: Number(escrowId),
       tradeId: 0, // We'll need to get this from the escrow data
       sellerAddress: wallet.address,
       authorityAddress: wallet.address,
-      sellerTokenAccount: '', // We'll need to derive this
+      sellerTokenAccount: sellerTokenAccount,
     });
 
     console.log('[DEBUG] Solana escrow cancelled:', result);
