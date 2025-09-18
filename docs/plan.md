@@ -2,6 +2,8 @@
 
 1 build error
 
+## current: trade page updates fixed?
+
 after marking fiat as paid, the seller's tradepage did not update
 
 after releaing escrow, the buyer's tradepage did not update
