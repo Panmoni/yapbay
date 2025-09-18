@@ -28,3 +28,4 @@ node_modules/
 .env*
 stats.html
 jwt.txt
+jwt2.txt
