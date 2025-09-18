@@ -61,7 +61,7 @@ export interface Trade {
   leg1_seller_account_id?: number;
   leg1_buyer_account_id?: number | null;
   leg1_crypto_token?: string;
-  leg1_crypto_amount?: number;
+  leg1_crypto_amount?: string;
   leg1_fiat_amount?: string | null;
   leg1_fiat_currency?: string;
   leg1_escrow_address?: string | null;

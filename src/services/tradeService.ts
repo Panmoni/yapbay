@@ -213,7 +213,7 @@ export const createTradeEscrow = async ({
       tradeId: trade.id,
       escrowId: escrowId, // Pass the pre-generated ID
       buyer: buyerAddress,
-      amount: trade.leg1_crypto_amount || 0,
+      amount: parseFloat(trade.leg1_crypto_amount || '0'),
       sequential: false,
       sequentialEscrowAddress: undefined,
       arbitrator: undefined, // Solana program handles arbitrator internally
@@ -229,7 +229,7 @@ export const createTradeEscrow = async ({
       escrow_id: escrowId, // Use the pre-generated ID
       seller: sellerAddress,
       buyer: buyerAddress,
-      amount: trade.leg1_crypto_amount || 0,
+      amount: parseFloat(trade.leg1_crypto_amount || '0'),
       sequential: false,
       sequential_escrow_address: '11111111111111111111111111111111', // System Program address for non-sequential escrows
       // Add Solana-specific fields - derive actual addresses using config and PDA utilities
@@ -243,7 +243,7 @@ export const createTradeEscrow = async ({
     await recordEscrow(recordEscrowData);
 
     // Add null checks and default values for all potentially undefined string values
-    const leg1CryptoAmount = trade.leg1_crypto_amount || 0;
+    const leg1CryptoAmount = parseFloat(trade.leg1_crypto_amount || '0');
     const leg1CryptoToken = trade.leg1_crypto_token || 'USDC';
 
     // Record the transaction using the utility function for correct field mapping
@@ -317,7 +317,7 @@ export const createAndFundTradeEscrow = async ({
     // Type assertion since leg1_crypto_amount should never be undefined for a valid trade
     fundResult = await checkAndFundEscrow(primaryWallet, escrowResult.escrowId, {
       id: trade.id,
-      leg1_crypto_amount: trade.leg1_crypto_amount || 0,
+      leg1_crypto_amount: parseFloat(trade.leg1_crypto_amount || '0'),
     });
 
     // Convert result to expected format
@@ -916,7 +916,7 @@ export const refreshTrade = async (
   try {
     const updatedTrade = await getTradeById(tradeId);
     // Handle potential new API response structure with network wrapper
-    const tradeData = updatedTrade.data.trade || updatedTrade.data;
+    const tradeData = (updatedTrade.data as { trade?: Trade } & Trade).trade || updatedTrade.data;
     setTrade(tradeData);
   } catch (err) {
     console.error('Error refreshing trade:', err);

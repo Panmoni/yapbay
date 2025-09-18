@@ -38,7 +38,8 @@ export function useTradeDetails(tradeId: number | null): UseTradeDetailsResult {
         console.log('[useTradeDetails] response.data:', tradeResponse.data);
 
         // Handle potential new API response structure with network wrapper
-        const tradeData = tradeResponse.data.trade || tradeResponse.data;
+        const tradeData =
+          (tradeResponse.data as { trade?: Trade } & Trade).trade || tradeResponse.data;
         console.log('[useTradeDetails] extracted tradeData:', tradeData);
         setTrade(tradeData);
 

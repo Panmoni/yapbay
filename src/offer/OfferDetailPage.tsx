@@ -129,7 +129,7 @@ function OfferDetailPage() {
     try {
       const tradeData = {
         leg1_offer_id: offer.id,
-        leg1_crypto_amount: 1000000, // Number as expected by API
+        leg1_crypto_amount: '1000000', // String as expected by API
         from_fiat_currency: offer.fiat_currency,
         destination_fiat_currency: offer.fiat_currency,
       };

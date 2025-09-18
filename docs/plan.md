@@ -162,6 +162,8 @@ strategic friction [https://read.first1000.co/p/positive-friction](https://read.
 
 ## Clean up and Fixes
 
+- clean up any backwards compatibility with single network flat api/types interfaces, full review of the api types as there some hacks in there.
+
 1. script an easy redeploy of everything in case server dies. Just match postgres backup with github code to re-deploy from scratch
 2. review state ref escrows trades and trade checklist
 3. improve the dev/prod env var management

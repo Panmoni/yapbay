@@ -19,7 +19,7 @@ function TradeDetailsCard({ trade, offer, userRole, counterparty }: TradeDetails
   // Calculate price from crypto and fiat amounts
   const price =
     trade.leg1_fiat_amount && trade.leg1_crypto_amount
-      ? parseFloat(trade.leg1_fiat_amount) / trade.leg1_crypto_amount
+      ? parseFloat(trade.leg1_fiat_amount) / parseFloat(trade.leg1_crypto_amount)
       : 0;
 
   // Added state for collapsible section
