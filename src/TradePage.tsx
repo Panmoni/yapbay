@@ -62,7 +62,11 @@ function TradePage() {
   const { userRole, currentAccount, counterparty } = useTradeParticipants(trade);
 
   // Use enhanced trade updates hook with smart polling
-  const { trade: tradeUpdates, forcePoll: forceTradeUpdate } = useTradeUpdates(tradeId);
+  const {
+    trade: tradeUpdates,
+    forcePoll: forceTradeUpdate,
+    forceRefresh: forceTradeRefresh,
+  } = useTradeUpdates(tradeId);
 
   const {
     escrowDetails,
@@ -76,14 +80,14 @@ function TradePage() {
   const handleRefreshTrade = useCallback(() => {
     if (!tradeId) return;
 
-    // Use the forcePoll function instead of calling the API directly
-    forceTradeUpdate();
+    // Use the forceRefresh function to clear cache and force fresh fetch
+    forceTradeRefresh();
 
     // Keep the original refresh for backward compatibility
     refreshTrade(tradeId, setTrade).catch(error => {
       console.error('Error refreshing trade:', error);
     });
-  }, [tradeId, setTrade, forceTradeUpdate]);
+  }, [tradeId, setTrade, forceTradeRefresh]);
 
   const { createEscrow, markFiatPaid, releaseCrypto, disputeTrade, cancelTrade, actionLoading } =
     useTradeActions({

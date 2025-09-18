@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { Trade } from '@/api';
+import { Trade, getTradeById } from '@/api';
 import { useSmartPolling } from './useSmartPolling';
 
 export function useTradeUpdates(tradeId: number, apiUrl?: string) {
@@ -9,68 +9,28 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string) {
 
   // Memoize fetch function to avoid recreating it on each render
   const fetchTrade = useCallback(async (): Promise<Trade | null> => {
-    if (!tradeId) return null;
-
-    const baseUrl = apiUrl || import.meta.env.VITE_API_URL || 'http://localhost:3000';
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      throw new Error('No authentication token found');
+    if (tradeId === null || tradeId === undefined) {
+      console.log(`[useTradeUpdates] Skipping fetch - tradeId is ${tradeId}`);
+      return null;
     }
 
-    // Add headers for conditional requests
-    const headers: HeadersInit = {
-      Authorization: `Bearer ${token}`,
-      'Cache-Control': 'no-cache',
-      Pragma: 'no-cache',
-    };
-
-    // Add If-None-Match header if we have an ETag
-    if (etagRef.current) {
-      headers['If-None-Match'] = etagRef.current;
-    }
-
-    // Add If-Modified-Since header if we have previous data
-    if (previousDataRef.current?.updated_at) {
-      headers['If-Modified-Since'] = new Date(previousDataRef.current.updated_at).toUTCString();
-    }
+    console.log(`[useTradeUpdates] Starting fetch for tradeId: ${tradeId}`);
 
     try {
-      console.log(
-        `[useTradeUpdates] Fetching trade ${tradeId} with conditional headers:`,
-        etagRef.current ? `ETag: ${etagRef.current.substring(0, 10)}...` : 'No ETag',
-        previousDataRef.current?.updated_at
-          ? `If-Modified-Since: ${new Date(previousDataRef.current.updated_at).toUTCString()}`
-          : 'No If-Modified-Since'
-      );
+      // Use the same API function that useTradeDetails uses
+      const response = await getTradeById(tradeId);
 
-      const response = await fetch(`${baseUrl}/trades/${tradeId}`, { headers });
-
-      // Store the new ETag if present
-      const newEtag = response.headers.get('ETag');
-      if (newEtag) {
-        etagRef.current = newEtag;
-      }
-
-      // Handle 304 Not Modified
-      if (response.status === 304) {
-        console.log(`[useTradeUpdates] Received 304 Not Modified for trade ${tradeId}`);
-        // Return the previous data since nothing has changed
-        return previousDataRef.current;
-      }
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch trade: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      console.log(`[useTradeUpdates] API response for trade ${tradeId}:`, {
+        status: response.status,
+        statusText: response.statusText,
+      });
 
       // Extract trade object from response - handle both old and new API response formats
-      const tradeData = data.trade || data;
+      const tradeData = response.data.trade || response.data;
 
       // Validate that we have a proper trade object
       if (!tradeData || typeof tradeData !== 'object') {
-        console.error('[useTradeUpdates] Invalid trade data received:', data);
+        console.error('[useTradeUpdates] Invalid trade data received:', response.data);
         throw new Error('Invalid trade data received from API');
       }
 
@@ -80,16 +40,17 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string) {
       }
 
       console.log(
-        `[useTradeUpdates] Successfully fetched trade ${tradeData.id} with state: ${tradeData.leg1_state}`
+        `[useTradeUpdates] Successfully fetched trade ${tradeData.id} with state: ${tradeData.leg1_state} at ${tradeData.updated_at}`
       );
 
       // Store the trade data for future conditional requests
       previousDataRef.current = tradeData;
       return tradeData;
     } catch (err) {
+      console.error(`[useTradeUpdates] Error fetching trade ${tradeId}:`, err);
       throw err instanceof Error ? err : new Error('Fetch error');
     }
-  }, [tradeId, apiUrl]);
+  }, [tradeId]);
 
   // Handle trade state changes
   const handleTradeStateChange = (newTrade: Trade) => {
@@ -113,13 +74,21 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string) {
   };
 
   // Use smart polling
-  const polling = useSmartPolling(fetchTrade, [tradeId, apiUrl], {
+  const polling = useSmartPolling(fetchTrade, [tradeId], {
     initialInterval: 5000,
     minInterval: 2000,
     maxInterval: 10000, // Reduced from 30000 to 10000 (10 seconds max)
     inactivityThreshold: 3 * 60 * 1000, // 3 minutes
     tradeStateChangeCallback: handleTradeStateChange,
   });
+
+  // Function to force a fresh fetch by clearing cache
+  const forceRefresh = useCallback(() => {
+    console.log(`[useTradeUpdates] Force refreshing trade ${tradeId} - clearing cache`);
+    previousDataRef.current = null;
+    etagRef.current = null;
+    polling.forcePoll();
+  }, [tradeId, polling.forcePoll]);
 
   return {
     trade: polling.data,
@@ -129,6 +98,7 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string) {
     pausePolling: polling.pausePolling,
     resumePolling: polling.resumePolling,
     forcePoll: polling.forcePoll,
+    forceRefresh,
     isConnected: !!polling.data && !polling.error,
   };
 }

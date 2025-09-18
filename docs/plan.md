@@ -1,12 +1,11 @@
 # YapBay Frontend Development Plan
 
-1 build error
+2 lint problems
+3 build errors
 
-## current: trade page updates fixed?
+will need to update types so program.ts does not throw those errors on escrow, sellerescrowtoken?, tokenProgram
 
-after marking fiat as paid, the seller's tradepage did not update
-
-after releaing escrow, the buyer's tradepage did not updategit
+## my transactions is broken because the from field on transactions is not being saved
 
 ## Post-MVP
 
