@@ -226,11 +226,12 @@ export class SolanaProgram implements SolanaProgramInterface {
 
       console.log('[DEBUG] Derived escrow PDA:', escrowPDA.toString());
 
-      // Build transaction - markFiatPaid takes no parameters, escrow is derived from accounts
+      // Build transaction - markFiatPaid takes no parameters, but needs escrow account
       const tx = await program.methods
         .markFiatPaid()
         .accounts({
           buyer: buyer,
+          escrow: escrowPDA,
         })
         .transaction();
 
