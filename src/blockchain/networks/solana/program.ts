@@ -689,6 +689,49 @@ export class SolanaProgram implements SolanaProgramInterface {
     }
   }
 
+  // New methods that accept escrow address directly
+  async getEscrowStateByAddress(escrowAddress: string): Promise<EscrowState> {
+    try {
+      // Get provider and program with Dynamic.xyz wallet
+      const { program } = await this.getProviderAndProgram();
+
+      // Use the provided escrow address directly
+      const escrowPDA = new PublicKey(escrowAddress);
+
+      // Fetch account data
+      const escrowAccount = await program.account.escrow.fetch(escrowPDA);
+
+      return {
+        id: escrowAccount.escrowId.toNumber(),
+        tradeId: escrowAccount.tradeId.toNumber(),
+        state: this.mapEscrowState(escrowAccount.state),
+        amount: escrowAccount.amount.toString(),
+        sellerAddress: escrowAccount.seller.toString(),
+        buyerAddress: escrowAccount.buyer.toString(),
+        arbitratorAddress: escrowAccount.arbitrator.toString(),
+        networkType: NetworkType.SOLANA,
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch escrow state: ${this.handleError(error)}`);
+    }
+  }
+
+  async getEscrowBalanceByAddress(escrowAddress: string): Promise<number> {
+    try {
+      // Use the provided escrow address directly
+      const escrowPDA = new PublicKey(escrowAddress);
+
+      // Derive the token account PDA for this escrow
+      const [escrowTokenPDA] = PDADerivation.deriveEscrowTokenPDA(this.programId, escrowPDA);
+
+      // Get token account info
+      const tokenAccountInfo = await this.connection.getTokenAccountBalance(escrowTokenPDA);
+      return parseFloat(tokenAccountInfo.value.amount);
+    } catch (error) {
+      throw new Error(`Failed to fetch escrow balance: ${this.handleError(error)}`);
+    }
+  }
+
   async getUsdcBalance(): Promise<number> {
     try {
       if (!this.dynamicWallet?.address) {

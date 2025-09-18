@@ -45,6 +45,8 @@ export interface BlockchainService {
   // State queries
   getEscrowState(escrowId: number, tradeId: number): Promise<EscrowState>;
   getEscrowBalance(escrowId: number, tradeId: number): Promise<number>;
+  getEscrowStateByAddress(escrowAddress: string): Promise<EscrowState>;
+  getEscrowBalanceByAddress(escrowAddress: string): Promise<number>;
 
   // Event monitoring
   subscribeToEscrowEvents(
@@ -236,6 +238,22 @@ export class UnifiedBlockchainService implements BlockchainService {
     }
 
     return this.solanaProgram.getEscrowBalance(escrowId, tradeId);
+  }
+
+  async getEscrowStateByAddress(escrowAddress: string): Promise<EscrowState> {
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
+    }
+
+    return this.solanaProgram.getEscrowStateByAddress(escrowAddress);
+  }
+
+  async getEscrowBalanceByAddress(escrowAddress: string): Promise<number> {
+    if (!this.solanaProgram) {
+      throw new Error('Solana program not initialized');
+    }
+
+    return this.solanaProgram.getEscrowBalanceByAddress(escrowAddress);
   }
 
   // Event Monitoring (Solana devnet only for now)

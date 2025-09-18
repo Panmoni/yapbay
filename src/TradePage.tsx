@@ -28,6 +28,28 @@ import {
   CRITICAL_STATE_CHANGE_EVENT,
 } from './utils/events';
 
+// Helper function to convert escrow state string to numeric value
+const escrowStateToNumber = (state: string | number): number => {
+  if (typeof state === 'number') return state;
+
+  switch (state) {
+    case 'CREATED':
+      return 0;
+    case 'FUNDED':
+      return 1;
+    case 'RELEASED':
+      return 2;
+    case 'CANCELLED':
+      return 3;
+    case 'DISPUTED':
+      return 4;
+    case 'RESOLVED':
+      return 5;
+    default:
+      return 0;
+  }
+};
+
 function TradePage() {
   const { id } = useParams<{ id: string }>();
   const { primaryWallet } = useDynamicContext();
@@ -48,7 +70,7 @@ function TradePage() {
     error: escrowError,
     balance,
     refresh: refreshEscrow,
-  } = useEscrowDetails(trade?.leg1_escrow_onchain_id ?? null);
+  } = useEscrowDetails(trade?.leg1_escrow_address ?? null);
 
   // Function to refresh trade data
   const handleRefreshTrade = useCallback(() => {
@@ -290,7 +312,7 @@ function TradePage() {
             ? {
                 escrow_id: BigInt(escrowDetails.escrowId),
                 amount: BigInt(escrowDetails.amount.toString()),
-                state: BigInt(escrowDetails.state),
+                state: BigInt(escrowStateToNumber(escrowDetails.state)),
               }
             : undefined
         }

@@ -35,7 +35,7 @@ export interface EscrowDetails {
   disputeEvidenceHash: string;
 }
 
-export function useEscrowDetails(escrowId: string | number | null) {
+export function useEscrowDetails(escrowAddress: string | null) {
   const [escrowDetails, setEscrowDetails] = useState<EscrowDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -46,7 +46,7 @@ export function useEscrowDetails(escrowId: string | number | null) {
   // Function to fetch escrow details
   const fetchEscrowDetails = useCallback(
     async (showToast = false) => {
-      if (!escrowId) {
+      if (!escrowAddress) {
         setLoading(false);
         return;
       }
@@ -54,15 +54,15 @@ export function useEscrowDetails(escrowId: string | number | null) {
       try {
         setIsRefreshing(true);
 
-        console.log(`[DEBUG] Fetching Solana escrow details for ID: ${escrowId}`);
+        console.log(`[DEBUG] Fetching Solana escrow details for address: ${escrowAddress}`);
 
-        // Fetch escrow state from Solana program
-        const escrowState = await blockchainService.getEscrowState(Number(escrowId), 0);
+        // Fetch escrow state from Solana program using the address directly
+        const escrowState = await blockchainService.getEscrowStateByAddress(escrowAddress);
 
-        // Get the actual balance from the escrow
-        const escrowBalance = await blockchainService.getEscrowBalance(Number(escrowId), 0);
+        // Get the actual balance from the escrow using the address directly
+        const escrowBalance = await blockchainService.getEscrowBalanceByAddress(escrowAddress);
 
-        console.log(`[DEBUG] Solana escrow ${escrowId} balance: ${escrowBalance.toString()}`);
+        console.log(`[DEBUG] Solana escrow ${escrowAddress} balance: ${escrowBalance.toString()}`);
 
         // Convert BN to string for display (USDC has 6 decimals)
         const balanceString = (escrowBalance / 1_000_000).toFixed(6);
@@ -70,15 +70,15 @@ export function useEscrowDetails(escrowId: string | number | null) {
 
         // Convert the escrow state to our interface
         const details: EscrowDetails = {
-          escrowId: Number(escrowId),
-          tradeId: 0, // We'll need to get this from somewhere else
-          seller: '', // We'll need to get this from somewhere else
-          buyer: '', // We'll need to get this from somewhere else
-          arbitrator: '', // We'll need to get this from somewhere else
-          amount: new BN(escrowBalance),
+          escrowId: escrowState.id,
+          tradeId: escrowState.tradeId,
+          seller: escrowState.sellerAddress,
+          buyer: escrowState.buyerAddress,
+          arbitrator: escrowState.arbitratorAddress,
+          amount: new BN(escrowState.amount),
           depositDeadline: 0, // We'll need to get this from somewhere else
           fiatDeadline: 0, // We'll need to get this from somewhere else
-          state: Number(escrowState) as EscrowState,
+          state: escrowState.state,
           sequential: false, // We'll need to get this from somewhere else
           sequentialEscrowAddress: '', // We'll need to get this from somewhere else
           fiatPaid: false, // We'll need to get this from somewhere else
@@ -109,17 +109,17 @@ export function useEscrowDetails(escrowId: string | number | null) {
         setIsRefreshing(false);
       }
     },
-    [escrowId]
+    [escrowAddress]
   );
 
   // Initial fetch and polling setup
   useEffect(() => {
-    // Reset state when escrowId changes
+    // Reset state when escrowAddress changes
     setLoading(true);
     setError(null);
     setEscrowDetails(null);
 
-    if (!escrowId) {
+    if (!escrowAddress) {
       setLoading(false);
       return;
     }
@@ -132,7 +132,7 @@ export function useEscrowDetails(escrowId: string | number | null) {
 
     // Cleanup
     return () => clearInterval(interval);
-  }, [escrowId, fetchEscrowDetails]);
+  }, [escrowAddress, fetchEscrowDetails]);
 
   // Manual refresh function
   const refresh = useCallback(async () => {

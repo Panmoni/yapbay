@@ -99,10 +99,10 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
     // First check if overall_status is COMPLETED
     trade.overall_status === 'COMPLETED'
       ? tradeStateMessages[TradeLegState.COMPLETED][userRole]
-      // Then fall back to the leg1_state message
-      : rawCurrentState && tradeStateMessages[rawCurrentState]
-        ? tradeStateMessages[rawCurrentState][userRole]
-        : 'Trade status unavailable.';
+      : // Then fall back to the leg1_state message
+      rawCurrentState && tradeStateMessages[rawCurrentState]
+      ? tradeStateMessages[rawCurrentState][userRole]
+      : 'Trade status unavailable.';
 
   const progressStates = useMemo(
     () =>
@@ -280,9 +280,9 @@ const TradeStatusDisplay: React.FC<TradeStatusDisplayProps> = ({
         refreshEscrow={refreshEscrow}
       />
 
-      {trade.leg1_escrow_onchain_id && (
+      {trade.leg1_escrow_address && (
         <EscrowDetailsPanel
-          escrowId={trade.leg1_escrow_onchain_id}
+          escrowAddress={trade.leg1_escrow_address}
           trade={trade}
           userRole={userRole}
         />

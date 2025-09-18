@@ -11,21 +11,21 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface EscrowDetailsPanelProps {
-  escrowId: string | number;
+  escrowAddress: string;
   trade: { id: number };
   userRole: 'buyer' | 'seller';
 }
 
-export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelProps) {
+export function EscrowDetailsPanel({ escrowAddress, userRole }: EscrowDetailsPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const { primaryWallet } = useDynamicContext();
 
   const { escrowDetails, loading, error, balance, lastUpdated, isRefreshing, refresh } =
-    useEscrowDetails(escrowId);
+    useEscrowDetails(escrowAddress);
 
   const handleFundEscrow = async () => {
-    if (!primaryWallet || !escrowId || !escrowDetails) return;
+    if (!primaryWallet || !escrowAddress || !escrowDetails) return;
 
     setActionLoading(true);
     try {
@@ -33,7 +33,7 @@ export function EscrowDetailsPanel({ escrowId, userRole }: EscrowDetailsPanelPro
         description: 'Please approve the transaction in your wallet.',
       });
 
-      await checkAndFundEscrow(primaryWallet, escrowId);
+      await checkAndFundEscrow(primaryWallet, escrowAddress);
 
       toast.success('Escrow funded successfully!');
       await refresh(); // Refresh escrow details
