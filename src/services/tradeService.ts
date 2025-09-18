@@ -340,7 +340,7 @@ export const createAndFundTradeEscrow = async ({
           amount: (trade.leg1_crypto_amount || 0).toString(),
           token_type: trade.leg1_crypto_token || 'USDC',
           status: 'SUCCESS',
-          slot: txResult.blockNumber ? Number(txResult.blockNumber) : undefined, // Use blockNumber as slot for Solana
+          slot: Number(txResult.blockNumber), // Use blockNumber as slot for Solana
           metadata: {
             escrow_id: escrowResult.escrowId || '0',
             seller: sellerAddress,
