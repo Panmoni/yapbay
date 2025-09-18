@@ -3,6 +3,28 @@ import { BN } from '@coral-xyz/anchor';
 import { getAssociatedTokenAddress } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
 
+// Helper function to convert escrow state string to numeric value
+const escrowStateToNumber = (state: string | number): number => {
+  if (typeof state === 'number') return state;
+
+  switch (state) {
+    case 'CREATED':
+      return 0;
+    case 'FUNDED':
+      return 1;
+    case 'RELEASED':
+      return 2;
+    case 'CANCELLED':
+      return 3;
+    case 'DISPUTED':
+      return 4;
+    case 'RESOLVED':
+      return 5;
+    default:
+      return 0;
+  }
+};
+
 /**
  * Helper function to derive the associated token account for a wallet and USDC mint
  * @param walletAddress The wallet's public key address
@@ -207,27 +229,34 @@ export const checkAndFundEscrow = async (
 /**
  * Marks the fiat payment as paid for an escrow on the Solana blockchain.
  * @param wallet The Dynamic.xyz wallet object
- * @param escrowId The ID of the escrow to mark as paid (as a string or number)
+ * @param escrowAddress The address of the escrow to mark as paid
  * @returns The transaction hash.
  */
 export const markFiatPaidTransaction = async (
   wallet: any,
-  escrowId: string | number
+  escrowAddress: string
 ): Promise<string> => {
   try {
-    console.log(`[DEBUG] Marking fiat as paid for Solana escrow with ID: ${escrowId}`);
+    console.log(`[DEBUG] Marking fiat as paid for Solana escrow at address: ${escrowAddress}`);
 
-    const result = await blockchainService.markFiatPaid({
-      escrowId: Number(escrowId),
-      tradeId: 0, // We'll need to get this from the escrow data
+    // Get the escrow details to extract escrowId and tradeId
+    const escrowState = await blockchainService.getEscrowStateByAddress(escrowAddress);
+
+    const markFiatPaidParams = {
+      escrowId: escrowState.id,
+      tradeId: escrowState.tradeId,
       buyerAddress: wallet.address,
-    });
+    };
+
+    console.log('[DEBUG] Calling blockchainService.markFiatPaid with params:', markFiatPaidParams);
+
+    const result = await blockchainService.markFiatPaid(markFiatPaidParams);
 
     console.log('[DEBUG] Solana fiat marked as paid:', result);
 
     return result.transactionHash || result.signature || '';
   } catch (error) {
-    console.error(`[ERROR] Failed to mark fiat as paid for Solana escrow ${escrowId}:`, error);
+    console.error(`[ERROR] Failed to mark fiat as paid for Solana escrow ${escrowAddress}:`, error);
     throw error;
   }
 };
@@ -240,14 +269,15 @@ export const markFiatPaidTransaction = async (
  */
 export const releaseEscrowTransaction = async (
   wallet: any,
-  escrowId: string | number
+  escrowId: string | number,
+  tradeId?: number
 ): Promise<{ txHash: string; blockNumber: bigint }> => {
   try {
-    console.log(`[DEBUG] Releasing Solana escrow with ID: ${escrowId}`);
+    console.log(`[DEBUG] Releasing Solana escrow with ID: ${escrowId}, Trade ID: ${tradeId}`);
 
     const result = await blockchainService.releaseEscrow({
       escrowId: Number(escrowId),
-      tradeId: 0, // We'll need to get this from the escrow data
+      tradeId: tradeId || 0,
       authorityAddress: wallet.address,
       buyerTokenAccount: '', // We'll need to derive this
       arbitratorTokenAccount: '', // We'll need to derive this
@@ -330,31 +360,34 @@ export async function getUsdcBalance(
 /**
  * Checks the state and funds of an escrow on Solana.
  * @param wallet The Dynamic.xyz wallet object
- * @param escrowId The ID of the escrow to check
+ * @param escrowAddress The address of the escrow to check
  * @returns Object containing state and amount information
  */
 export const checkEscrowState = async (
   _wallet: any,
-  escrowId: string | number
+  escrowAddress: string
 ): Promise<{ state: number; amount: bigint; hasFunds: boolean; fiatPaid: boolean }> => {
   try {
-    console.log(`[DEBUG] Checking Solana escrow state for ID: ${escrowId}`);
+    console.log(`[DEBUG] Checking Solana escrow state for address: ${escrowAddress}`);
 
-    const escrowState = await blockchainService.getEscrowState(Number(escrowId), 0);
-    const escrowBalance = await blockchainService.getEscrowBalance(Number(escrowId), 0);
+    const escrowState = await blockchainService.getEscrowStateByAddress(escrowAddress);
+    const escrowBalance = await blockchainService.getEscrowBalanceByAddress(escrowAddress);
 
-    const state = Number(escrowState);
+    const state =
+      typeof escrowState.state === 'string'
+        ? escrowStateToNumber(escrowState.state)
+        : escrowState.state;
     const amount = BigInt(escrowBalance);
     const hasFunds = amount > BigInt(0);
-    const fiatPaid = false; // We'll need to get this from escrow details
+    const fiatPaid = escrowState.fiatPaid || false;
 
     console.log(
-      `[DEBUG] Solana escrow ${escrowId} state: ${state}, amount: ${amount.toString()}, fiatPaid: ${fiatPaid}`
+      `[DEBUG] Solana escrow ${escrowAddress} state: ${state}, amount: ${amount.toString()}, fiatPaid: ${fiatPaid}`
     );
 
     return { state, amount, hasFunds, fiatPaid };
   } catch (error) {
-    console.error(`[ERROR] Failed to check Solana escrow state for ${escrowId}:`, error);
+    console.error(`[ERROR] Failed to check Solana escrow state for ${escrowAddress}:`, error);
     throw error;
   }
 };

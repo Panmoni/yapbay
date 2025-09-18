@@ -205,22 +205,44 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async markFiatPaid(params: MarkFiatPaidParams): Promise<TransactionResult> {
     try {
+      console.log('[DEBUG] markFiatPaid called with params:', params);
+
       // Get provider and program with Dynamic.xyz wallet
       const { provider, program } = await this.getProviderAndProgram();
 
       // Convert addresses to PublicKeys
       const buyer = new PublicKey(params.buyerAddress);
 
-      // Build transaction
+      console.log('[DEBUG] Using buyer address:', buyer.toString());
+      console.log('[DEBUG] EscrowId:', params.escrowId, 'TradeId:', params.tradeId);
+
+      // Derive the escrow PDA using the same seeds as the contract
+      const [escrowPDA] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from('escrow'),
+          new BN(params.escrowId).toArrayLike(Buffer, 'le', 8),
+          new BN(params.tradeId).toArrayLike(Buffer, 'le', 8),
+        ],
+        this.programId
+      );
+
+      console.log('[DEBUG] Derived escrow PDA:', escrowPDA.toString());
+
+      // Build transaction - markFiatPaid takes no parameters, escrow is derived from accounts
       const tx = await program.methods
         .markFiatPaid()
         .accounts({
           buyer: buyer,
+          escrow: escrowPDA,
         })
         .transaction();
 
+      console.log('[DEBUG] Transaction built, sending...');
+
       // Send transaction using Dynamic.xyz wallet
       const signature = await provider.sendAndConfirm(tx);
+
+      console.log('[DEBUG] Transaction confirmed with signature:', signature);
 
       return {
         success: true,
@@ -228,6 +250,7 @@ export class SolanaProgram implements SolanaProgramInterface {
         slot: await this.connection.getSlot(),
       };
     } catch (error) {
+      console.error('[ERROR] markFiatPaid failed:', error);
       return {
         success: false,
         error: this.handleError(error),

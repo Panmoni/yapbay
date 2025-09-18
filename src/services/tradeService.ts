@@ -568,14 +568,14 @@ export const markTradeFiatPaid = async ({
   primaryWallet: { address?: string };
 }) => {
   try {
-    if (!trade.leg1_escrow_onchain_id) {
-      throw new Error('No escrow ID found for this trade');
+    if (!trade.leg1_escrow_address) {
+      throw new Error('No escrow address found for this trade');
     }
 
     // Check the current state of the escrow
     try {
       // Just check if the escrow exists, we don't need to use the state value
-      await checkEscrowState(primaryWallet, trade.leg1_escrow_onchain_id);
+      await checkEscrowState(primaryWallet, trade.leg1_escrow_address);
 
       // Show notification message using toast
       toast('Marking fiat as paid...', {
@@ -584,24 +584,31 @@ export const markTradeFiatPaid = async ({
 
       try {
         // Execute the blockchain transaction
-        const result = await markFiatPaidTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
+        const result = await markFiatPaidTransaction(primaryWallet, trade.leg1_escrow_address);
 
-        // Record the transaction details via the recordTransaction API
-        const transactionData = buildTransactionData({
-          trade_id: trade.id,
-          escrow_id: Number(trade.leg1_escrow_onchain_id),
-          signature: result, // Use result as signature for Solana
-          transaction_type: 'MARK_FIAT_PAID',
-          from_address: primaryWallet.address || '',
-          status: 'SUCCESS',
-          metadata: {
-            buyer: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
-          },
-        });
-        await recordTransaction(transactionData);
+        // Only record the transaction if the blockchain transaction was successful
+        if (result) {
+          // Record the transaction details via the recordTransaction API
+          const transactionData = buildTransactionData({
+            trade_id: trade.id,
+            escrow_id: Number(trade.leg1_escrow_onchain_id),
+            signature: result, // Use result as signature for Solana
+            transaction_type: 'MARK_FIAT_PAID',
+            from_address: primaryWallet.address || '',
+            status: 'SUCCESS',
+            metadata: {
+              buyer: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
+            },
+          });
 
-        // Call the backend API to update the trade status
-        await markFiatPaid(trade.id);
+          console.log('[DEBUG] Recording transaction with data:', transactionData);
+          await recordTransaction(transactionData);
+
+          // Call the backend API to update the trade status
+          await markFiatPaid(trade.id);
+        } else {
+          throw new Error('Blockchain transaction failed - no signature returned');
+        }
 
         // Dispatch a global event to notify all open tabs/windows about this critical state change
         const event = new CustomEvent('yapbay:critical-state-change', {
@@ -670,7 +677,7 @@ export const releaseTradeCrypto = async ({
   trade,
   primaryWallet,
 }: ReleaseCryptoParams): Promise<void> => {
-  if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
+  if (!trade || !primaryWallet?.address || !trade.leg1_escrow_address) return;
 
   try {
     toast('Releasing crypto on Solana blockchain...', {
@@ -740,7 +747,7 @@ interface DisputeTradeParams {
  * Disputes a trade
  */
 export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams): Promise<void> => {
-  if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
+  if (!trade || !primaryWallet?.address || !trade.leg1_escrow_address) return;
 
   try {
     toast('Opening dispute on Solana blockchain...', {
@@ -821,7 +828,7 @@ interface CancelTradeParams {
  * Cancels a trade
  */
 export const cancelTrade = async ({ trade, primaryWallet }: CancelTradeParams): Promise<void> => {
-  if (!trade || !primaryWallet?.address || !trade.leg1_escrow_onchain_id) return;
+  if (!trade || !primaryWallet?.address || !trade.leg1_escrow_address) return;
 
   try {
     toast('Checking escrow state...', {
@@ -829,7 +836,7 @@ export const cancelTrade = async ({ trade, primaryWallet }: CancelTradeParams): 
     });
 
     try {
-      const escrowState = await checkEscrowState(primaryWallet, trade.leg1_escrow_onchain_id);
+      const escrowState = await checkEscrowState(primaryWallet, trade.leg1_escrow_address);
 
       // If the escrow has funds, we cannot cancel it
       if (escrowState.hasFunds) {
