@@ -1,5 +1,7 @@
 # YapBay Frontend Development Plan
 
+1 build error
+
 after marking fiat as paid, the seller's tradepage did not update
 
 after releaing escrow, the buyer's tradepage did not update

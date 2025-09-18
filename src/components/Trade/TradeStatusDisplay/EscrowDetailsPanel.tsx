@@ -21,14 +21,14 @@ export function EscrowDetailsPanel({ escrowAddress, trade, userRole }: EscrowDet
   const [actionLoading, setActionLoading] = useState(false);
   const { primaryWallet } = useDynamicContext();
 
+  const { escrowDetails, loading, error, balance, lastUpdated, isRefreshing, refresh } =
+    useEscrowDetails(escrowAddress);
+
   // Don't show escrow details if the trade is in RELEASED state
   // because the escrow account has been closed to recoup rent costs
   if (trade.leg1_state === 'RELEASED') {
     return null;
   }
-
-  const { escrowDetails, loading, error, balance, lastUpdated, isRefreshing, refresh } =
-    useEscrowDetails(escrowAddress);
 
   const handleFundEscrow = async () => {
     if (!primaryWallet || !escrowAddress || !escrowDetails) return;
