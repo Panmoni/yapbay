@@ -3,6 +3,7 @@ import { getTradeTransactions, TransactionRecord } from '../../../api';
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { config } from '../../../config';
+import { networkRegistry } from '../../../blockchain/networks';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -65,6 +66,16 @@ const formatTransactionId = (tx: TransactionRecord): string => {
   return formatAddress(txId);
 };
 
+const getNetworkDisplayName = (networkId: string): string => {
+  const networkNames: Record<string, string> = {
+    'solana-devnet': 'Solana Devnet',
+    'solana-mainnet': 'Solana Mainnet',
+    'celo-alfajores': 'Celo Alfajores',
+    'celo-mainnet': 'Celo Mainnet',
+  };
+  return networkNames[networkId] || networkId;
+};
+
 export const TransactionHistory = ({ tradeId, className = '' }: TransactionHistoryProps) => {
   const [transactions, setTransactions] = useState<TransactionRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -107,20 +118,35 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
     return () => clearInterval(interval);
   }, [fetchTransactions]);
 
-  const getExplorerUrl = (txHash: string) => {
+  const getExplorerUrl = (txHash: string, networkId?: string) => {
     // Return '#' if no transaction hash provided
     if (!txHash) return '#';
-    interface ExtendedConfig {
-      apiUrl: string;
-      dynamicSdkId: string;
-      celoRpcUrl: string;
-      contractAddress: string;
-      usdcAddressAlfajores: string;
-      arbitratorAddress: string;
-      blockExplorerUrl?: string;
+
+    // Get the network-specific explorer URL
+    let explorerUrl: string;
+
+    if (networkId) {
+      const network = networkRegistry.get(networkId);
+      if (network) {
+        explorerUrl = network.blockExplorerUrl;
+      } else {
+        // Fallback to default network explorer
+        explorerUrl = config.networks.testnet.blockExplorerUrl || 'https://alfajores.celoscan.io';
+      }
+    } else {
+      // Fallback to default network explorer
+      explorerUrl = config.networks.testnet.blockExplorerUrl || 'https://alfajores.celoscan.io';
     }
-    const explorerUrl = (config as ExtendedConfig).blockExplorerUrl || 'https://explorer.celo.org';
-    return `${explorerUrl}/tx/${txHash}`;
+
+    // Handle Solana explorer URLs that have query parameters
+    if (explorerUrl.includes('?')) {
+      // Split the URL and query parameters
+      const [baseUrl, queryParams] = explorerUrl.split('?');
+      return `${baseUrl}/tx/${txHash}?${queryParams}`;
+    } else {
+      // Regular URL without query parameters
+      return `${explorerUrl}/tx/${txHash}`;
+    }
   };
 
   // Don't render anything if there are no transactions and we're done loading
@@ -186,6 +212,9 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
                       Status
                     </th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Network
+                    </th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Time
                     </th>
                     <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -215,6 +244,9 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
                         <Badge className={getStatusBadgeClass(tx.status)}>{tx.status}</Badge>
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                        {tx.network ? getNetworkDisplayName(tx.network) : '-'}
+                      </td>
+                      <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                         {tx.created_at ? (
                           formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })
                         ) : (
@@ -224,7 +256,7 @@ export const TransactionHistory = ({ tradeId, className = '' }: TransactionHisto
                       <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                         {getTransactionId(tx) ? (
                           <a
-                            href={getExplorerUrl(getTransactionId(tx))}
+                            href={getExplorerUrl(getTransactionId(tx), tx.network)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center text-blue-600 hover:text-blue-800"
