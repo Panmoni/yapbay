@@ -1,11 +1,8 @@
 # YapBay Frontend Development Plan
 
-- NEXT: get full trade page working, test out the blockchain flow, list of transactions, etc
+after marking fiat as paid, the seller's tradepage did not update
 
-after marking fiat as paid, the seller's tradepage did not update, ditto after release
-
-did I get the funds,
-did the API update, inspectEscrow
+after releaing escrow, the buyer's tradepage did not update
 
 ## Post-MVP
 

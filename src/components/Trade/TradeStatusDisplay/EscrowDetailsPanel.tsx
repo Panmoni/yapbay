@@ -12,14 +12,20 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 interface EscrowDetailsPanelProps {
   escrowAddress: string;
-  trade: { id: number };
+  trade: { id: number; leg1_state?: string };
   userRole: 'buyer' | 'seller';
 }
 
-export function EscrowDetailsPanel({ escrowAddress, userRole }: EscrowDetailsPanelProps) {
+export function EscrowDetailsPanel({ escrowAddress, trade, userRole }: EscrowDetailsPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const { primaryWallet } = useDynamicContext();
+
+  // Don't show escrow details if the trade is in RELEASED state
+  // because the escrow account has been closed to recoup rent costs
+  if (trade.leg1_state === 'RELEASED') {
+    return null;
+  }
 
   const { escrowDetails, loading, error, balance, lastUpdated, isRefreshing, refresh } =
     useEscrowDetails(escrowAddress);
