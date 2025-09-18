@@ -591,7 +591,7 @@ export const markTradeFiatPaid = async ({
           // Record the transaction details via the recordTransaction API
           const transactionData = buildTransactionData({
             trade_id: trade.id,
-            escrow_id: Number(trade.leg1_escrow_onchain_id),
+            escrow_id: Number(trade.leg1_escrow_onchain_id || 0),
             signature: result, // Use result as signature for Solana
             transaction_type: 'MARK_FIAT_PAID',
             from_address: primaryWallet.address || '',
@@ -685,22 +685,29 @@ export const releaseTradeCrypto = async ({
     });
 
     // Execute the blockchain transaction
-    const txResult = await releaseEscrowTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
+    const txResult = await releaseEscrowTransaction(primaryWallet, trade.leg1_escrow_address);
 
-    // Record the transaction details via the recordTransaction API
-    const transactionData = buildTransactionData({
-      trade_id: trade.id,
-      escrow_id: Number(trade.leg1_escrow_onchain_id),
-      signature: txResult.txHash, // Use txHash as signature for Solana
-      transaction_type: 'RELEASE_ESCROW',
-      from_address: primaryWallet.address,
-      to_address: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
-      amount: trade.leg1_crypto_amount?.toString(),
-      token_type: trade.leg1_crypto_token,
-      status: 'SUCCESS',
-      slot: Number(txResult.blockNumber), // Use blockNumber as slot for Solana
-    });
-    await recordTransaction(transactionData);
+    // Only record the transaction if the blockchain transaction was successful
+    if (txResult.txHash) {
+      // Record the transaction details via the recordTransaction API
+      const transactionData = buildTransactionData({
+        trade_id: trade.id,
+        escrow_id: Number(trade.leg1_escrow_onchain_id),
+        signature: txResult.txHash, // Use txHash as signature for Solana
+        transaction_type: 'RELEASE_ESCROW',
+        from_address: primaryWallet.address,
+        to_address: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
+        amount: trade.leg1_crypto_amount?.toString(),
+        token_type: trade.leg1_crypto_token,
+        status: 'SUCCESS',
+        slot: Number(txResult.blockNumber), // Use blockNumber as slot for Solana
+      });
+
+      console.log('[DEBUG] Recording transaction with data:', transactionData);
+      await recordTransaction(transactionData);
+    } else {
+      throw new Error('Blockchain transaction failed - no signature returned');
+    }
 
     toast.success('Crypto released successfully!');
   } catch (error: unknown) {
@@ -757,18 +764,18 @@ export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams)
     // Generate a dummy evidence hash for now - in production this would be a real hash of evidence
     const evidenceHash = 'dispute_evidence_' + Date.now().toString();
 
-    try {
-      // Execute the blockchain transaction
-      const txResult = await disputeEscrowTransaction(
-        primaryWallet,
-        trade.leg1_escrow_onchain_id,
-        evidenceHash
-      );
+      try {
+        // Execute the blockchain transaction
+        const txResult = await disputeEscrowTransaction(
+          primaryWallet,
+          trade.leg1_escrow_onchain_id || 0,
+          evidenceHash
+        );
 
       // Record the transaction details via the recordTransaction API
       const transactionData = buildTransactionData({
         trade_id: trade.id,
-        escrow_id: Number(trade.leg1_escrow_onchain_id),
+        escrow_id: Number(trade.leg1_escrow_onchain_id || 0),
         signature: txResult.txHash, // Use txHash as signature for Solana
         transaction_type: 'DISPUTE_ESCROW',
         from_address: primaryWallet.address,
@@ -853,12 +860,15 @@ export const cancelTrade = async ({ trade, primaryWallet }: CancelTradeParams): 
 
       try {
         // Execute the blockchain transaction
-        const txResult = await cancelEscrowTransaction(primaryWallet, trade.leg1_escrow_onchain_id);
+        const txResult = await cancelEscrowTransaction(
+          primaryWallet,
+          trade.leg1_escrow_onchain_id || 0
+        );
 
         // Record the transaction details via the recordTransaction API
         const transactionData = buildTransactionData({
           trade_id: trade.id,
-          escrow_id: Number(trade.leg1_escrow_onchain_id),
+          escrow_id: Number(trade.leg1_escrow_onchain_id || 0),
           signature: String(txResult.txHash), // Use txHash as signature for Solana
           transaction_type: 'CANCEL_ESCROW',
           from_address: primaryWallet.address,

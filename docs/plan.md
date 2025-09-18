@@ -2,9 +2,10 @@
 
 - NEXT: get full trade page working, test out the blockchain flow, list of transactions, etc
 
-## check that seller token account is getting derived right
+after marking fiat as paid, the seller's tradepage did not update, ditto after release
 
-Derived seller token account: 4NtwvPYaSxr4dxPsndiMVP2tpWzNJB4ZEg6UpepPwADr still might bewrong
+did I get the funds,
+did the API update, inspectEscrow
 
 ## Post-MVP
 

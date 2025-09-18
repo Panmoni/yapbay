@@ -48,7 +48,9 @@ export function EscrowDetailsPanel({ escrowAddress, userRole }: EscrowDetailsPan
   // Determine if the escrow needs funding
   const needsFunding =
     escrowDetails &&
-    (escrowDetails.state === EscrowState.CREATED || escrowDetails.state === 'CREATED') &&
+    (typeof escrowDetails.state === 'number'
+      ? escrowDetails.state === EscrowState.CREATED
+      : escrowDetails.state === 'CREATED') &&
     parseFloat(balance) === 0;
 
   // Only show fund button for seller
@@ -291,7 +293,9 @@ export function EscrowDetailsPanel({ escrowAddress, userRole }: EscrowDetailsPan
                 </div>
               )}
 
-              {(escrowDetails.state === EscrowState.CREATED || escrowDetails.state === 'CREATED') &&
+              {(typeof escrowDetails.state === 'number'
+                ? escrowDetails.state === EscrowState.CREATED
+                : escrowDetails.state === 'CREATED') &&
                 parseFloat(balance) > 0 && (
                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
                     <p className="text-blue-800">

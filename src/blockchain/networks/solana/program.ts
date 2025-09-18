@@ -166,11 +166,9 @@ export class SolanaProgram implements SolanaProgramInterface {
       const sellerTokenAccount = new PublicKey(params.sellerTokenAccount);
 
       // Get USDC mint from network config
-      const usdcMint = new PublicKey(
-        this.connection.rpcEndpoint.includes('devnet')
-          ? '4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU' // Devnet USDC
-          : 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' // Mainnet USDC
-      );
+      const { getSolanaDevnetConfig } = await import('../../../config');
+      const solanaConfig = getSolanaDevnetConfig();
+      const usdcMint = new PublicKey(solanaConfig.usdcMint);
 
       // Build transaction - pass escrowId and tradeId as arguments
       const tx = await program.methods
@@ -233,7 +231,6 @@ export class SolanaProgram implements SolanaProgramInterface {
         .markFiatPaid()
         .accounts({
           buyer: buyer,
-          escrow: escrowPDA,
         })
         .transaction();
 
@@ -260,6 +257,8 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   async releaseEscrow(params: ReleaseEscrowParams): Promise<TransactionResult> {
     try {
+      console.log('[DEBUG] releaseEscrow called with params:', params);
+
       // Get provider and program with Dynamic.xyz wallet
       const { provider, program } = await this.getProviderAndProgram();
 
@@ -271,20 +270,49 @@ export class SolanaProgram implements SolanaProgramInterface {
         ? new PublicKey(params.sequentialEscrowTokenAccount)
         : null;
 
-      // Build transaction
+      console.log('[DEBUG] Using authority address:', authority.toString());
+      console.log('[DEBUG] EscrowId:', params.escrowId, 'TradeId:', params.tradeId);
+
+      // Derive the escrow PDA using the same seeds as the contract
+      const [escrowPDA] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from('escrow'),
+          new BN(params.escrowId).toArrayLike(Buffer, 'le', 8),
+          new BN(params.tradeId).toArrayLike(Buffer, 'le', 8),
+        ],
+        this.programId
+      );
+
+      console.log('[DEBUG] Derived escrow PDA:', escrowPDA.toString());
+
+      // Derive the escrow token account PDA
+      const [escrowTokenPDA] = PublicKey.findProgramAddressSync(
+        [Buffer.from('escrow_token'), escrowPDA.toBuffer()],
+        this.programId
+      );
+
+      console.log('[DEBUG] Derived escrow token PDA:', escrowTokenPDA.toString());
+
+      // Build transaction - releaseEscrow takes no parameters, but we need to provide the PDAs explicitly
       const tx = await program.methods
         .releaseEscrow()
         .accounts({
           authority: authority,
+          escrow: escrowPDA,
+          escrowTokenAccount: escrowTokenPDA,
           buyerTokenAccount: buyerTokenAccount,
           arbitratorTokenAccount: arbitratorTokenAccount,
           sequentialEscrowTokenAccount: sequentialEscrowTokenAccount,
-          // tokenProgram: TOKEN_PROGRAM_ID,
+          tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
         })
         .transaction();
 
+      console.log('[DEBUG] Transaction built, sending...');
+
       // Send transaction using Dynamic.xyz wallet
       const signature = await provider.sendAndConfirm(tx);
+
+      console.log('[DEBUG] Transaction confirmed with signature:', signature);
 
       return {
         success: true,
@@ -292,6 +320,7 @@ export class SolanaProgram implements SolanaProgramInterface {
         slot: await this.connection.getSlot(),
       };
     } catch (error) {
+      console.error('[ERROR] releaseEscrow failed:', error);
       return {
         success: false,
         error: this.handleError(error),
@@ -799,7 +828,7 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   // Helper Methods
   private mapEscrowState(
-    state: number | string | any
+    state: number | string | Record<string, unknown>
   ): 'CREATED' | 'FUNDED' | 'RELEASED' | 'CANCELLED' | 'DISPUTED' | 'RESOLVED' {
     // Map the Solana program state to our interface
     // Handle object states from Anchor (like { funded: true })

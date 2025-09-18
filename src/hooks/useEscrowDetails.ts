@@ -23,7 +23,7 @@ export interface EscrowDetails {
   amount: BN;
   depositDeadline: BN;
   fiatDeadline: BN;
-  state: EscrowState;
+  state: EscrowState | string; // Allow both enum and string states
   sequential: boolean;
   sequentialEscrowAddress: string;
   fiatPaid: boolean;

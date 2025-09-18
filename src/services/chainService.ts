@@ -264,25 +264,91 @@ export const markFiatPaidTransaction = async (
 /**
  * Releases an escrow on the Solana blockchain.
  * @param wallet The Dynamic.xyz wallet object
- * @param escrowId The ID of the escrow to release
+ * @param escrowAddress The address of the escrow to release
  * @returns The transaction hash and block number
  */
 export const releaseEscrowTransaction = async (
   wallet: any,
-  escrowId: string | number,
-  tradeId?: number
+  escrowAddress: string
 ): Promise<{ txHash: string; blockNumber: bigint }> => {
   try {
-    console.log(`[DEBUG] Releasing Solana escrow with ID: ${escrowId}, Trade ID: ${tradeId}`);
+    console.log(`[DEBUG] Releasing Solana escrow at address: ${escrowAddress}`);
 
-    const result = await blockchainService.releaseEscrow({
-      escrowId: Number(escrowId),
-      tradeId: tradeId || 0,
+    // Get the escrow details to extract escrowId and tradeId
+    const escrowState = await blockchainService.getEscrowStateByAddress(escrowAddress);
+
+    console.log('[DEBUG] Current escrow state:', escrowState);
+    console.log('[DEBUG] Escrow state:', escrowState.state);
+    console.log('[DEBUG] Fiat paid:', escrowState.fiatPaid);
+    console.log('[DEBUG] Seller:', escrowState.sellerAddress);
+    console.log('[DEBUG] Buyer:', escrowState.buyerAddress);
+    console.log('[DEBUG] Arbitrator:', escrowState.arbitratorAddress);
+    console.log('[DEBUG] Authority (wallet):', wallet.address);
+
+    // Get USDC mint from network config
+    const { getSolanaDevnetConfig } = await import('../config');
+    const solanaConfig = getSolanaDevnetConfig();
+    const usdcMint = new PublicKey(solanaConfig.usdcMint);
+
+    console.log('[DEBUG] Using USDC mint:', usdcMint.toString());
+
+    // Derive token accounts for buyer and arbitrator
+    const buyerTokenAccount = await getAssociatedTokenAddress(
+      usdcMint,
+      new PublicKey(escrowState.buyerAddress)
+    );
+
+    const arbitratorTokenAccount = await getAssociatedTokenAddress(
+      usdcMint,
+      new PublicKey(escrowState.arbitratorAddress)
+    );
+
+    console.log('[DEBUG] Derived buyer token account:', buyerTokenAccount.toString());
+    console.log('[DEBUG] Derived arbitrator token account:', arbitratorTokenAccount.toString());
+
+    // Note: Token accounts will be validated by the Solana program constraints
+
+    // Validate escrow state before attempting release
+    if (escrowState.state !== 'FUNDED') {
+      throw new Error(`Escrow is not in FUNDED state. Current state: ${escrowState.state}`);
+    }
+
+    if (!escrowState.fiatPaid) {
+      throw new Error('Fiat payment has not been marked as paid yet');
+    }
+
+    // Validate authority
+    const isSeller = wallet.address === escrowState.sellerAddress;
+    const isArbitrator = wallet.address === escrowState.arbitratorAddress;
+
+    if (!isSeller && !isArbitrator) {
+      throw new Error(
+        `Wallet ${wallet.address} is not authorized to release escrow. Must be seller (${escrowState.sellerAddress}) or arbitrator (${escrowState.arbitratorAddress})`
+      );
+    }
+
+    console.log(
+      '[DEBUG] Authority validation passed. Is seller:',
+      isSeller,
+      'Is arbitrator:',
+      isArbitrator
+    );
+
+    const releaseEscrowParams = {
+      escrowId: escrowState.id,
+      tradeId: escrowState.tradeId,
       authorityAddress: wallet.address,
-      buyerTokenAccount: '', // We'll need to derive this
-      arbitratorTokenAccount: '', // We'll need to derive this
+      buyerTokenAccount: buyerTokenAccount.toString(),
+      arbitratorTokenAccount: arbitratorTokenAccount.toString(),
       sequentialEscrowTokenAccount: undefined,
-    });
+    };
+
+    console.log(
+      '[DEBUG] Calling blockchainService.releaseEscrow with params:',
+      releaseEscrowParams
+    );
+
+    const result = await blockchainService.releaseEscrow(releaseEscrowParams);
 
     console.log('[DEBUG] Solana escrow released:', result);
 
@@ -291,7 +357,7 @@ export const releaseEscrowTransaction = async (
       blockNumber: BigInt(result.slot || result.blockNumber || 0),
     };
   } catch (error) {
-    console.error(`[ERROR] Failed to release Solana escrow ${escrowId}:`, error);
+    console.error(`[ERROR] Failed to release Solana escrow ${escrowAddress}:`, error);
     throw error;
   }
 };
@@ -405,7 +471,7 @@ export const cancelEscrowTransaction = async (
 ): Promise<{ txHash: string; blockNumber: bigint }> => {
   try {
     // First check if the escrow has funds
-    const { hasFunds } = await checkEscrowState(wallet, escrowId);
+    const { hasFunds } = await checkEscrowState(wallet, escrowId.toString());
     if (hasFunds) {
       throw new Error(
         'Cannot cancel an escrow that still has funds. The funds must be released first.'
