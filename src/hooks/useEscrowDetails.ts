@@ -76,12 +76,12 @@ export function useEscrowDetails(escrowAddress: string | null) {
           buyer: escrowState.buyerAddress,
           arbitrator: escrowState.arbitratorAddress,
           amount: new BN(escrowState.amount),
-          depositDeadline: 0, // We'll need to get this from somewhere else
-          fiatDeadline: 0, // We'll need to get this from somewhere else
+          depositDeadline: new BN(escrowState.depositDeadline || 0),
+          fiatDeadline: new BN(escrowState.fiatDeadline || 0),
           state: escrowState.state,
-          sequential: false, // We'll need to get this from somewhere else
-          sequentialEscrowAddress: '', // We'll need to get this from somewhere else
-          fiatPaid: false, // We'll need to get this from somewhere else
+          sequential: escrowState.sequential || false,
+          sequentialEscrowAddress: escrowState.sequentialEscrowAddress || '',
+          fiatPaid: escrowState.fiatPaid || false,
           counter: 0, // We'll need to get this from somewhere else
           disputeInitiator: '', // We'll need to get this from somewhere else
           disputeBondBuyer: new BN(0), // We'll need to get this from somewhere else

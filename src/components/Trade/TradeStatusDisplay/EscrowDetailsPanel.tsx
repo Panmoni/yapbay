@@ -47,7 +47,9 @@ export function EscrowDetailsPanel({ escrowAddress, userRole }: EscrowDetailsPan
 
   // Determine if the escrow needs funding
   const needsFunding =
-    escrowDetails && escrowDetails.state === EscrowState.CREATED && parseFloat(balance) === 0;
+    escrowDetails &&
+    (escrowDetails.state === EscrowState.CREATED || escrowDetails.state === 'CREATED') &&
+    parseFloat(balance) === 0;
 
   // Only show fund button for seller
   const showFundButton = userRole === 'seller' && needsFunding;
@@ -73,19 +75,20 @@ export function EscrowDetailsPanel({ escrowAddress, userRole }: EscrowDetailsPan
   };
 
   // Get state badge color
-  const getStateBadgeColor = (state: EscrowState) => {
-    switch (state) {
-      case EscrowState.CREATED:
+  const getStateBadgeColor = (state: EscrowState | string) => {
+    const stateStr = typeof state === 'string' ? state : EscrowState[state];
+    switch (stateStr) {
+      case 'CREATED':
         return 'bg-blue-100 text-blue-800';
-      case EscrowState.FUNDED:
+      case 'FUNDED':
         return 'bg-green-100 text-green-800';
-      case EscrowState.RELEASED:
+      case 'RELEASED':
         return 'bg-green-100 text-green-800';
-      case EscrowState.CANCELLED:
+      case 'CANCELLED':
         return 'bg-red-100 text-red-800';
-      case EscrowState.DISPUTED:
+      case 'DISPUTED':
         return 'bg-orange-100 text-orange-800';
-      case EscrowState.RESOLVED:
+      case 'RESOLVED':
         return 'bg-teal-100 text-teal-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -158,6 +161,20 @@ export function EscrowDetailsPanel({ escrowAddress, userRole }: EscrowDetailsPan
           ) : escrowDetails ? (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-neutral-50 p-3 rounded md:col-span-2">
+                  <div className="text-sm text-neutral-500">Escrow Address (PDA)</div>
+                  <div className="font-medium flex items-center gap-1">
+                    <span className="truncate">{formatAddress(escrowAddress)}</span>
+                    <a
+                      href={getSolanaExplorerUrl(escrowAddress)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      <ExternalLink size={14} />
+                    </a>
+                  </div>
+                </div>
                 <div className="bg-neutral-50 p-3 rounded">
                   <div className="text-sm text-neutral-500">Escrow ID</div>
                   <div className="font-medium">{escrowDetails.escrowId.toString()}</div>
@@ -170,7 +187,9 @@ export function EscrowDetailsPanel({ escrowAddress, userRole }: EscrowDetailsPan
                   <div className="text-sm text-neutral-500">State</div>
                   <div className="font-medium">
                     <Badge className={getStateBadgeColor(escrowDetails.state)}>
-                      {getEscrowStateName(Number(escrowDetails.state))}
+                      {typeof escrowDetails.state === 'string'
+                        ? escrowDetails.state
+                        : getEscrowStateName(Number(escrowDetails.state))}
                     </Badge>
                   </div>
                 </div>
@@ -272,14 +291,15 @@ export function EscrowDetailsPanel({ escrowAddress, userRole }: EscrowDetailsPan
                 </div>
               )}
 
-              {escrowDetails.state === EscrowState.CREATED && parseFloat(balance) > 0 && (
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-                  <p className="text-blue-800">
-                    <strong>Note:</strong> The escrow has a balance but is still in CREATED state.
-                    This may indicate a pending transaction or a blockchain synchronization delay.
-                  </p>
-                </div>
-              )}
+              {(escrowDetails.state === EscrowState.CREATED || escrowDetails.state === 'CREATED') &&
+                parseFloat(balance) > 0 && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-blue-800">
+                      <strong>Note:</strong> The escrow has a balance but is still in CREATED state.
+                      This may indicate a pending transaction or a blockchain synchronization delay.
+                    </p>
+                  </div>
+                )}
             </div>
           ) : (
             <div className="py-4 text-center">No escrow details found</div>

@@ -709,6 +709,11 @@ export class SolanaProgram implements SolanaProgramInterface {
         sellerAddress: escrowAccount.seller.toString(),
         buyerAddress: escrowAccount.buyer.toString(),
         arbitratorAddress: escrowAccount.arbitrator.toString(),
+        depositDeadline: escrowAccount.depositDeadline.toNumber(),
+        fiatDeadline: escrowAccount.fiatDeadline.toNumber(),
+        fiatPaid: escrowAccount.fiatPaid,
+        sequential: escrowAccount.sequential,
+        sequentialEscrowAddress: escrowAccount.sequentialEscrowAddress?.toString() || '',
         networkType: NetworkType.SOLANA,
       };
     } catch (error) {
@@ -771,10 +776,21 @@ export class SolanaProgram implements SolanaProgramInterface {
 
   // Helper Methods
   private mapEscrowState(
-    state: number | string
+    state: number | string | any
   ): 'CREATED' | 'FUNDED' | 'RELEASED' | 'CANCELLED' | 'DISPUTED' | 'RESOLVED' {
     // Map the Solana program state to our interface
-    // Handle both numeric and string states from Anchor
+    // Handle object states from Anchor (like { funded: true })
+    if (typeof state === 'object' && state !== null) {
+      if (state.created) return 'CREATED';
+      if (state.funded) return 'FUNDED';
+      if (state.released) return 'RELEASED';
+      if (state.cancelled) return 'CANCELLED';
+      if (state.disputed) return 'DISPUTED';
+      if (state.resolved) return 'RESOLVED';
+      return 'CREATED';
+    }
+
+    // Handle string states
     if (typeof state === 'string') {
       switch (state) {
         case 'Created':
@@ -792,24 +808,24 @@ export class SolanaProgram implements SolanaProgramInterface {
         default:
           return 'CREATED';
       }
-    } else {
-      // Handle numeric states
-      switch (state) {
-        case 0:
-          return 'CREATED';
-        case 1:
-          return 'FUNDED';
-        case 2:
-          return 'RELEASED';
-        case 3:
-          return 'CANCELLED';
-        case 4:
-          return 'DISPUTED';
-        case 5:
-          return 'RESOLVED';
-        default:
-          return 'CREATED';
-      }
+    }
+
+    // Handle numeric states
+    switch (state) {
+      case 0:
+        return 'CREATED';
+      case 1:
+        return 'FUNDED';
+      case 2:
+        return 'RELEASED';
+      case 3:
+        return 'CANCELLED';
+      case 4:
+        return 'DISPUTED';
+      case 5:
+        return 'RESOLVED';
+      default:
+        return 'CREATED';
     }
   }
 

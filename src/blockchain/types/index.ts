@@ -46,6 +46,11 @@ export interface EscrowState {
   sellerAddress: string;
   buyerAddress: string;
   arbitratorAddress: string;
+  depositDeadline?: number;
+  fiatDeadline?: number;
+  fiatPaid?: boolean;
+  sequential?: boolean;
+  sequentialEscrowAddress?: string;
   networkType: NetworkType;
 }
 

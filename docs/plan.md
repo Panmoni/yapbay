@@ -2,8 +2,6 @@
 
 - NEXT: get full trade page working, test out the blockchain flow, list of transactions, etc
 
-## Escrow Details
-
 ## check that seller token account is getting derived right
 
 [DEBUG] Derived seller token account: 4NtwvPYaSxr4dxPsndiMVP2tpWzNJB4ZEg6UpepPwADr still might bewrong
