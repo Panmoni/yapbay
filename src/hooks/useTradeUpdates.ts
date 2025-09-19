@@ -2,7 +2,7 @@ import { useCallback, useRef } from 'react';
 import { Trade, getTradeById } from '@/api';
 import { useSmartPolling } from './useSmartPolling';
 
-export function useTradeUpdates(tradeId: number, apiUrl?: string) {
+export function useTradeUpdates(tradeId: number) {
   // Keep track of the previous data and ETag
   const previousDataRef = useRef<Trade | null>(null);
   const etagRef = useRef<string | null>(null);
@@ -26,7 +26,7 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string) {
       });
 
       // Extract trade object from response - handle both old and new API response formats
-      const tradeData = response.data.trade || response.data;
+      const tradeData = (response.data as any).trade || response.data;
 
       // Validate that we have a proper trade object
       if (!tradeData || typeof tradeData !== 'object') {
@@ -98,7 +98,7 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string) {
     previousDataRef.current = null;
     etagRef.current = null;
     polling.forcePoll();
-  }, [tradeId, polling.forcePoll]);
+  }, [tradeId, polling]);
 
   // Log polling status only when there are errors
   if (polling.error) {

@@ -82,10 +82,10 @@ export function useSmartPolling<T>(
         // Check if this is a trade and if its state has changed
         if (
           tradeStateChangeCallback &&
-          hasTradeStateChanged(previousDataRef.current as Trade, result as Trade)
+          hasTradeStateChanged(previousDataRef.current as any, result as any)
         ) {
           console.log('[useSmartPolling] Trade state change detected, calling callback');
-          tradeStateChangeCallback(result as Trade);
+          tradeStateChangeCallback(result as any);
           // Reset to fast polling when trade state changes
           setCurrentInterval(minInterval);
         } else {
@@ -113,10 +113,12 @@ export function useSmartPolling<T>(
         // Log only when trade state changes
         if (
           tradeStateChangeCallback &&
-          hasTradeStateChanged(previousDataRef.current as Trade, result as Trade)
+          hasTradeStateChanged(previousDataRef.current as any, result as any)
         ) {
           console.log(
-            `[useSmartPolling] Trade state change detected: ${previousDataRef.current?.leg1_state} → ${result?.leg1_state}`
+            `[useSmartPolling] Trade state change detected: ${
+              (previousDataRef.current as any)?.leg1_state
+            } → ${(result as any)?.leg1_state}`
           );
         }
 

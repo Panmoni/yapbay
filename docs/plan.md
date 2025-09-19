@@ -1,7 +1,6 @@
 # YapBay Frontend Development Plan
 
-4 lint problems
-7 build errors
+10 lint problems
 
 trade preview, buyer sees incorrect information about the seller's fee
 

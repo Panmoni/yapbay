@@ -62,11 +62,7 @@ function TradePage() {
   const { userRole, currentAccount, counterparty } = useTradeParticipants(trade);
 
   // Use enhanced trade updates hook with smart polling
-  const {
-    trade: tradeUpdates,
-    forcePoll: forceTradeUpdate,
-    forceRefresh: forceTradeRefresh,
-  } = useTradeUpdates(tradeId);
+  const { trade: tradeUpdates, forceRefresh: forceTradeRefresh } = useTradeUpdates(tradeId);
 
   const {
     escrowDetails,
@@ -256,7 +252,7 @@ function TradePage() {
     if (trade && trade.id) {
       console.log(`[TradePage] Trade ${tradeId} state: ${trade.leg1_state}`);
     }
-  }, [trade?.leg1_state, tradeId]);
+  }, [trade?.leg1_state, tradeId, trade]);
 
   // Reset trade state when trade ID changes
   useEffect(() => {
