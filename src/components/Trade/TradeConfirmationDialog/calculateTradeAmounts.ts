@@ -42,15 +42,9 @@ export const calculateTradeAmounts = (
     // Calculate fiat amount
     result.fiatAmount = numAmount * adjustedPrice;
 
-    // Calculate platform fee differently based on offer type
-    if (offer.offer_type === 'SELL') {
-      // When buying USDC (offer type is SELL), the seller pays the fee in USDC
-      // The buyer (user) just pays the fiat amount
-      result.platformFee = result.fiatAmount * 0.01; // 1% of fiat amount (shown for information only)
-    } else {
-      // When selling USDC (offer type is BUY), the user pays the fee in USDC
-      result.platformFee = numAmount * 0.01; // 1% of USDC amount
-    }
+    // Calculate platform fee - always 1% of USDC amount
+    // The seller always pays the fee in USDC, regardless of offer type
+    result.platformFee = numAmount * 0.01; // 1% of USDC amount
 
     return result;
   } catch (error) {

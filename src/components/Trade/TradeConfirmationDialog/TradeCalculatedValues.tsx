@@ -94,7 +94,11 @@ export const TradeCalculatedValues: React.FC<TradeCalculatedValuesProps> = ({
               </div>
               <div className="text-xs text-neutral-500 pl-2">
                 {/* Show the fee the seller pays */}
-                <span>Seller pays the 1% YapBay fee ({formatNumber(platformFee)} USDC)</span>
+                <span>
+                  Seller pays the 1% YapBay fee ({formatNumber(platformFee)} USDC ≈{' '}
+                  {formatNumber(platformFee * (fiatAmount / parseFloat(amount)))}{' '}
+                  {offer.fiat_currency})
+                </span>
               </div>
             </>
           )}

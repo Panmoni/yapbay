@@ -2,10 +2,6 @@
 
 10 lint problems
 
-trade preview, buyer sees incorrect information about the seller's fee
-
-src/components/Trade/TradeConfirmationDialog/TradeCalculatedValues.tsx
-
 ## deploy it all, record video, share!
 
 ## Post-MVP
