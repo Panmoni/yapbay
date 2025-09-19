@@ -235,23 +235,28 @@ function TradePage() {
   // Update trade data when we receive updates via polling
   useEffect(() => {
     if (tradeUpdates) {
-      console.log(`[TradePage] Received trade update for trade ${tradeId}:`, tradeUpdates);
-      setTrade(tradeUpdates);
-    }
-  }, [tradeUpdates, setTrade, tradeId]);
+      // Check if the data is actually different
+      const isDataDifferent =
+        !trade ||
+        trade.id !== tradeUpdates.id ||
+        trade.leg1_state !== tradeUpdates.leg1_state ||
+        trade.updated_at !== tradeUpdates.updated_at;
 
-  // Add a debug log to track trade state changes
+      if (isDataDifferent) {
+        console.log(
+          `[TradePage] Trade state updated: ${trade?.leg1_state} → ${tradeUpdates.leg1_state}`
+        );
+        setTrade(tradeUpdates);
+      }
+    }
+  }, [tradeUpdates, setTrade, tradeId, trade]);
+
+  // Track trade state changes (reduced logging)
   useEffect(() => {
     if (trade && trade.id) {
-      console.log(`[TradePage] Current trade state for trade ${tradeId}:`, {
-        id: trade.id,
-        state: trade.leg1_state,
-        created_at: trade.created_at,
-      });
-    } else if (trade) {
-      console.warn(`[TradePage] Trade object exists but missing id property:`, trade);
+      console.log(`[TradePage] Trade ${tradeId} state: ${trade.leg1_state}`);
     }
-  }, [trade, tradeId]);
+  }, [trade?.leg1_state, tradeId]);
 
   // Reset trade state when trade ID changes
   useEffect(() => {

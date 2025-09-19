@@ -110,6 +110,16 @@ export function useSmartPolling<T>(
           }
         }
 
+        // Log only when trade state changes
+        if (
+          tradeStateChangeCallback &&
+          hasTradeStateChanged(previousDataRef.current as Trade, result as Trade)
+        ) {
+          console.log(
+            `[useSmartPolling] Trade state change detected: ${previousDataRef.current?.leg1_state} → ${result?.leg1_state}`
+          );
+        }
+
         setData(result);
         previousDataRef.current = result;
       }

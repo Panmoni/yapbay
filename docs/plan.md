@@ -1,11 +1,13 @@
 # YapBay Frontend Development Plan
 
+## program types
+
 2 lint problems
 3 build errors
 
 will need to update types so program.ts does not throw those errors on escrow, sellerescrowtoken?, tokenProgram
 
-## my transactions is broken because the from field on transactions is not being saved
+## deploy it all, record video, share!
 
 ## Post-MVP
 

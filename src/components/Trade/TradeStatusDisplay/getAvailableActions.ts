@@ -33,12 +33,19 @@ export const getAvailableActions = ({
   const currentTime = Date.now();
   if (currentTime - lastLogTime >= 30000) {
     console.log('Evaluating available actions for:', {
+      tradeId: trade.id,
       state: trade.leg1_state,
       userRole,
       escrowDeadlineExpired: isDeadlineExpired(trade.leg1_escrow_deposit_deadline ?? ''),
       fiatPaymentDeadlineExpired: isDeadlineExpired(trade.leg1_fiat_payment_deadline ?? ''),
+      updatedAt: trade.updated_at,
     });
     setLastLogTime(currentTime);
+  }
+
+  // Log only when state changes (reduced noise)
+  if (currentTime - lastLogTime >= 30000) {
+    console.log(`[getAvailableActions] Trade ${trade.id} state: ${trade.leg1_state}`);
   }
 
   // Determine if deadlines have expired

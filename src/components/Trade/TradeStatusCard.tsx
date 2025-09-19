@@ -34,6 +34,9 @@ export function TradeStatusCard({
   balance,
   refreshEscrow,
 }: TradeStatusCardProps) {
+  // Log trade state changes only
+  console.log(`[TradeStatusCard] Trade ${trade?.id} state: ${trade?.leg1_state}`);
+
   return (
     <Card className="border border-neutral-200 shadow-sm p-4">
       <CardHeader>

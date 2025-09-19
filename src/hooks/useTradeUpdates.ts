@@ -43,6 +43,16 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string) {
         `[useTradeUpdates] Successfully fetched trade ${tradeData.id} with state: ${tradeData.leg1_state} at ${tradeData.updated_at}`
       );
 
+      // Compare with previous data to detect changes
+      const previousData = previousDataRef.current;
+      const hasStateChanged = previousData && previousData.leg1_state !== tradeData.leg1_state;
+
+      if (hasStateChanged) {
+        console.log(
+          `[useTradeUpdates] Trade ${tradeData.id} state changed: ${previousData.leg1_state} → ${tradeData.leg1_state}`
+        );
+      }
+
       // Store the trade data for future conditional requests
       previousDataRef.current = tradeData;
       return tradeData;
@@ -89,6 +99,11 @@ export function useTradeUpdates(tradeId: number, apiUrl?: string) {
     etagRef.current = null;
     polling.forcePoll();
   }, [tradeId, polling.forcePoll]);
+
+  // Log polling status only when there are errors
+  if (polling.error) {
+    console.error(`[useTradeUpdates] Polling error for trade ${tradeId}:`, polling.error.message);
+  }
 
   return {
     trade: polling.data,
