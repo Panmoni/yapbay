@@ -1,15 +1,11 @@
 # YapBay Frontend Development Plan
 
-## program types
-
 4 lint problems
 7 build errors
 
-will need to update types so program.ts does not throw those errors on escrow, sellerescrowtoken?, tokenProgram
+trade preview, buyer sees incorrect information about the seller's fee
 
-## TEST: verify transaction recording is fully correct for all trade steps
-
-esp release escrow and to_address is not being sent as 1
+src/components/Trade/TradeConfirmationDialog/TradeCalculatedValues.tsx
 
 ## deploy it all, record video, share!
 

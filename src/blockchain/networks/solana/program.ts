@@ -232,7 +232,7 @@ export class SolanaProgram implements SolanaProgramInterface {
         .accounts({
           buyer: buyer,
           escrow: escrowPDA,
-        })
+        } as any)
         .transaction();
 
       console.log('[DEBUG] Transaction built, sending...');
@@ -305,7 +305,7 @@ export class SolanaProgram implements SolanaProgramInterface {
           arbitratorTokenAccount: arbitratorTokenAccount,
           sequentialEscrowTokenAccount: sequentialEscrowTokenAccount,
           tokenProgram: new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'),
-        })
+        } as any)
         .transaction();
 
       console.log('[DEBUG] Transaction built, sending...');
