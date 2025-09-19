@@ -6,6 +6,7 @@ import {
   markFiatPaid,
   getTradeById,
   recordTransaction,
+  getAccountById,
 } from '../api';
 import { buildTransactionData } from '../utils/transactionUtils.js';
 
@@ -689,6 +690,19 @@ export const releaseTradeCrypto = async ({
 
     // Only record the transaction if the blockchain transaction was successful
     if (txResult.txHash) {
+      // Fetch the buyer's wallet address from the account ID
+      let buyerWalletAddress = '';
+      if (trade.leg1_buyer_account_id) {
+        try {
+          const buyerAccountResponse = await getAccountById(trade.leg1_buyer_account_id);
+          buyerWalletAddress = buyerAccountResponse.data.wallet_address;
+        } catch (error) {
+          console.error('[ERROR] Failed to fetch buyer account:', error);
+          // Fallback to empty string if we can't fetch the buyer address
+          buyerWalletAddress = '';
+        }
+      }
+
       // Record the transaction details via the recordTransaction API
       const transactionData = buildTransactionData({
         trade_id: trade.id,
@@ -696,7 +710,7 @@ export const releaseTradeCrypto = async ({
         signature: txResult.txHash, // Use txHash as signature for Solana
         transaction_type: 'RELEASE_ESCROW',
         from_address: primaryWallet.address,
-        to_address: trade.leg1_buyer_account_id ? trade.leg1_buyer_account_id.toString() : '',
+        to_address: buyerWalletAddress,
         amount: trade.leg1_crypto_amount?.toString(),
         token_type: trade.leg1_crypto_token,
         status: 'SUCCESS',
@@ -764,13 +778,13 @@ export const disputeTrade = async ({ trade, primaryWallet }: DisputeTradeParams)
     // Generate a dummy evidence hash for now - in production this would be a real hash of evidence
     const evidenceHash = 'dispute_evidence_' + Date.now().toString();
 
-      try {
-        // Execute the blockchain transaction
-        const txResult = await disputeEscrowTransaction(
-          primaryWallet,
-          trade.leg1_escrow_onchain_id || 0,
-          evidenceHash
-        );
+    try {
+      // Execute the blockchain transaction
+      const txResult = await disputeEscrowTransaction(
+        primaryWallet,
+        trade.leg1_escrow_onchain_id || 0,
+        evidenceHash
+      );
 
       // Record the transaction details via the recordTransaction API
       const transactionData = buildTransactionData({

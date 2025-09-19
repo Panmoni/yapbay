@@ -2,10 +2,14 @@
 
 ## program types
 
-2 lint problems
-3 build errors
+4 lint problems
+7 build errors
 
 will need to update types so program.ts does not throw those errors on escrow, sellerescrowtoken?, tokenProgram
+
+## TEST: verify transaction recording is fully correct for all trade steps
+
+esp release escrow and to_address is not being sent as 1
 
 ## deploy it all, record video, share!
 
