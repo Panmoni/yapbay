@@ -1,5 +1,8 @@
 # Build stage
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
+
+# Install git for version generation
+RUN apk add --no-cache git
 
 # Set working directory
 WORKDIR /app
@@ -7,8 +10,18 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Configure npm for better reliability in container builds
+RUN npm config set fetch-timeout 600000 && \
+    npm config set fetch-retries 10 && \
+    npm config set fetch-retry-mintimeout 20000 && \
+    npm config set fetch-retry-maxtimeout 120000 && \
+    npm config set progress true && \
+    npm config set loglevel verbose
+
+# Install dependencies with progress indicators
+RUN echo "Starting npm ci at $(date)..." && \
+    npm ci --loglevel=info --progress=true && \
+    echo "npm ci completed at $(date)"
 
 # Copy application source and environment files
 COPY . .
@@ -18,7 +31,7 @@ COPY .env.production .env
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
