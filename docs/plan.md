@@ -2,8 +2,6 @@
 
 10 lint problems
 
-## deploy it all, record video, share!
-
 ## Post-MVP
 
 review the network awareness/wrapper stuff to ensure it is extensible
