@@ -13,7 +13,7 @@
     "build-image": "podman build --network=host -f Containerfile -t localhost/yapbay-vite:latest .",
     "create-pod": "podman pod exists yapbay-vite || podman pod create --name yapbay-vite --network host",
     "start-app": "podman container exists yapbay-app || podman run -d --name yapbay-app --pod yapbay-vite --mount type=bind,source=$(pwd)/.env,target=/app/.env,ro localhost/yapbay-vite:latest",
-    "deploy": "npm run build && npm run build-image && systemctl --user restart yapbay-vite.service",
+    "deploy": "npm run build && npm run build-image && systemctl --user restart yapbay-vite-pod.service && systemctl --user restart yapbay-vite.service",
     "stop-pod": "podman pod stop yapbay-vite",
     "logs": "journalctl --user -u yapbay-vite.service -f",
     "clean": "podman pod stop yapbay-vite && podman pod rm -f yapbay-vite"
