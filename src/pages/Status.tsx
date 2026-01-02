@@ -69,15 +69,17 @@ async function fetchGitHubCommit(commitHash: string): Promise<GitHubCommit | nul
     );
 
     if (!response.ok) {
-      if (response.status === 404) {
-        return null; // Commit not found
+      // Handle 404 (not found) and 422 (unprocessable entity - often means short hash not unique enough)
+      if (response.status === 404 || response.status === 422) {
+        return null; // Commit not found or invalid hash format
       }
       throw new Error(`GitHub API error: ${response.status}`);
     }
 
     return await response.json();
   } catch (error) {
-    console.warn('Failed to fetch GitHub commit:', error);
+    // Silently handle errors - 404/422 are expected for short hashes or missing commits
+    // Network errors are also handled gracefully
     return null;
   }
 }
