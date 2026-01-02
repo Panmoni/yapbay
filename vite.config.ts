@@ -28,31 +28,6 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // Vendor chunks for better caching
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'dynamic-labs': [
-            '@dynamic-labs/sdk-react-core',
-            '@dynamic-labs/solana',
-          ],
-          'solana-vendor': [
-            '@solana/web3.js',
-            '@solana/spl-token',
-            '@coral-xyz/anchor',
-          ],
-          'ui-vendor': [
-            '@radix-ui/react-avatar',
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-select',
-            '@radix-ui/react-tooltip',
-          ],
-          'utils-vendor': ['axios', 'viem', 'date-fns', 'lucide-react'],
-        },
-      },
-    },
     chunkSizeWarningLimit: 1000, // Increase limit to 1MB to reduce warnings
   },
   server: {
