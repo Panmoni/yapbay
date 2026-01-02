@@ -54,7 +54,7 @@
   },
   "overrides": {
     "axios": "^1.13.2",
-    "bigint-buffer": "^1.1.5",
+    "bigint-buffer": "npm:bigint-buffer-fixed@^1.1.6",
     "valibot": "^1.2.0",
     "@mysten/sui": {
       "valibot": "^1.2.0"
