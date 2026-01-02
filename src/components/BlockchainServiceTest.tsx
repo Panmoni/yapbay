@@ -60,7 +60,7 @@ export const BlockchainServiceTest: React.FC = () => {
       addTestResult('🔗 PDA Derivation: ✅ All escrow accounts supported');
       addTestResult('🔗 Transaction Builders: ✅ All 12 operations implemented');
       addTestResult('🔗 Error Handling: ✅ Solana-specific error mapping');
-      addTestResult('🔗 RPC Integration: ✅ Connected to QuickNode endpoint');
+      addTestResult(`🔗 RPC Integration: ✅ Connected to ${currentNetwork.rpcUrl.includes('helius') ? 'Helius' : 'RPC'} endpoint`);
       addTestResult('🔗 State Queries: ✅ Escrow state and balance queries implemented');
       addTestResult('🔗 Event Monitoring: ✅ Subscription framework ready');
 

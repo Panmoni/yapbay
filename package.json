@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "generate-version": "node scripts/generate-version.js",
+    "test-rpc": "node scripts/test-helius-rpc.js",
     "dev": "vite",
     "build": "npm run generate-version && tsc -b && vite build",
     "lint": "eslint .",
