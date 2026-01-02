@@ -9,7 +9,7 @@
     "build": "npm run generate-version && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build-image": "podman build -f Containerfile -t localhost/yapbay-vite:latest .",
+    "build-image": "podman build --network=host -f Containerfile -t localhost/yapbay-vite:latest .",
     "create-pod": "podman pod exists yapbay-vite || podman pod create --name yapbay-vite --network host",
     "start-app": "podman container exists yapbay-app || podman run -d --name yapbay-app --pod yapbay-vite --mount type=bind,source=$(pwd)/.env,target=/app/.env,ro localhost/yapbay-vite:latest",
     "deploy": "npm run build-image && npm run create-pod && npm run start-app",
@@ -19,8 +19,8 @@
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.31.1",
-    "@dynamic-labs/sdk-react-core": "^4.28.0",
-    "@dynamic-labs/solana": "^4.28.0",
+    "@dynamic-labs/sdk-react-core": "^4.52.2",
+    "@dynamic-labs/solana": "^4.52.2",
     "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@fontsource/inter": "^5.2.5",
     "@radix-ui/react-avatar": "^1.1.3",
@@ -35,7 +35,7 @@
     "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.0",
     "@types/react-router-dom": "^5.3.3",
-    "axios": "^1.8.4",
+    "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -46,10 +46,18 @@
     "next-themes": "^0.4.6",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-router-dom": "^7.4.0",
+    "react-router-dom": "^7.11.0",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.0.2",
     "viem": "^2.26.5"
+  },
+  "overrides": {
+    "axios": "^1.13.2",
+    "bigint-buffer": "^1.1.5",
+    "valibot": "^1.2.0",
+    "@mysten/sui": {
+      "valibot": "^1.2.0"
+    }
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
@@ -70,7 +78,7 @@
     "tailwindcss": "^4.1.4",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.0",
+    "vite": "^6.4.1",
     "vite-plugin-node-polyfills": "^0.23.0"
   }
 }
