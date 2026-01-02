@@ -2,11 +2,151 @@ import React, { useEffect, useState } from 'react';
 import { getHealth, HealthResponse } from '@/api';
 import Container from '@/components/Shared/Container';
 import { versionInfo } from '@/utils/version';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
+
+// GitHub repository configuration
+const GITHUB_OWNER = 'Panmoni';
+const GITHUB_REPO = 'yapbay';
+const GITHUB_REPO_URL = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`;
+const GITHUB_API_BASE = 'https://api.github.com';
+
+// GitHub API types
+interface GitHubCommit {
+  sha: string;
+  commit: {
+    message: string;
+    author: {
+      name: string;
+      email: string;
+      date: string;
+    };
+    committer: {
+      name: string;
+      email: string;
+      date: string;
+    };
+  };
+  author: {
+    login: string;
+    avatar_url: string;
+  } | null;
+  html_url: string;
+}
+
+// Helper function to format wallet address
+function formatWalletAddress(address: string | null | undefined): string {
+  if (!address) return 'Not Connected';
+  if (address.length <= 10) return address;
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+}
+
+// Helper function to safely format date
+function formatDate(dateString: string | null | undefined): string {
+  if (!dateString || dateString === 'unknown' || dateString === 'Invalid Date') {
+    return 'Unknown';
+  }
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
+    return date.toLocaleString();
+  } catch {
+    return 'Invalid Date';
+  }
+}
+
+// Helper function to fetch commit details from GitHub API
+async function fetchGitHubCommit(commitHash: string): Promise<GitHubCommit | null> {
+  try {
+    const response = await fetch(
+      `${GITHUB_API_BASE}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits/${commitHash}`,
+      {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null; // Commit not found
+      }
+      throw new Error(`GitHub API error: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.warn('Failed to fetch GitHub commit:', error);
+    return null;
+  }
+}
+
+// Helper function to get GitHub commit URL
+function getGitHubCommitUrl(commitHash: string | null | undefined): string | null {
+  if (!commitHash || commitHash === 'unknown') return null;
+  return `${GITHUB_REPO_URL}/commit/${commitHash}`;
+}
+
+// Helper component to render commit hash with GitHub link and details
+function CommitHashLink({ 
+  commitHash, 
+  commitDetails 
+}: { 
+  commitHash: string | null | undefined; 
+  commitDetails?: GitHubCommit | null;
+}) {
+  if (!commitHash || commitHash === 'unknown') {
+    return <span className="text-gray-500">Unknown</span>;
+  }
+
+  const githubUrl = getGitHubCommitUrl(commitHash);
+  const shortHash = commitHash.length > 7 ? commitHash.substring(0, 7) : commitHash;
+  const commitMessage = commitDetails?.commit.message.split('\n')[0] || '';
+  const author = commitDetails?.author?.login || commitDetails?.commit.author.name || '';
+  
+  if (githubUrl) {
+    return (
+      <div className="flex flex-col gap-1">
+        <a
+          href={githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-mono text-sm text-blue-600 hover:text-blue-800 hover:underline inline-block"
+          title={commitMessage || `View commit ${commitHash} on GitHub`}
+        >
+          {shortHash}
+        </a>
+        {commitDetails && (
+          <div className="text-xs text-gray-600">
+            {commitMessage && (
+              <div className="truncate max-w-md" title={commitMessage}>
+                {commitMessage}
+              </div>
+            )}
+            {author && (
+              <div className="text-gray-500 mt-1">
+                by {author}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return <span className="font-mono text-sm">{shortHash}</span>;
+}
 
 export const Status: React.FC = () => {
+  const { primaryWallet } = useDynamicContext();
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [apiCommitDetails, setApiCommitDetails] = useState<GitHubCommit | null>(null);
+  const [frontendCommitDetails, setFrontendCommitDetails] = useState<GitHubCommit | null>(null);
+  const [loadingCommits, setLoadingCommits] = useState(false);
 
+  // Fetch health data
   useEffect(() => {
     const fetchHealth = async () => {
       try {
@@ -22,6 +162,39 @@ export const Status: React.FC = () => {
     const interval = setInterval(fetchHealth, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, []);
+
+  // Fetch GitHub commit details when we have commit hashes
+  useEffect(() => {
+    const fetchCommitDetails = async () => {
+      if (!health) return;
+
+      setLoadingCommits(true);
+      const promises: Promise<void>[] = [];
+
+      // Fetch API commit details
+      if (health.apiVersion.gitCommitHash && health.apiVersion.gitCommitHash !== 'unknown') {
+        promises.push(
+          fetchGitHubCommit(health.apiVersion.gitCommitHash).then(details => {
+            setApiCommitDetails(details);
+          })
+        );
+      }
+
+      // Fetch frontend commit details
+      if (versionInfo.gitCommitHash && versionInfo.gitCommitHash !== 'unknown') {
+        promises.push(
+          fetchGitHubCommit(versionInfo.gitCommitHash).then(details => {
+            setFrontendCommitDetails(details);
+          })
+        );
+      }
+
+      await Promise.allSettled(promises);
+      setLoadingCommits(false);
+    };
+
+    fetchCommitDetails();
+  }, [health]);
 
   return (
     <Container>
@@ -45,7 +218,30 @@ export const Status: React.FC = () => {
                     {new Date(health.timestamp).toLocaleString()}
                   </p>
                   <p>
-                    <span className="font-semibold">User Wallet:</span> {health.userWallet}
+                    <span className="font-semibold">User Wallet (API):</span>{' '}
+                    {health.userWallet && health.userWallet !== 'Not Found' ? (
+                      <span
+                        className="font-mono text-sm"
+                        title={health.userWallet}
+                      >
+                        {formatWalletAddress(health.userWallet)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500">Not Found</span>
+                    )}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Connected Wallet (Frontend):</span>{' '}
+                    {primaryWallet?.address ? (
+                      <span
+                        className="font-mono text-sm"
+                        title={primaryWallet.address}
+                      >
+                        {formatWalletAddress(primaryWallet.address)}
+                      </span>
+                    ) : (
+                      <span className="text-gray-500">Not Connected</span>
+                    )}
                   </p>
                   <p>
                     <span className="font-semibold">Database Status:</span> {health.dbStatus}
@@ -77,14 +273,26 @@ export const Status: React.FC = () => {
                 <div>
                   <p>
                     <span className="font-semibold">Git Commit:</span>{' '}
-                    {health.apiVersion.gitCommitHash}
+                    {loadingCommits ? (
+                      <span className="text-gray-500 text-sm">Loading...</span>
+                    ) : (
+                      <CommitHashLink 
+                        commitHash={health.apiVersion.gitCommitHash} 
+                        commitDetails={apiCommitDetails}
+                      />
+                    )}
                   </p>
                   <p>
-                    <span className="font-semibold">Git Branch:</span> {health.apiVersion.gitBranch}
+                    <span className="font-semibold">Git Branch:</span>{' '}
+                    {health.apiVersion.gitBranch && health.apiVersion.gitBranch !== 'unknown' ? (
+                      health.apiVersion.gitBranch
+                    ) : (
+                      <span className="text-gray-500">Unknown</span>
+                    )}
                   </p>
                   <p>
                     <span className="font-semibold">Git Commit Date:</span>{' '}
-                    {new Date(health.apiVersion.gitCommitDate).toLocaleString()}
+                    {formatDate(health.apiVersion.gitCommitDate)}
                   </p>
                   <p>
                     <span className="font-semibold">Build Date:</span>{' '}
@@ -106,14 +314,35 @@ export const Status: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p>
-                    <span className="font-semibold">Git Commit:</span> {versionInfo.gitCommitHash}
+                    <span className="font-semibold">Git Commit:</span>{' '}
+                    {loadingCommits ? (
+                      <span className="text-gray-500 text-sm">Loading...</span>
+                    ) : (
+                      <CommitHashLink 
+                        commitHash={versionInfo.gitCommitHash} 
+                        commitDetails={frontendCommitDetails}
+                      />
+                    )}
                   </p>
                   <p>
-                    <span className="font-semibold">Git Branch:</span> {versionInfo.gitBranch}
+                    <span className="font-semibold">Git Branch:</span>{' '}
+                    {versionInfo.gitBranch && versionInfo.gitBranch !== 'unknown' ? (
+                      versionInfo.gitBranch
+                    ) : (
+                      <span className="text-gray-500">Unknown</span>
+                    )}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Git Commit Date:</span>{' '}
+                    {versionInfo.gitCommitDate && versionInfo.gitCommitDate !== 'unknown' ? (
+                      formatDate(versionInfo.gitCommitDate)
+                    ) : (
+                      <span className="text-gray-500">Unknown</span>
+                    )}
                   </p>
                   <p>
                     <span className="font-semibold">Build Date:</span>{' '}
-                    {new Date(versionInfo.buildDate).toLocaleString()}
+                    {formatDate(versionInfo.buildDate)}
                   </p>
                   <p>
                     <span className="font-semibold">Dirty Build:</span>{' '}
@@ -355,7 +584,20 @@ export const Status: React.FC = () => {
                       </div>
                       {network.error && (
                         <div className="mt-2 p-2 bg-red-50 text-red-700 rounded text-sm">
-                          Error: {network.error}
+                          <p className="font-semibold">Error:</p>
+                          <p className="font-mono text-xs break-all">{network.error}</p>
+                          {network.error.includes('fetch failed') && (
+                            <p className="mt-1 text-xs">
+                              This may indicate an RPC connection issue. Check if the RPC endpoint is
+                              accessible and properly configured.
+                            </p>
+                          )}
+                          {network.error.includes('SSL') && (
+                            <p className="mt-1 text-xs">
+                              SSL/TLS connection error. The RPC endpoint may have certificate issues or
+                              be blocked by network security settings.
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
