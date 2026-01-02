@@ -1,28 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useDynamicContext, getAuthToken } from '@dynamic-labs/sdk-react-core';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
-import HomePage from './Home';
-import CreateOfferPage from '@/offer/CreateOfferPage';
-import AccountPage from '@/my/MyAccountPage';
 import { getAccount, setAuthToken } from './api';
 import { Account } from './api';
 import Container from '@/components/Shared/Container';
-
-import MyOffersPage from './my/MyOffersPage';
-import MyTradesPage from './my/MyTradesPage';
-import MyEscrowsPage from './my/MyEscrowsPage';
-import OfferDetailPage from '@/offer/OfferDetailPage';
-import MyTransactionsPage from './my/MyTransactionsPage';
-
-import EditOfferPage from '@/offer/EditOfferPage';
-import TradePage from './TradePage';
-import NotFoundPage from '@/pages/NotFoundPage'; // Import the 404 page
-import Status from './pages/Status';
-import { NetworkTestPage } from './pages/NetworkTestPage'; // Import the network test page
-import { Toaster } from 'sonner'; // Import Toaster
+import { Toaster } from 'sonner';
 import { dispatchAuthStateChange } from './utils/events';
+
+// Lazy load route components for code splitting
+const HomePage = lazy(() => import('./Home'));
+const CreateOfferPage = lazy(() => import('@/offer/CreateOfferPage'));
+const AccountPage = lazy(() => import('@/my/MyAccountPage'));
+const MyOffersPage = lazy(() => import('./my/MyOffersPage'));
+const MyTradesPage = lazy(() => import('./my/MyTradesPage'));
+const MyEscrowsPage = lazy(() => import('./my/MyEscrowsPage'));
+const OfferDetailPage = lazy(() => import('@/offer/OfferDetailPage'));
+const MyTransactionsPage = lazy(() => import('./my/MyTransactionsPage'));
+const EditOfferPage = lazy(() => import('@/offer/EditOfferPage'));
+const TradePage = lazy(() => import('./TradePage'));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const Status = lazy(() => import('./pages/Status'));
+// NetworkTestPage is a named export, so we need to map it to default
+const NetworkTestPage = lazy(() => 
+  import('./pages/NetworkTestPage').then(module => ({ default: module.NetworkTestPage }))
+);
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-gray-100 mx-auto"></div>
+      <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+    </div>
+  </div>
+);
 
 function App() {
   const { primaryWallet } = useDynamicContext();
@@ -72,24 +85,26 @@ function App() {
         <Header isLoggedIn={!!primaryWallet} account={account} />
         <main className="main-content">
           <Container>
-            <Routes>
-              <Route
-                path="/account"
-                element={<AccountPage account={account} setAccount={setAccount} />}
-              />
-              <Route path="/" element={<HomePage />} />
-              <Route path="/create-offer" element={<CreateOfferPage account={account} />} />
-              <Route path="/offers" element={<MyOffersPage account={account} />} />
-              <Route path="/trades" element={<MyTradesPage account={account} />} />
-              <Route path="/escrows" element={<MyEscrowsPage account={account} />} />
-              <Route path="/transactions" element={<MyTransactionsPage account={account} />} />
-              <Route path="/offer/:id" element={<OfferDetailPage />} />
-              <Route path="/edit-offer/:id" element={<EditOfferPage />} />
-              <Route path="/trade/:id" element={<TradePage />} />
-              <Route path="/status" element={<Status />} />
-              <Route path="/network-test" element={<NetworkTestPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route
+                  path="/account"
+                  element={<AccountPage account={account} setAccount={setAccount} />}
+                />
+                <Route path="/" element={<HomePage />} />
+                <Route path="/create-offer" element={<CreateOfferPage account={account} />} />
+                <Route path="/offers" element={<MyOffersPage account={account} />} />
+                <Route path="/trades" element={<MyTradesPage account={account} />} />
+                <Route path="/escrows" element={<MyEscrowsPage account={account} />} />
+                <Route path="/transactions" element={<MyTransactionsPage account={account} />} />
+                <Route path="/offer/:id" element={<OfferDetailPage />} />
+                <Route path="/edit-offer/:id" element={<EditOfferPage />} />
+                <Route path="/trade/:id" element={<TradePage />} />
+                <Route path="/status" element={<Status />} />
+                <Route path="/network-test" element={<NetworkTestPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Routes>
+            </Suspense>
           </Container>
         </main>
         <Footer />
