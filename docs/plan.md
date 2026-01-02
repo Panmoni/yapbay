@@ -1,5 +1,12 @@
 # YapBay Frontend Development Plan
 
+
+need to finish full remittance flow and do some marketing
+
+1. finish the full MVP with full remittance ability, get it going with background agents or some shit alongside my other work
+2. start marketing this bitch, create some videos and shit
+3. deploy to mainnet
+
 10 lint problems
 
 ## Post-MVP

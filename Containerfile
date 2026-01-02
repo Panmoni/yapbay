@@ -7,8 +7,9 @@ RUN apk add --no-cache git
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files and scripts (needed for postinstall)
 COPY package*.json ./
+COPY scripts/ ./scripts/
 
 # Configure npm for better reliability in container builds
 RUN npm config set fetch-timeout 600000 && \
